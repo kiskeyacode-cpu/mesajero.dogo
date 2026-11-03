@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Guías por conductor · Base de datos</title>
+<style>
+:root{
+  --bg:#f4f6fa; --card:#fff; --ink:#1e293b; --muted:#64748b; --line:#e2e8f0; --head:#1e293b;
+  --green:#dcfce7; --gtxt:#166534; --orange:#ffedd5; --otxt:#9a3412; --red:#fee2e2; --rtxt:#991b1b;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);padding:24px}
+.wrap{max-width:1250px;margin:0 auto}
+h1{margin:0 0 4px;font-size:26px}
+h2{font-size:17px;margin:0 0 12px}
+.sub{color:var(--muted);margin-bottom:12px}
+.bar{height:3px;background:#dc2626;margin:12px 0 20px;border-radius:2px}
+.panel{background:var(--card);border-radius:12px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,.08);margin-bottom:20px}
+textarea{width:100%;min-height:140px;font-family:Consolas,monospace;font-size:13px;padding:10px;border:1px solid var(--line);border-radius:8px;resize:vertical}
+.controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:10px}
+button{background:#2563eb;color:#fff;border:0;padding:9px 14px;border-radius:8px;cursor:pointer;font-weight:600}
+button.sec{background:#64748b}
+button.ok{background:#16a34a}
+button.warn{background:#dc2626}
+input[type=text],input[type=date],input[type=datetime-local]{padding:7px;border:1px solid var(--line);border-radius:8px;font-size:14px}
+input[type=text].wide{width:260px}
+label{font-size:14px;display:flex;align-items:center;gap:6px}
+.banner{padding:10px 14px;border-radius:8px;margin-bottom:14px;font-size:14px}
+.b-new{background:#fef3c7;color:#92400e}
+.b-ok{background:#dcfce7;color:#166534}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:16px}
+.card{border-radius:12px;padding:14px;text-align:center}
+.card .n{font-size:24px;font-weight:700}
+.card .l{font-size:13px;margin-top:4px}
+.c-blue{background:#dbeafe;color:#1e40af}
+.c-yellow{background:#fef3c7;color:#92400e}
+.c-purple{background:#ede9fe;color:#6d28d9}
+.c-red{background:#fecaca;color:#991b1b}
+.c-green{background:#dcfce7;color:#166534}
+table{width:100%;border-collapse:collapse;font-size:14px;background:#fff}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:center}
+th:first-child,td:first-child{text-align:left}
+thead th{background:var(--head);color:#fff}
+tfoot td{background:var(--head);color:#fff;font-weight:700}
+td.g{background:var(--green);color:var(--gtxt);font-weight:600}
+td.o{background:var(--orange);color:var(--otxt);font-weight:600}
+td.r{background:var(--red);color:var(--rtxt);font-weight:600}
+.code{font-family:Consolas,monospace}
+.scroll{max-height:460px;overflow:auto;border-radius:8px}
+.bars{display:flex;align-items:center}
+.bars .track{flex:1;background:#eef2f7;border-radius:4px;height:14px;overflow:hidden}
+.bars .fill{height:100%;background:#3b82f6}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.chip{background:#f1f5f9;border-radius:999px;padding:6px 12px;font-size:14px}
+.nuevo{background:#f59e0b;color:#fff;font-size:11px;font-weight:700;padding:2px 6px;border-radius:999px;margin-left:4px}
+.mapa{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.tile{border-radius:10px;padding:12px;min-height:76px;display:flex;flex-direction:column;justify-content:space-between;font-size:13px}
+.tile b{font-size:20px}
+.legend{font-size:13px;color:var(--muted);margin-top:10px}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin:0 4px 0 10px;vertical-align:middle}
+.row{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.muted{color:var(--muted);font-size:13px}
+.hidden{display:none}
+.empty{color:var(--muted);text-align:center;padding:24px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Guías por conductor · Base de datos</h1>
+  <div class="sub" id="sub">Carga tu base JSON o empieza pegando datos</div>
+  <div class="bar"></div>
+
+  <!-- 1. Base de datos -->
+  <div class="panel">
+    <h2>Base de datos (JSON)</h2>
+    <div class="controls">
+      <button id="btnCargarJSON" class="sec">Cargar data (JSON)</button>
+      <button id="btnGuardarJSON" class="ok">Guardar data (descargar JSON)</button>
+      <button id="btnBorrar" class="warn">Borrar base</button>
+      <span class="muted" id="infoDB"></span>
+    </div>
+    <input type="file" id="fileJSON" accept=".json,application/json" class="hidden">
+    <div class="muted" style="margin-top:8px" id="estado">Sin datos todavía</div>
+  </div>
+
+  <!-- 2. Pegar y procesar -->
+  <div class="panel">
+    <h2>Procesar nuevo rastreo</h2>
+    <textarea id="data" placeholder="Pega aquí el rastreo del conductor y la lista de guías..."></textarea>
+    <div class="controls">
+      <input type="text" id="nombreManual" class="wide" placeholder="Nombre del conductor (solo si no se detecta)">
+      <button id="btnProcesar">Procesar y guardar</button>
+      <button class="sec" id="btnLimpiarTexto">Limpiar texto</button>
+      <button class="sec" id="btnTxtLote">Descargar TXT del lote</button>
+    </div>
+    <div id="bannerNuevo"></div>
+  </div>
+
+  <!-- 3. Lote actual -->
+  <div id="lote" class="hidden">
+    <div class="panel">
+      <h2 id="tituloLote">Lote actual</h2>
+      <div class="controls" style="margin-bottom:12px">
+        <label><input type="checkbox" id="live" checked> Hora actual en vivo</label>
+        <label>Hora de referencia:
+          <input type="datetime-local" id="refTime" disabled>
+        </label>
+      </div>
+      <div class="cards">
+        <div class="card c-blue"><div class="n" id="cTotal">0</div><div class="l">Guías en el lote</div></div>
+        <div class="card c-purple"><div class="n" id="cCiudades">0</div><div class="l">Ciudades</div></div>
+        <div class="card c-yellow"><div class="n" id="cZips">0</div><div class="l">Códigos postales</div></div>
+        <div class="card c-red"><div class="n" id="cAntigua">0:00:00</div><div class="l">Más tiempo en camino</div></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Tabla organizada</h2>
+      <div class="scroll"><div id="tablaOrganizada"></div></div>
+    </div>
+
+    <div class="panel">
+      <h2>Por ciudad</h2>
+      <div id="tablaCiudad"></div>
+    </div>
+
+    <div class="panel">
+      <h2>Por código postal</h2>
+      <div id="tablaZip"></div>
+    </div>
+
+    <div class="panel">
+      <h2>Por hora de salida (OFD)</h2>
+      <div id="tablaHora"></div>
+    </div>
+  </div>
+
+  <!-- 4. Historial -->
+  <div class="panel">
+    <h2>Historial: registros por conductor y fecha</h2>
+    <div class="row">
+      <label>Desde <input type="date" id="desde"></label>
+      <label>Hasta <input type="date" id="hasta"></label>
+      <button class="sec" id="btnHoy">Hoy</button>
+      <button class="sec" id="btnTodo">Todo el historial</button>
+    </div>
+
+    <div class="muted" style="margin-bottom:6px">Conductores (marca los que quieres ver):</div>
+    <div class="chips">
+      <label class="chip"><input type="checkbox" id="chkTodos" checked> Todos</label>
+    </div>
+    <div class="chips" id="listaConductores"></div>
+
+    <div class="cards" style="margin-top:14px">
+      <div class="card c-blue"><div class="n" id="hRegistros">0</div><div class="l">Registros en el rango</div></div>
+      <div class="card c-green"><div class="n" id="hConductores">0</div><div class="l">Conductores seleccionados</div></div>
+      <div class="card c-purple"><div class="n" id="hCiudades">0</div><div class="l">Ciudades</div></div>
+      <div class="card c-yellow"><div class="n" id="hZips">0</div><div class="l">Códigos postales</div></div>
+    </div>
+
+    <h2>Registros asignados por conductor</h2>
+    <div id="tablaHistConductor"></div>
+
+    <h2 style="margin-top:20px">Mapa de zonas</h2>
+    <div class="row">
+      <label>Agrupar por
+        <select id="mapaTipo">
+          <option value="ciudad">Ciudad</option>
+          <option value="zip">Código postal</option>
+        </select>
+      </label>
+    </div>
+    <div class="mapa" id="mapaZonas"></div>
+    <div class="muted" style="margin-top:8px">Las zonas se muestran por ciudad o código postal. Más intenso = más registros.</div>
+
+    <h2 style="margin-top:20px">Guías de la selección</h2>
+    <div class="row">
+      <button id="btnTxtSel" class="ok">Descargar TXT de la selección</button>
+      <span class="muted" id="infoSel"></span>
+    </div>
+    <div class="scroll"><div id="tablaGuias"></div></div>
+  </div>
+
+  <div id="vacio" class="empty panel hidden">No hay datos todavía. Carga tu JSON o procesa un rastreo.</div>
+</div>
+
+<script>
+const DB_KEY = 'guiasDB_v1';
+const $ = id => document.getElementById(id);
+const pad = n => String(n).padStart(2, '0');
+
+function esc(s) {
+  return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function fmtFecha(d) {
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+}
+function ymd(d) {
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+}
+function fmtTiempo(ms) {
+  const s = Math.floor(ms / 1000);
+  return `${Math.floor(s/3600)}:${pad(Math.floor((s%3600)/60))}:${pad(s%60)}`;
+}
+function claseTiempo(ms) {
+  const h = ms / 3600000;
+  return h < 1 ? 'g' : h < 3 ? 'o' : 'r';
+}
+function nombreSeguro(s) {
+  return String(s).replace(/[^\w\-]+/g, '_').replace(/^_+|_+$/g, '') || 'sin_nombre';
+}
+function descargar(nombre, contenido, tipo) {
+  const blob = new Blob([contenido], { type: tipo });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = nombre;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+}
+
+/* ================= BASE DE DATOS ================= */
+let db = cargarLocal();
+let batch = null;                 // { conductor, driver, items }
+const nuevosSesion = new Set();   // conductores detectados por primera vez en esta sesión
+const desmarcados = new Set();    // conductores desmarcados en el filtro
+
+function vacioDB() {
+  return { version: 1, conductores: {}, registros: {} };
+}
+function cargarLocal() {
+  try {
+    const raw = localStorage.getItem(DB_KEY);
+    if (raw) {
+      const d = JSON.parse(raw);
+      if (d && typeof d.registros === 'object') return { version: 1, conductores: d.conductores || {}, registros: d.registros };
+    }
+  } catch (e) {}
+  return vacioDB();
+}
+function guardarLocal() {
+  try {
+    localStorage.setItem(DB_KEY, JSON.stringify(db));
+    $('estado').textContent = 'Autoguardado en este navegador · ' + fmtFecha(new Date());
+  } catch (e) {
+    $('estado').textContent = 'No se pudo autoguardar: ' + e.message + '. Usa "Guardar data".';
+  }
+  infoDB();
+}
+function infoDB() {
+  $('infoDB').textContent = `${Object.keys(db.registros).length} registros · ${Object.keys(db.conductores).length} conductores`;
+}
+
+/* ================= PARSEO ================= */
+function parseGuias(text) {
+  const out = [];
+  const re = /Delivery(\d+)\s*OFD Time:\s*(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\s*Ciudad:\s*([^\r\n]*?)\s*zipCode:\s*(\d+)/g;
+  let m;
+  while ((m = re.exec(text))) {
+    const ofd = new Date(m[2].replace(' ', 'T'));
+    if (isNaN(ofd)) continue;
+    out.push({ code: m[1], ofd, ciudad: m[3].trim() || 'Sin ciudad', zip: m[4] });
+  }
+  return out;
+}
+function parseConductor(text) {
+  const g = re => { const m = text.match(re); return m ? m[1].trim() : ''; };
+  const d = {
+    nombre: g(/Nombre del conductor\s+([^\r\n]+)/i),
+    id: g(/Identificaci\S+ del conductor\s+([^\r\n]+)/i),
+    tipo: g(/Driver Type\s+([^\r\n]+)/i),
+    proveedor: g(/Proveedor\s+([^\r\n]+)/i),
+    tiempoOfd: g(/Tiempo ofd\s+([^\r\n]+)/i)
+  };
+  return (d.nombre || d.id || d.proveedor) ? d : null;
+}
+
+/* ================= PROCESAR ================= */
+function procesar() {
+  const texto = $('data').value;
+  const items = parseGuias(texto);
+  if (!items.length) {
+    alert('No encontré guías. Revisa que el texto incluya líneas como "Delivery...OFD Time:... Ciudad:... zipCode:...".');
+    return;
+  }
+  const drv = parseConductor(texto);
+  const nombre = (drv && drv.nombre) || $('nombreManual').value.trim() || 'Sin nombre';
+  const ahora = fmtFecha(new Date());
+
+  let esNuevo = false;
+  if (!db.conductores[nombre]) {
+    db.conductores[nombre] = { nombre, id: '', proveedor: '', tipo: '', primeraVez: ymd(new Date()) };
+    nuevosSesion.add(nombre);
+    esNuevo = true;
+  }
+  if (drv) {
+    const c = db.conductores[nombre];
+    c.id = drv.id || c.id;
+    c.proveedor = drv.proveedor || c.proveedor;
+    c.tipo = drv.tipo || c.tipo;
+  }
+
+  let nuevos = 0, actualizados = 0;
+  items.forEach(it => {
+    const existe = !!db.registros[it.code];
+    db.registros[it.code] = {
+      codigo: it.code,
+      conductor: nombre,
+      fecha: ymd(it.ofd),
+      ofd: fmtFecha(it.ofd),
+      ciudad: it.ciudad,
+      zip: it.zip,
+      cargado: ahora
+    };
+    existe ? actualizados++ : nuevos++;
+  });
+
+  batch = { conductor: nombre, driver: drv, items };
+  guardarLocal();
+
+  $('bannerNuevo').innerHTML =
+    (esNuevo ? `<div class="banner b-new">Conductor nuevo detectado y registrado: <strong>${esc(nombre)}</strong></div>` : '') +
+    `<div class="banner b-ok">${nuevos} guías nuevas · ${actualizados} actualizadas · conductor: <strong>${esc(nombre)}</strong></div>`;
+
+  renderSelector();
+  renderLote();
+  renderHistorial();
+  $('vacio').classList.add('hidden');
+}
+
+/* ================= LOTE ACTUAL ================= */
+function renderLote() {
+  if (!batch) {
+    $('lote').classList.add('hidden');
+    return;
+  }
+  $('lote').classList.remove('hidden');
+  $('tituloLote').textContent = `Lote actual · ${batch.conductor}`;
+
+  const ref = $('live').checked ? new Date() : new Date($('refTime').value);
+  const data = batch.items.map(r => {
+    const ms = Math.max(0, ref - r.ofd);
+    return { ...r, ms, clase: claseTiempo(ms), conductor: batch.conductor };
+  });
+  const ciudades = new Set(data.map(r => r.ciudad));
+  const zips = new Set(data.map(r => r.zip));
+  $('cTotal').textContent = data.length;
+  $('cCiudades').textContent = ciudades.size;
+  $('cZips').textContent = zips.size;
+  $('cAntigua').textContent = fmtTiempo(Math.max(...data.map(r => r.ms)));
+
+  // Tabla organizada
+  const orden = data.slice().sort((a, b) => a.ofd - b.ofd);
+  let t = '<table><thead><tr><th>Conductor</th><th>Código</th><th>Fecha</th><th>Hora OFD</th><th>Ciudad</th><th>Zip</th><th>En camino (h:m:s)</th></tr></thead><tbody>';
+  orden.forEach(r => {
+    t += `<tr><td>${esc(r.conductor)}</td><td class="code">${esc(r.code)}</td><td>${ymd(r.ofd)}</td><td>${pad(r.ofd.getHours())}:${pad(r.ofd.getMinutes())}:${pad(r.ofd.getSeconds())}</td><td>${esc(r.ciudad)}</td><td>${esc(r.zip)}</td><td class="${r.clase}">${fmtTiempo(r.ms)}</td></tr>`;
+  });
+  t += `</tbody><tfoot><tr><td>Total</td><td>${data.length}</td><td colspan="5"></td></tr></tfoot></table>`;
+  $('tablaOrganizada').innerHTML = t;
+
+  // Por ciudad
+  const porCiudad = {};
+  data.forEach(r => {
+    const g = (porCiudad[r.ciudad] ||= { total: 0, zips: {}, maxMs: 0 });
+    g.total++; g.zips[r.zip] = (g.zips[r.zip] || 0) + 1; g.maxMs = Math.max(g.maxMs, r.ms);
+  });
+  let c = '<table><thead><tr><th>Ciudad</th><th>Guías</th><th>Códigos postales</th><th>Más tiempo en camino</th></tr></thead><tbody>';
+  Object.entries(porCiudad).sort((a, b) => b[1].total - a[1].total).forEach(([ciudad, g]) => {
+    const zs = Object.entries(g.zips).sort((a, b) => b[1] - a[1]).map(([z, n]) => `${esc(z)} (${n})`).join(', ');
+    c += `<tr><td>${esc(ciudad)}</td><td><strong>${g.total}</strong></td><td>${zs}</td><td class="${claseTiempo(g.maxMs)}">${fmtTiempo(g.maxMs)}</td></tr>`;
+  });
+  c += '</tbody></table>';
+  $('tablaCiudad').innerHTML = c;
+
+  // Por zip
+  const porZip = {};
+  data.forEach(r => {
+    const g = (porZip[r.zip] ||= { total: 0, ciudades: new Set() });
+    g.total++; g.ciudades.add(r.ciudad);
+  });
+  let z = '<table><thead><tr><th>Código postal</th><th>Guías</th><th>Ciudad</th></tr></thead><tbody>';
+  Object.entries(porZip).sort((a, b) => b[1].total - a[1].total).forEach(([zip, g]) => {
+    z += `<tr><td>${esc(zip)}</td><td><strong>${g.total}</strong></td><td>${esc([...g.ciudades].join(', '))}</td></tr>`;
+  });
+  z += '</tbody></table>';
+  $('tablaZip').innerHTML = z;
+
+  // Por hora
+  const porHora = {};
+  data.forEach(r => { const k = `${pad(r.ofd.getHours())}:00`; porHora[k] = (porHora[k] || 0) + 1; });
+  const filasH = Object.entries(porHora).sort((a, b) => a[0].localeCompare(b[0]));
+  const maxH = Math.max(...filasH.map(f => f[1]), 1);
+  let h = '<table><thead><tr><th>Hora</th><th>Guías</th><th style="width:50%">Distribución</th></tr></thead><tbody>';
+  filasH.forEach(([hora, n]) => {
+    h += `<tr><td>${hora}</td><td><strong>${n}</strong></td><td><div class="bars"><div class="track"><div class="fill" style="width:${(n/maxH*100).toFixed(1)}%"></div></div></div></td></tr>`;
+  });
+  h += '</tbody></table>';
+  $('tablaHora').innerHTML = h;
+
+  $('sub').textContent = `${data.length} guías en el lote · ${batch.conductor}`;
+}
+
+function txtDeRegistros(registros) {
+  const grupos = {};
+  registros.forEach(r => { (grupos[r.conductor] ||= []).push(r.codigo); });
+  return Object.keys(grupos).sort().map(nombre => {
+    const cods = grupos[nombre];
+    return `CONDUCTOR: ${nombre}\nTOTAL DE GUIAS: ${cods.length}\n\n${cods.join('\n')}\n`;
+  }).join('\n----------------------------------------\n\n');
+}
+
+/* ================= SELECTOR Y HISTORIAL ================= */
+function renderSelector() {
+  const nombres = Object.keys(db.conductores).sort();
+  $('listaConductores').innerHTML = nombres.map(n => `
+    <label class="chip"><input type="checkbox" class="chk" value="${esc(n)}" ${desmarcados.has(n) ? '' : 'checked'}>
+      ${esc(n)} ${nuevosSesion.has(n) ? '<span class="nuevo">NUEVO</span>' : ''}</label>`).join('');
+  const todos = nombres.length > 0 && nombres.every(n => !desmarcados.has(n));
+  $('chkTodos').checked = todos;
+  if (!$('desde').value || !$('hasta').value) {
+    const fechas = Object.values(db.registros).map(r => r.fecha).sort();
+    if (fechas.length) {
+      if (!$('desde').value) $('desde').value = fechas[0];
+      if (!$('hasta').value) $('hasta').value = fechas[fechas.length - 1];
+    }
+  }
+}
+
+function seleccionados() {
+  return new Set(Array.from(document.querySelectorAll('.chk:checked')).map(c => c.value));
+}
+
+function renderHistorial() {
+  const desde = $('desde').value;
+  const hasta = $('hasta').value;
+  const sel = seleccionados();
+  const regs = Object.values(db.registros)
+    .filter(r => (!desde || r.fecha >= desde) && (!hasta || r.fecha <= hasta) && sel.has(r.conductor));
+
+  if (!Object.keys(db.registros).length) {
+    $('vacio').classList.remove('hidden');
+  }
+
+  const ciudades = new Set(regs.map(r => r.ciudad));
+  const zips = new Set(regs.map(r => r.zip));
+  $('hRegistros').textContent = regs.length;
+  $('hConductores').textContent = sel.size;
+  $('hCiudades').textContent = ciudades.size;
+  $('hZips').textContent = zips.size;
+
+  // Por conductor
+  const porCond = {};
+  regs.forEach(r => {
+    const g = (porCond[r.conductor] ||= { total: 0, ciudades: new Set(), primera: r.fecha, ultima: r.fecha });
+    g.total++; g.ciudades.add(r.ciudad);
+    if (r.fecha < g.primera) g.primera = r.fecha;
+    if (r.fecha > g.ultima) g.ultima = r.fecha;
+  });
+  let t = '<table><thead><tr><th>Conductor</th><th>Registros</th><th>Primera fecha</th><th>Última fecha</th><th>Ciudades</th></tr></thead><tbody>';
+  Object.entries(porCond).sort((a, b) => b[1].total - a[1].total).forEach(([n, g]) => {
+    t += `<tr><td>${esc(n)}</td><td><strong>${g.total}</strong></td><td>${g.primera}</td><td>${g.ultima}</td><td>${g.ciudades.size}</td></tr>`;
+  });
+  t += `</tbody><tfoot><tr><td>Total</td><td>${regs.length}</td><td colspan="3"></td></tr></tfoot></table>`;
+  $('tablaHistConductor').innerHTML = t;
+
+  // Mapa de zonas
+  const tipo = $('mapaTipo').value;
+  const conteo = {};
+  regs.forEach(r => { const k = tipo === 'zip' ? r.zip : r.ciudad; conteo[k] = (conteo[k] || 0) + 1; });
+  const max = Math.max(...Object.values(conteo), 1);
+  $('mapaZonas').innerHTML = Object.entries(conteo).sort((a, b) => b[1] - a[1]).map(([k, n]) => {
+    const f = n / max;
+    const bg = `rgba(37,99,235,${(0.12 + 0.78 * f).toFixed(2)})`;
+    const color = f > 0.5 ? '#fff' : '#1e293b';
+    return `<div class="tile" style="background:${bg};color:${color}" title="${esc(k)}: ${n}">
+      <span>${esc(k)}</span><b>${n}</b></div>`;
+  }).join('') || '<div class="muted">Sin registros en el rango seleccionado</div>';
+
+  // Guías de la selección
+  const lista = regs.slice().sort((a, b) => b.fecha.localeCompare(a.fecha) || b.ofd.localeCompare(a.ofd)).slice(0, 500);
+  let g = '<table><thead><tr><th>Código</th><th>Conductor</th><th>Fecha</th><th>Ciudad</th><th>Zip</th></tr></thead><tbody>';
+  lista.forEach(r => {
+    g += `<tr><td class="code">${esc(r.codigo)}</td><td>${esc(r.conductor)}</td><td>${r.fecha}</td><td>${esc(r.ciudad)}</td><td>${esc(r.zip)}</td></tr>`;
+  });
+  g += '</tbody></table>';
+  $('tablaGuias').innerHTML = g;
+  $('infoSel').textContent = regs.length > 500 ? `Mostrando 500 de ${regs.length}. El TXT incluye todas.` : `${regs.length} guías en la selección`;
+}
+
+/* ================= JSON ================= */
+function cargarJSON(file) {
+  const lector = new FileReader();
+  lector.onload = () => {
+    try {
+      const d = JSON.parse(lector.result);
+      if (!d || typeof d.registros !== 'object') throw new Error('El archivo no tiene el formato de la base');
+      let nuevos = 0, actualizados = 0;
+      Object.entries(d.registros).forEach(([k, r]) => {
+        db.registros[k] ? actualizados++ : nuevos++;
+        db.registros[k] = r;
+      });
+      Object.entries(d.conductores || {}).forEach(([n, c]) => {
+        if (!db.conductores[n]) db.conductores[n] = c;
+      });
+      guardarLocal();
+      renderSelector();
+      renderHistorial();
+      $('estado').textContent = `Data cargada: ${nuevos} registros nuevos, ${actualizados} actualizados · ${fmtFecha(new Date())}`;
+    } catch (e) {
+      alert('No pude cargar el archivo: ' + e.message);
+    }
+  };
+  lector.readAsText(file);
+}
+
+/* ================= EVENTOS ================= */
+$('btnProcesar').onclick = procesar;
+
+$('btnLimpiarTexto').onclick = () => { $('data').value = ''; $('bannerNuevo').innerHTML = ''; };
+
+$('btnTxtLote').onclick = () => {
+  if (!batch) { alert('Primero procesa un rastreo.'); return; }
+  const regs = batch.items.map(it => ({ codigo: it.code, conductor: batch.conductor }));
+  descargar(`codigos_${nombreSeguro(batch.conductor)}_${ymd(new Date())}.txt`, txtDeRegistros(regs), 'text/plain;charset=utf-8');
+};
+
+$('btnCargarJSON').onclick = () => $('fileJSON').click();
+$('fileJSON').onchange = e => { if (e.target.files[0]) cargarJSON(e.target.files[0]); e.target.value = ''; };
+
+$('btnGuardarJSON').onclick = () => {
+  descargar(`base_guias_${ymd(new Date())}.json`, JSON.stringify(db, null, 2), 'application/json');
+  $('estado').textContent = 'Base descargada · ' + fmtFecha(new Date());
+};
+
+$('btnBorrar').onclick = () => {
+  if (!confirm('¿Borrar toda la base guardada en este navegador? Descarga el JSON antes si la necesitas.')) return;
+  db = vacioDB();
+  batch = null;
+  nuevosSesion.clear();
+  desmarcados.clear();
+  $('desde').value = ''; $('hasta').value = '';
+  guardarLocal();
+  $('lote').classList.add('hidden');
+  $('bannerNuevo').innerHTML = '';
+  renderSelector();
+  renderHistorial();
+  $('estado').textContent = 'Base borrada';
+};
+
+$('desde').onchange = renderHistorial;
+$('hasta').onchange = renderHistorial;
+$('mapaTipo').onchange = renderHistorial;
+
+$('btnHoy').onclick = () => {
+  const hoy = ymd(new Date());
+  $('desde').value = hoy; $('hasta').value = hoy;
+  renderHistorial();
+};
+$('btnTodo').onclick = () => {
+  const fechas = Object.values(db.registros).map(r => r.fecha).sort();
+  if (fechas.length) { $('desde').value = fechas[0]; $('hasta').value = fechas[fechas.length - 1]; }
+  renderHistorial();
+};
+
+$('chkTodos').onchange = e => {
+  document.querySelectorAll('.chk').forEach(c => { c.checked = e.target.checked; });
+  desmarcados.clear();
+  if (!e.target.checked) document.querySelectorAll('.chk').forEach(c => desmarcados.add(c.value));
+  renderHistorial();
+};
+
+$('listaConductores').addEventListener('change', e => {
+  if (!e.target.classList.contains('chk')) return;
+  e.target.checked ? desmarcados.delete(e.target.value) : desmarcados.add(e.target.value);
+  const todos = Array.from(document.querySelectorAll('.chk')).every(c => c.checked);
+  $('chkTodos').checked = todos;
+  renderHistorial();
+});
+
+$('btnTxtSel').onclick = () => {
+  const desde = $('desde').value, hasta = $('hasta').value, sel = seleccionados();
+  const regs = Object.values(db.registros)
+    .filter(r => (!desde || r.fecha >= desde) && (!hasta || r.fecha <= hasta) && sel.has(r.conductor));
+  if (!regs.length) { alert('No hay registros en la selección.'); return; }
+  descargar(`codigos_seleccion_${desde || 'inicio'}_a_${hasta || 'hoy'}.txt`, txtDeRegistros(regs), 'text/plain;charset=utf-8');
+};
+
+$('live').onchange = () => {
+  $('refTime').disabled = $('live').checked;
+  if (!$('live').checked) {
+    const n = new Date();
+    $('refTime').value = `${ymd(n)}T${pad(n.getHours())}:${pad(n.getMinutes())}`;
+  }
+  renderLote();
+};
+$('refTime').onchange = renderLote;
+
+setInterval(() => { if (batch && $('live').checked) renderLote(); }, 1000);
+
+// Arranque
+renderSelector();
+renderHistorial();
+infoDB();
+if (Object.keys(db.registros).length) {
+  $('estado').textContent = 'Base cargada desde este navegador';
+}
+</script>
+</body>
+</html>
