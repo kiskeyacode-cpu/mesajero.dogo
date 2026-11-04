@@ -2,609 +2,1045 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Guías por conductor · Base de datos</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mensajería RD · Panel de control</title>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
 :root{
-  --bg:#f4f6fa; --card:#fff; --ink:#1e293b; --muted:#64748b; --line:#e2e8f0; --head:#1e293b;
-  --green:#dcfce7; --gtxt:#166534; --orange:#ffedd5; --otxt:#9a3412; --red:#fee2e2; --rtxt:#991b1b;
+  --bg:#202124;--surface:#292a2d;--surface-2:#303134;--surface-3:#3c4043;
+  --line:#45474b;--text:#e8eaed;--muted:#aeb4bc;--blue:#8ab4f8;--blue-bg:#394b68;
+  --green:#81c995;--yellow:#fdd663;--red:#f28b82;--radius:14px;
 }
 *{box-sizing:border-box}
-body{margin:0;font-family:system-ui,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);padding:24px}
-.wrap{max-width:1250px;margin:0 auto}
-h1{margin:0 0 4px;font-size:26px}
-h2{font-size:17px;margin:0 0 12px}
-.sub{color:var(--muted);margin-bottom:12px}
-.bar{height:3px;background:#dc2626;margin:12px 0 20px;border-radius:2px}
-.panel{background:var(--card);border-radius:12px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,.08);margin-bottom:20px}
-textarea{width:100%;min-height:140px;font-family:Consolas,monospace;font-size:13px;padding:10px;border:1px solid var(--line);border-radius:8px;resize:vertical}
-.controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:10px}
-button{background:#2563eb;color:#fff;border:0;padding:9px 14px;border-radius:8px;cursor:pointer;font-weight:600}
-button.sec{background:#64748b}
-button.ok{background:#16a34a}
-button.warn{background:#dc2626}
-input[type=text],input[type=date],input[type=datetime-local]{padding:7px;border:1px solid var(--line);border-radius:8px;font-size:14px}
-input[type=text].wide{width:260px}
-label{font-size:14px;display:flex;align-items:center;gap:6px}
-.banner{padding:10px 14px;border-radius:8px;margin-bottom:14px;font-size:14px}
-.b-new{background:#fef3c7;color:#92400e}
-.b-ok{background:#dcfce7;color:#166534}
-.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:16px}
-.card{border-radius:12px;padding:14px;text-align:center}
-.card .n{font-size:24px;font-weight:700}
-.card .l{font-size:13px;margin-top:4px}
-.c-blue{background:#dbeafe;color:#1e40af}
-.c-yellow{background:#fef3c7;color:#92400e}
-.c-purple{background:#ede9fe;color:#6d28d9}
-.c-red{background:#fecaca;color:#991b1b}
-.c-green{background:#dcfce7;color:#166534}
-table{width:100%;border-collapse:collapse;font-size:14px;background:#fff}
-th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:center}
-th:first-child,td:first-child{text-align:left}
-thead th{background:var(--head);color:#fff}
-tfoot td{background:var(--head);color:#fff;font-weight:700}
-td.g{background:var(--green);color:var(--gtxt);font-weight:600}
-td.o{background:var(--orange);color:var(--otxt);font-weight:600}
-td.r{background:var(--red);color:var(--rtxt);font-weight:600}
-.code{font-family:Consolas,monospace}
-.scroll{max-height:460px;overflow:auto;border-radius:8px}
-.bars{display:flex;align-items:center}
-.bars .track{flex:1;background:#eef2f7;border-radius:4px;height:14px;overflow:hidden}
-.bars .fill{height:100%;background:#3b82f6}
-.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
-.chip{background:#f1f5f9;border-radius:999px;padding:6px 12px;font-size:14px}
-.nuevo{background:#f59e0b;color:#fff;font-size:11px;font-weight:700;padding:2px 6px;border-radius:999px;margin-left:4px}
-.mapa{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
-.tile{border-radius:10px;padding:12px;min-height:76px;display:flex;flex-direction:column;justify-content:space-between;font-size:13px}
-.tile b{font-size:20px}
-.legend{font-size:13px;color:var(--muted);margin-top:10px}
-.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin:0 4px 0 10px;vertical-align:middle}
-.row{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
-.muted{color:var(--muted);font-size:13px}
-.hidden{display:none}
-.empty{color:var(--muted);text-align:center;padding:24px}
+body{margin:0;background:var(--bg);color:var(--text);font:14px/1.45 Inter,Roboto,Arial,sans-serif}
+button,input,textarea,select{font:inherit}
+.topbar{height:64px;display:flex;align-items:center;gap:18px;padding:0 24px;border-bottom:1px solid var(--line);background:#292a2d;position:sticky;top:0;z-index:5}
+.brand{display:flex;align-items:center;gap:12px;font-size:17px;font-weight:600;white-space:nowrap}
+.brand-mark{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,#4285f4 0 45%,#34a853 45% 70%,#fbbc04 70%);display:grid;place-items:center;color:#202124;font-weight:900}
+.project{border:1px solid #7185a5;border-radius:20px;padding:6px 12px;color:#d8e3f8;font-size:12px;white-space:nowrap}
+.project.off{border-color:#6b6e73;color:#aeb4bc}
+.search{margin:auto;max-width:520px;width:40%;background:#3c4048;border:1px solid #59677f;border-radius:9px;padding:9px 14px;color:var(--text);outline:none}
+.sync{font-size:12px;color:#9aa0a6;max-width:300px;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.shell{display:flex;min-height:calc(100vh - 64px)}
+.sidebar{width:236px;padding:22px 12px;border-right:1px solid var(--line);background:#242528;flex-shrink:0}
+.side-label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#9298a1;padding:10px 14px}
+.nav{display:flex;align-items:center;gap:13px;padding:11px 14px;border-radius:9px;color:#c8cdd3;margin:3px 0;cursor:pointer;user-select:none}
+.nav:hover,.nav.active{background:#394b68;color:#dce8ff}
+.nav .ico{width:18px;text-align:center;color:var(--blue);font-size:16px}
+.main{width:min(1500px,100%);padding:30px 34px 60px;margin:0 auto;min-width:0;flex:1}
+.view{display:none}
+.crumb{font-size:12px;color:#9aa0a6;margin-bottom:18px}
+.heading{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;margin-bottom:25px;flex-wrap:wrap}
+h1{font-size:27px;font-weight:500;margin:0 0 5px}
+.subtitle{color:var(--muted);font-size:13px}
+.primary,.outline{border:1px solid #6683b3;border-radius:8px;padding:9px 14px;color:#d7e4ff;background:transparent;cursor:pointer}
+.primary{background:#8ab4f8;color:#202124;border-color:#8ab4f8;font-weight:600}
+.primary:hover{background:#a6c7fa}
+.primary:disabled,.outline:disabled{opacity:.45;cursor:not-allowed}
+.outline:hover{background:#343b48}
+.danger{border:1px solid #8d4b47;border-radius:8px;padding:9px 14px;color:var(--red);background:transparent;cursor:pointer}
+.danger:hover{background:#3d2b2a}
+.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:15px;margin-bottom:22px}
+.metric,.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius)}
+.metric{padding:17px 19px}
+.metric-top{display:flex;justify-content:space-between;color:var(--muted);font-size:12px}
+.metric-value{font-size:29px;font-weight:500;margin:9px 0 3px;letter-spacing:-.03em}
+.metric-note{font-size:11px;color:var(--green)}
+.metric-icon{color:var(--blue);font-size:18px}
+.content-grid{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(300px,.85fr);gap:18px;margin-bottom:20px}
+.panel{padding:20px}
+.panel-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:17px;flex-wrap:wrap}
+h2{font-size:16px;font-weight:500;margin:0}
+.small-muted{font-size:12px;color:var(--muted)}
+.filters{display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+input,select,textarea{background:#202124;border:1px solid #5f6368;border-radius:7px;color:var(--text);padding:9px 11px;outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--blue)}
+input[type=date]{color-scheme:dark}
+select option{background:#202124}
+.map{height:300px;border-radius:10px;overflow:hidden;position:relative;background-color:#252d31;
+ background-image:linear-gradient(#303a3d 1px,transparent 1px),linear-gradient(90deg,#303a3d 1px,transparent 1px);
+ background-size:44px 44px}
+.zonas{position:absolute;inset:0;padding:14px;display:flex;flex-wrap:wrap;gap:10px;align-content:flex-start;overflow:auto}
+.zona{border-radius:10px;padding:10px 12px;min-width:130px;display:flex;flex-direction:column;gap:4px;color:#e8eaed;font-size:12px;box-shadow:0 2px 8px #0005}
+.zona b{font-size:19px;font-weight:500}
+.driver-list{display:flex;flex-direction:column}
+.driver{display:flex;align-items:center;gap:11px;padding:12px 0;border-bottom:1px solid #3d3f42}
+.driver:last-child{border-bottom:0}
+.initial{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:#394b68;color:#dce8ff;font-weight:600;font-size:12px;flex-shrink:0}
+.driver-info{flex:1;min-width:0}.driver-name{font-size:13px}.driver-meta{font-size:11px;color:var(--muted)}
+.count{font-size:13px;color:#dce8ff;background:#394b68;border-radius:20px;padding:4px 9px;white-space:nowrap}
+.section-title{display:flex;align-items:center;gap:12px;margin:28px 0 14px}
+.section-title h2{font-size:19px}
+.section-title span{font-size:12px;color:var(--muted)}
+.workflow-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.field-label{display:block;color:#c8cdd3;font-size:12px;margin:13px 0 7px}
+textarea{width:100%;min-height:200px;resize:vertical;line-height:1.6}
+.wide{width:100%}
+.hint{font-size:11px;color:var(--muted);margin-top:7px}
+.actions{display:flex;gap:9px;align-items:center;margin-top:14px;flex-wrap:wrap}
+.scan-box{border:1px dashed #647a9b;border-radius:11px;padding:19px;text-align:center;background:#252b34;margin:13px 0}
+.scan-symbol{font-size:32px;color:var(--blue);margin-bottom:6px}
+.scan-box p{color:var(--muted);font-size:12px;margin:5px 0 13px}
+.scan-row{display:flex;gap:8px}.scan-row input{flex:1;min-width:0;font-size:16px}
+.check-row{display:flex;gap:8px;align-items:center;color:#c8cdd3;font-size:12px;margin:10px 0}
+.table-wrap{overflow:auto}
+table{width:100%;border-collapse:collapse;white-space:nowrap}
+th,td{text-align:left;padding:11px 10px;border-bottom:1px solid #414347;font-size:12px}
+th{color:#9aa0a6;font-weight:500}
+td{color:#e1e4e8}
+td.code,.code{font-family:Consolas,monospace}
+.status{font-size:10px;border-radius:20px;padding:4px 8px;background:#284737;color:#a8dab5;white-space:nowrap}
+.status.pending{background:#4a4025;color:#fdd663}
+.status.off{background:#3c4043;color:#aeb4bc}
+.status.err{background:#4d2a28;color:#f28b82}
+.msg-ok{color:var(--green)}
+.msg-warn{color:var(--yellow)}
+.msg-err{color:var(--red)}
+.scan-item{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid #3d3f42;font-size:12px}
+.chip{background:#394b68;color:#dce8ff;border-radius:20px;padding:4px 10px;font-size:12px}
+.metric-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#d3e3fd;color:#17243a;padding:10px 16px;border-radius:7px;box-shadow:0 4px 18px #0006;font-size:12px;display:none;z-index:10;max-width:90vw}
+@media(max-width:1000px){.sidebar{width:190px}.metrics{grid-template-columns:repeat(2,1fr)}.content-grid{grid-template-columns:1fr}.workflow-grid{grid-template-columns:1fr}}
+@media(max-width:700px){.sidebar{display:none}.main{padding:22px 15px}.topbar{padding:0 14px}.search{display:none}.sync{display:none}.metric{padding:13px}.metric-value{font-size:24px}}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <h1>Guías por conductor · Base de datos</h1>
-  <div class="sub" id="sub">Carga tu base JSON o empieza pegando datos</div>
-  <div class="bar"></div>
+<header class="topbar">
+  <div class="brand"><div class="brand-mark">M</div> Mensajería RD</div>
+  <div class="project off" id="drivePill">○ Drive sin conectar</div>
+  <input class="search" id="buscar" placeholder="Buscar guía o mensajero…" autocomplete="off">
+  <div class="sync" id="syncEstado"></div>
+</header>
 
-  <!-- 1. Base de datos -->
-  <div class="panel">
-    <h2>Base de datos (JSON)</h2>
-    <div class="controls">
-      <button id="btnCargarJSON" class="sec">Cargar data (JSON)</button>
-      <button id="btnGuardarJSON" class="ok">Guardar data (descargar JSON)</button>
-      <button id="btnBorrar" class="warn">Borrar base</button>
-      <span class="muted" id="infoDB"></span>
-    </div>
-    <input type="file" id="fileJSON" accept=".json,application/json" class="hidden">
-    <div class="muted" style="margin-top:8px" id="estado">Sin datos todavía</div>
-  </div>
+<div class="shell">
+<aside class="sidebar">
+  <div class="side-label">Espacio de trabajo</div>
+  <div class="nav active" data-view="panel"><span class="ico">▦</span> Panel general</div>
+  <div class="nav" data-view="registrar"><span class="ico">＋</span> Registrar asignaciones</div>
+  <div class="nav" data-view="escaner"><span class="ico">▣</span> Escáner de guías</div>
+  <div class="nav" data-view="mensajeros"><span class="ico">♙</span> Mensajeros</div>
+  <div class="nav" data-view="mapa"><span class="ico">⌖</span> Mapa por zona</div>
+  <div class="side-label" style="margin-top:22px">Administración</div>
+  <div class="nav" data-view="historial"><span class="ico">◷</span> Historial</div>
+  <div class="nav" data-view="config"><span class="ico">⚙</span> Configuración</div>
+</aside>
 
-  <!-- 2. Pegar y procesar -->
-  <div class="panel">
-    <h2>Procesar nuevo rastreo</h2>
-    <textarea id="data" placeholder="Pega aquí el rastreo del conductor y la lista de guías..."></textarea>
-    <div class="controls">
-      <input type="text" id="nombreManual" class="wide" placeholder="Nombre del conductor (solo si no se detecta)">
-      <button id="btnProcesar">Procesar y guardar</button>
-      <button class="sec" id="btnLimpiarTexto">Limpiar texto</button>
-      <button class="sec" id="btnTxtLote">Descargar TXT del lote</button>
-    </div>
-    <div id="bannerNuevo"></div>
-  </div>
-
-  <!-- 3. Lote actual -->
-  <div id="lote" class="hidden">
-    <div class="panel">
-      <h2 id="tituloLote">Lote actual</h2>
-      <div class="controls" style="margin-bottom:12px">
-        <label><input type="checkbox" id="live" checked> Hora actual en vivo</label>
-        <label>Hora de referencia:
-          <input type="datetime-local" id="refTime" disabled>
-        </label>
-      </div>
-      <div class="cards">
-        <div class="card c-blue"><div class="n" id="cTotal">0</div><div class="l">Guías en el lote</div></div>
-        <div class="card c-purple"><div class="n" id="cCiudades">0</div><div class="l">Ciudades</div></div>
-        <div class="card c-yellow"><div class="n" id="cZips">0</div><div class="l">Códigos postales</div></div>
-        <div class="card c-red"><div class="n" id="cAntigua">0:00:00</div><div class="l">Más tiempo en camino</div></div>
+<main class="main">
+  <!-- PANEL GENERAL -->
+  <section class="view" id="v-panel">
+    <div class="crumb">Inicio › Panel general</div>
+    <div class="heading">
+      <div><h1>Panel de asignaciones</h1><div class="subtitle">Paquetes asignados a mensajeros registrados y seguimiento por período.</div></div>
+      <div class="row">
+        <label class="small-muted">Desde <input type="date" id="pDesde"></label>
+        <label class="small-muted">Hasta <input type="date" id="pHasta"></label>
+        <button class="primary" id="btnExportPanel">⇩ Exportar TXT del período</button>
       </div>
     </div>
 
+    <section class="metrics">
+      <div class="metric"><div class="metric-top">Asignados en el período <span class="metric-icon">▣</span></div><div class="metric-value" id="mAsig">0</div><div class="metric-note" id="mAsigNote">Guías con mensajero</div></div>
+      <div class="metric"><div class="metric-top">Mensajeros con asignaciones <span class="metric-icon">♙</span></div><div class="metric-value" id="mMens">0</div><div class="metric-note" id="mMensNote"></div></div>
+      <div class="metric"><div class="metric-top">Ciudades <span class="metric-icon">⌖</span></div><div class="metric-value" id="mCiu">0</div><div class="metric-note">En el período</div></div>
+      <div class="metric"><div class="metric-top">Guías en base <span class="metric-icon">◷</span></div><div class="metric-value" id="mReg">0</div><div class="metric-note">Histórico total</div></div>
+    </section>
+
+    <section class="content-grid">
+      <div class="panel">
+        <div class="panel-head"><div><h2>Distribución por zona</h2><div class="small-muted">Guías asignadas en el período seleccionado</div></div></div>
+        <div class="map"><div class="zonas" id="mapaPanel"></div></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><div><h2>Mensajeros activos</h2><div class="small-muted">Guías en el período seleccionado</div></div></div>
+        <div class="driver-list" id="listaMensajeros"></div>
+      </div>
+    </section>
+
+    <div class="section-title"><h2>Actividad reciente</h2><span>Últimos movimientos registrados</span></div>
+    <div class="panel table-wrap">
+      <table><thead><tr><th>Hora</th><th>Mensajero</th><th>Guía</th><th>Origen</th><th>Estado</th></tr></thead>
+      <tbody id="tablaActividad"></tbody></table>
+    </div>
+  </section>
+
+  <!-- REGISTRAR -->
+  <section class="view" id="v-registrar">
+    <div class="crumb">Inicio › Registrar asignaciones</div>
+    <div class="heading"><div><h1>Registrar asignaciones</h1><div class="subtitle">Pega guías sueltas o el rastreo completo del conductor.</div></div></div>
+    <div class="workflow-grid">
+      <div class="panel">
+        <div class="panel-head"><div><h2>1. Pegar listado</h2><div class="small-muted">Acepta códigos separados por saltos de línea, comas o tabulaciones, o el rastreo con "OFD Time".</div></div></div>
+        <textarea id="bulk" placeholder="Pega aquí las guías o el rastreo..."></textarea>
+        <div class="actions">
+          <button class="primary" id="btnValidar">Validar guías</button>
+          <button class="outline" id="btnLimpiarBulk">Limpiar</button>
+          <span class="small-muted" id="bulkResult"></span>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><div><h2>2. Asignar a mensajero</h2><div class="small-muted">Solo aparecen mensajeros activos y registrados.</div></div></div>
+        <label class="field-label" for="selRegistrar">Mensajero</label>
+        <select id="selRegistrar" class="wide"></select>
+        <label class="field-label" for="fechaRegistrar">Fecha de asignación</label>
+        <input id="fechaRegistrar" type="date" class="wide">
+        <div class="hint">Si pegas el rastreo, cada guía usa su fecha y hora de salida (OFD). Si pegas solo códigos, usa la fecha de arriba.</div>
+        <div class="actions"><button class="primary" id="btnAsignar" disabled>Asignar guías</button></div>
+        <div class="small-muted" id="resumenAsignar" style="margin-top:12px"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ESCÁNER -->
+  <section class="view" id="v-escaner">
+    <div class="crumb">Inicio › Escáner de guías</div>
+    <div class="heading"><div><h1>Escáner de guías</h1><div class="subtitle">Lector USB o Bluetooth: escanea y la guía se registra al mensajero seleccionado.</div></div></div>
+    <div class="workflow-grid">
+      <div class="panel">
+        <div class="panel-head"><div><h2>1. Mensajero</h2><div class="small-muted">Todas las lecturas se asignarán a esta persona.</div></div></div>
+        <label class="field-label" for="selEscaner">Mensajero activo</label>
+        <select id="selEscaner" class="wide"></select>
+        <label class="field-label" for="fechaEscaner">Fecha de asignación</label>
+        <input id="fechaEscaner" type="date" class="wide">
+        <div class="small-muted" style="margin-top:15px">Mensajero seleccionado</div>
+        <div style="font-size:19px;margin-top:4px" id="infoEscaner">—</div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><div><h2>2. Escanear</h2><div class="small-muted">Haz clic en el campo y escanea. Cada lectura se guarda al momento.</div></div><span class="count" id="scanCount">0 guías</span></div>
+        <div class="scan-box">
+          <div class="scan-symbol">▥</div>
+          <strong>Esperando lectura</strong>
+          <p>La mayoría de lectores escriben el código y presionan Enter solos.</p>
+          <div class="scan-row">
+            <input id="scanInput" placeholder="Escanea o escribe una guía…" autocomplete="off">
+            <button class="primary" id="btnAgregarScan">Agregar</button>
+          </div>
+        </div>
+        <div id="scanList"></div>
+        <div class="actions">
+          <button class="primary" id="btnTerminar">Terminar sesión</button>
+          <button class="outline" id="btnVaciarScan">Limpiar lista</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MENSAJEROS -->
+  <section class="view" id="v-mensajeros">
+    <div class="crumb">Inicio › Mensajeros</div>
+    <div class="heading"><div><h1>Mensajeros registrados</h1><div class="subtitle">Solo los mensajeros de esta lista pueden recibir asignaciones.</div></div></div>
+    <div class="panel" style="margin-bottom:18px">
+      <div class="panel-head"><h2>Registrar nuevo mensajero</h2></div>
+      <div class="row">
+        <input id="nuevoNombre" placeholder="Nombre completo" style="flex:1;min-width:220px">
+        <input id="nuevaZona" placeholder="Zona (opcional)" style="flex:1;min-width:180px">
+        <button class="primary" id="btnNuevoMens">Registrar</button>
+      </div>
+    </div>
+    <div class="panel table-wrap">
+      <table><thead><tr><th>Nombre</th><th>Zona</th><th>Estado</th><th>Guías registradas</th><th>Acciones</th></tr></thead>
+      <tbody id="tablaMensajeros"></tbody></table>
+    </div>
+  </section>
+
+  <!-- MAPA -->
+  <section class="view" id="v-mapa">
+    <div class="crumb">Inicio › Mapa por zona</div>
+    <div class="heading">
+      <div><h1>Mapa por zona</h1><div class="subtitle">Guías por ciudad o código postal en el período seleccionado.</div></div>
+      <div class="row">
+        <label class="small-muted">Desde <input type="date" id="mapaDesde"></label>
+        <label class="small-muted">Hasta <input type="date" id="mapaHasta"></label>
+        <select id="mapaTipo"><option value="ciudad">Por ciudad</option><option value="zip">Por código postal</option></select>
+      </div>
+    </div>
     <div class="panel">
-      <h2>Tabla organizada</h2>
-      <div class="scroll"><div id="tablaOrganizada"></div></div>
+      <div class="map" style="height:440px"><div class="zonas" id="mapaTiles"></div></div>
+      <div class="small-muted" style="margin-top:12px">Más intenso = más guías. Las zonas se agrupan por lo que viene en el rastreo; no se usan coordenadas.</div>
     </div>
+  </section>
 
-    <div class="panel">
-      <h2>Por ciudad</h2>
-      <div id="tablaCiudad"></div>
+  <!-- HISTORIAL -->
+  <section class="view" id="v-historial">
+    <div class="crumb">Inicio › Historial</div>
+    <div class="heading"><div><h1>Historial de asignaciones</h1><div class="subtitle">Filtra por fecha y mensajero. La búsqueda superior también aplica aquí.</div></div></div>
+    <div class="panel" style="margin-bottom:18px">
+      <div class="row">
+        <label class="small-muted">Desde <input type="date" id="hDesde"></label>
+        <label class="small-muted">Hasta <input type="date" id="hHasta"></label>
+        <select id="hMens" style="min-width:220px"></select>
+        <button class="primary" id="btnTxtHist">Descargar TXT</button>
+        <span class="small-muted" id="infoHist"></span>
+      </div>
     </div>
-
-    <div class="panel">
-      <h2>Por código postal</h2>
-      <div id="tablaZip"></div>
+    <div class="panel table-wrap" style="max-height:560px;overflow:auto">
+      <table><thead><tr><th>Fecha</th><th>Hora</th><th>Guía</th><th>Mensajero</th><th>Ciudad</th><th>Zip</th><th>Estado</th></tr></thead>
+      <tbody id="tablaHist"></tbody></table>
     </div>
+  </section>
 
-    <div class="panel">
-      <h2>Por hora de salida (OFD)</h2>
-      <div id="tablaHora"></div>
+  <!-- CONFIGURACIÓN -->
+  <section class="view" id="v-config">
+    <div class="crumb">Inicio › Configuración</div>
+    <div class="heading"><div><h1>Configuración</h1><div class="subtitle">Conexión con Google Drive y respaldo de la base.</div></div></div>
+    <div class="workflow-grid">
+      <div class="panel">
+        <div class="panel-head"><h2>Google Drive</h2></div>
+        <label class="field-label" for="archivoNombre">Nombre del archivo en Drive</label>
+        <input id="archivoNombre" class="wide">
+        <div class="hint">La app solo ve archivos que ella misma creó. Si cambias el nombre, la app creará un archivo nuevo con ese nombre.</div>
+        <div class="actions">
+          <button class="primary" id="btnConectar">Conectar con Drive</button>
+          <button class="outline" id="btnGuardarAhora">Guardar ahora</button>
+        </div>
+        <div class="small-muted" style="margin-top:14px" id="estadoConfig"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><h2>Respaldo local</h2></div>
+        <div class="actions" style="margin-top:0">
+          <button class="outline" id="btnDescargarCopia">Descargar copia (JSON)</button>
+          <button class="outline" id="btnCargarLocal">Cargar archivo JSON</button>
+          <input type="file" id="fileLocal" accept=".json,application/json" style="display:none">
+        </div>
+        <div class="actions"><button class="danger" id="btnBorrar">Borrar base de este equipo</button></div>
+        <div class="hint">Borrar solo afecta a este navegador. Si la base está guardada en Drive, se conserva ahí.</div>
+      </div>
     </div>
-  </div>
-
-  <!-- 4. Historial -->
-  <div class="panel">
-    <h2>Historial: registros por conductor y fecha</h2>
-    <div class="row">
-      <label>Desde <input type="date" id="desde"></label>
-      <label>Hasta <input type="date" id="hasta"></label>
-      <button class="sec" id="btnHoy">Hoy</button>
-      <button class="sec" id="btnTodo">Todo el historial</button>
-    </div>
-
-    <div class="muted" style="margin-bottom:6px">Conductores (marca los que quieres ver):</div>
-    <div class="chips">
-      <label class="chip"><input type="checkbox" id="chkTodos" checked> Todos</label>
-    </div>
-    <div class="chips" id="listaConductores"></div>
-
-    <div class="cards" style="margin-top:14px">
-      <div class="card c-blue"><div class="n" id="hRegistros">0</div><div class="l">Registros en el rango</div></div>
-      <div class="card c-green"><div class="n" id="hConductores">0</div><div class="l">Conductores seleccionados</div></div>
-      <div class="card c-purple"><div class="n" id="hCiudades">0</div><div class="l">Ciudades</div></div>
-      <div class="card c-yellow"><div class="n" id="hZips">0</div><div class="l">Códigos postales</div></div>
-    </div>
-
-    <h2>Registros asignados por conductor</h2>
-    <div id="tablaHistConductor"></div>
-
-    <h2 style="margin-top:20px">Mapa de zonas</h2>
-    <div class="row">
-      <label>Agrupar por
-        <select id="mapaTipo">
-          <option value="ciudad">Ciudad</option>
-          <option value="zip">Código postal</option>
-        </select>
-      </label>
-    </div>
-    <div class="mapa" id="mapaZonas"></div>
-    <div class="muted" style="margin-top:8px">Las zonas se muestran por ciudad o código postal. Más intenso = más registros.</div>
-
-    <h2 style="margin-top:20px">Guías de la selección</h2>
-    <div class="row">
-      <button id="btnTxtSel" class="ok">Descargar TXT de la selección</button>
-      <span class="muted" id="infoSel"></span>
-    </div>
-    <div class="scroll"><div id="tablaGuias"></div></div>
-  </div>
-
-  <div id="vacio" class="empty panel hidden">No hay datos todavía. Carga tu JSON o procesa un rastreo.</div>
+  </section>
+</main>
 </div>
 
+<div class="toast" id="toast"></div>
+
 <script>
-const DB_KEY = 'guiasDB_v1';
+/* ================= CONFIGURACIÓN ================= */
+const CLIENT_ID = '869397414336-cbnhiq6ujj7qom0te3n7233plib32el6.apps.googleusercontent.com';
+const DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.file';
+const ARCHIVO_DEFAULT = 'base_guias.json';
+const LS_DB = 'mensajeriaRD_db_v2';
+const LS_PEND = 'mensajeriaRD_pendiente';
+const LS_FILE = 'mensajeriaRD_archivo';
+const ETIQ = {panel:'Panel general',registrar:'Registrar asignaciones',escaner:'Escáner de guías',mensajeros:'Mensajeros',mapa:'Mapa por zona',historial:'Historial',config:'Configuración'};
+const ETIQ_ESTADO = {nueva:'Registrada',actualizada:'Actualizada',reasignada:'Reasignada',importada:'Importada'};
+
+/* ================= UTILIDADES ================= */
 const $ = id => document.getElementById(id);
 const pad = n => String(n).padStart(2, '0');
-
-function esc(s) {
-  return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-}
-function fmtFecha(d) {
-  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
-}
-function ymd(d) {
-  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
-}
-function fmtTiempo(ms) {
-  const s = Math.floor(ms / 1000);
-  return `${Math.floor(s/3600)}:${pad(Math.floor((s%3600)/60))}:${pad(s%60)}`;
-}
-function claseTiempo(ms) {
-  const h = ms / 3600000;
-  return h < 1 ? 'g' : h < 3 ? 'o' : 'r';
-}
-function nombreSeguro(s) {
-  return String(s).replace(/[^\w\-]+/g, '_').replace(/^_+|_+$/g, '') || 'sin_nombre';
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const ymd = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const hms = d => `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+const ahoraStr = () => { const d = new Date(); return ymd(d) + ' ' + hms(d); };
+const hoyYmd = () => ymd(new Date());
+const nuevoId = () => 'm' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+const iniciales = n => n.split(/\s+/).filter(Boolean).slice(0, 2).map(p => p[0].toUpperCase()).join('') || '?';
+const nombreSeguro = s => String(s).replace(/[^\w\-]+/g, '_').replace(/^_+|_+$/g, '') || 'sin_nombre';
+function notify(m) {
+  const t = $('toast');
+  t.textContent = m; t.style.display = 'block';
+  clearTimeout(window.toastTimer);
+  window.toastTimer = setTimeout(() => t.style.display = 'none', 3000);
 }
 function descargar(nombre, contenido, tipo) {
   const blob = new Blob([contenido], { type: tipo });
   const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = nombre;
-  document.body.appendChild(a);
-  a.click();
+  a.href = URL.createObjectURL(blob); a.download = nombre;
+  document.body.appendChild(a); a.click();
   setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
 }
+function setSync(t) { $('syncEstado').textContent = t; }
 
 /* ================= BASE DE DATOS ================= */
 let db = cargarLocal();
-let batch = null;                 // { conductor, driver, items }
-const nuevosSesion = new Set();   // conductores detectados por primera vez en esta sesión
-const desmarcados = new Set();    // conductores desmarcados en el filtro
+let sesion = [];          // lecturas de la sesión de escáner
+let driveConectado = false;
+let accessToken = null;
+let tokenClient = null;
+let driveFileId = null;
+let pendiente = localStorage.getItem(LS_PEND) === '1';
+let saveTimer = null;
+let guardando = false;
+let reintentar = false;
+let intentosInit = 0;
 
-function vacioDB() {
-  return { version: 1, conductores: {}, registros: {} };
-}
-function cargarLocal() {
-  try {
-    const raw = localStorage.getItem(DB_KEY);
-    if (raw) {
-      const d = JSON.parse(raw);
-      if (d && typeof d.registros === 'object') return { version: 1, conductores: d.conductores || {}, registros: d.registros };
-    }
-  } catch (e) {}
-  return vacioDB();
-}
-function guardarLocal() {
-  try {
-    localStorage.setItem(DB_KEY, JSON.stringify(db));
-    $('estado').textContent = 'Autoguardado en este navegador · ' + fmtFecha(new Date());
-  } catch (e) {
-    $('estado').textContent = 'No se pudo autoguardar: ' + e.message + '. Usa "Guardar data".';
+function vacio() { return { version: 2, mensajeros: {}, registros: {} }; }
+
+// Acepta el formato nuevo y el de versiones anteriores (conductores/registros)
+function normalizar(d) {
+  const out = vacio();
+  if (!d || typeof d !== 'object') return out;
+  if (d.mensajeros) {
+    Object.values(d.mensajeros).forEach(m => {
+      if (m && m.id && m.nombre) out.mensajeros[m.id] = { id: m.id, nombre: m.nombre, zona: m.zona || '', activo: m.activo !== false, creado: m.creado || hoyYmd() };
+    });
   }
-  infoDB();
-}
-function infoDB() {
-  $('infoDB').textContent = `${Object.keys(db.registros).length} registros · ${Object.keys(db.conductores).length} conductores`;
-}
-
-/* ================= PARSEO ================= */
-function parseGuias(text) {
-  const out = [];
-  const re = /Delivery(\d+)\s*OFD Time:\s*(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\s*Ciudad:\s*([^\r\n]*?)\s*zipCode:\s*(\d+)/g;
-  let m;
-  while ((m = re.exec(text))) {
-    const ofd = new Date(m[2].replace(' ', 'T'));
-    if (isNaN(ofd)) continue;
-    out.push({ code: m[1], ofd, ciudad: m[3].trim() || 'Sin ciudad', zip: m[4] });
+  const porNombre = {};
+  Object.values(out.mensajeros).forEach(m => porNombre[m.nombre.toLowerCase()] = m.id);
+  const idPara = nombre => {
+    const n = (nombre || 'Sin nombre').trim();
+    const k = n.toLowerCase();
+    if (!porNombre[k]) {
+      const id = nuevoId();
+      out.mensajeros[id] = { id, nombre: n, zona: '', activo: true, creado: hoyYmd() };
+      porNombre[k] = id;
+    }
+    return porNombre[k];
+  };
+  if (d.conductores) Object.values(d.conductores).forEach(c => { if (c && c.nombre) idPara(c.nombre); });
+  if (d.registros) {
+    Object.entries(d.registros).forEach(([k, r]) => {
+      if (!r) return;
+      const nombre = r.mensajero || r.conductor || 'Sin nombre';
+      const mid = (r.mensajeroId && out.mensajeros[r.mensajeroId]) ? r.mensajeroId : idPara(nombre);
+      const fecha = r.fecha || (r.ofd ? r.ofd.slice(0, 10) : hoyYmd());
+      out.registros[String(k)] = {
+        codigo: String(k),
+        mensajeroId: mid,
+        fecha,
+        hora: r.hora || (r.ofd ? r.ofd.slice(11, 19) : ''),
+        ciudad: r.ciudad || '',
+        zip: r.zip || '',
+        origen: r.origen || 'Importado',
+        estado: r.estado || 'importada',
+        actualizado: r.actualizado || r.cargado || (fecha + ' 00:00:00')
+      };
+    });
   }
   return out;
 }
-function parseConductor(text) {
-  const g = re => { const m = text.match(re); return m ? m[1].trim() : ''; };
-  const d = {
-    nombre: g(/Nombre del conductor\s+([^\r\n]+)/i),
-    id: g(/Identificaci\S+ del conductor\s+([^\r\n]+)/i),
-    tipo: g(/Driver Type\s+([^\r\n]+)/i),
-    proveedor: g(/Proveedor\s+([^\r\n]+)/i),
-    tiempoOfd: g(/Tiempo ofd\s+([^\r\n]+)/i)
-  };
-  return (d.nombre || d.id || d.proveedor) ? d : null;
-}
 
-/* ================= PROCESAR ================= */
-function procesar() {
-  const texto = $('data').value;
-  const items = parseGuias(texto);
-  if (!items.length) {
-    alert('No encontré guías. Revisa que el texto incluya líneas como "Delivery...OFD Time:... Ciudad:... zipCode:...".');
-    return;
-  }
-  const drv = parseConductor(texto);
-  const nombre = (drv && drv.nombre) || $('nombreManual').value.trim() || 'Sin nombre';
-  const ahora = fmtFecha(new Date());
-
-  let esNuevo = false;
-  if (!db.conductores[nombre]) {
-    db.conductores[nombre] = { nombre, id: '', proveedor: '', tipo: '', primeraVez: ymd(new Date()) };
-    nuevosSesion.add(nombre);
-    esNuevo = true;
-  }
-  if (drv) {
-    const c = db.conductores[nombre];
-    c.id = drv.id || c.id;
-    c.proveedor = drv.proveedor || c.proveedor;
-    c.tipo = drv.tipo || c.tipo;
-  }
-
-  let nuevos = 0, actualizados = 0;
-  items.forEach(it => {
-    const existe = !!db.registros[it.code];
-    db.registros[it.code] = {
-      codigo: it.code,
-      conductor: nombre,
-      fecha: ymd(it.ofd),
-      ofd: fmtFecha(it.ofd),
-      ciudad: it.ciudad,
-      zip: it.zip,
-      cargado: ahora
-    };
-    existe ? actualizados++ : nuevos++;
-  });
-
-  batch = { conductor: nombre, driver: drv, items };
-  guardarLocal();
-
-  $('bannerNuevo').innerHTML =
-    (esNuevo ? `<div class="banner b-new">Conductor nuevo detectado y registrado: <strong>${esc(nombre)}</strong></div>` : '') +
-    `<div class="banner b-ok">${nuevos} guías nuevas · ${actualizados} actualizadas · conductor: <strong>${esc(nombre)}</strong></div>`;
-
-  renderSelector();
-  renderLote();
-  renderHistorial();
-  $('vacio').classList.add('hidden');
-}
-
-/* ================= LOTE ACTUAL ================= */
-function renderLote() {
-  if (!batch) {
-    $('lote').classList.add('hidden');
-    return;
-  }
-  $('lote').classList.remove('hidden');
-  $('tituloLote').textContent = `Lote actual · ${batch.conductor}`;
-
-  const ref = $('live').checked ? new Date() : new Date($('refTime').value);
-  const data = batch.items.map(r => {
-    const ms = Math.max(0, ref - r.ofd);
-    return { ...r, ms, clase: claseTiempo(ms), conductor: batch.conductor };
-  });
-  const ciudades = new Set(data.map(r => r.ciudad));
-  const zips = new Set(data.map(r => r.zip));
-  $('cTotal').textContent = data.length;
-  $('cCiudades').textContent = ciudades.size;
-  $('cZips').textContent = zips.size;
-  $('cAntigua').textContent = fmtTiempo(Math.max(...data.map(r => r.ms)));
-
-  // Tabla organizada
-  const orden = data.slice().sort((a, b) => a.ofd - b.ofd);
-  let t = '<table><thead><tr><th>Conductor</th><th>Código</th><th>Fecha</th><th>Hora OFD</th><th>Ciudad</th><th>Zip</th><th>En camino (h:m:s)</th></tr></thead><tbody>';
-  orden.forEach(r => {
-    t += `<tr><td>${esc(r.conductor)}</td><td class="code">${esc(r.code)}</td><td>${ymd(r.ofd)}</td><td>${pad(r.ofd.getHours())}:${pad(r.ofd.getMinutes())}:${pad(r.ofd.getSeconds())}</td><td>${esc(r.ciudad)}</td><td>${esc(r.zip)}</td><td class="${r.clase}">${fmtTiempo(r.ms)}</td></tr>`;
-  });
-  t += `</tbody><tfoot><tr><td>Total</td><td>${data.length}</td><td colspan="5"></td></tr></tfoot></table>`;
-  $('tablaOrganizada').innerHTML = t;
-
-  // Por ciudad
-  const porCiudad = {};
-  data.forEach(r => {
-    const g = (porCiudad[r.ciudad] ||= { total: 0, zips: {}, maxMs: 0 });
-    g.total++; g.zips[r.zip] = (g.zips[r.zip] || 0) + 1; g.maxMs = Math.max(g.maxMs, r.ms);
-  });
-  let c = '<table><thead><tr><th>Ciudad</th><th>Guías</th><th>Códigos postales</th><th>Más tiempo en camino</th></tr></thead><tbody>';
-  Object.entries(porCiudad).sort((a, b) => b[1].total - a[1].total).forEach(([ciudad, g]) => {
-    const zs = Object.entries(g.zips).sort((a, b) => b[1] - a[1]).map(([z, n]) => `${esc(z)} (${n})`).join(', ');
-    c += `<tr><td>${esc(ciudad)}</td><td><strong>${g.total}</strong></td><td>${zs}</td><td class="${claseTiempo(g.maxMs)}">${fmtTiempo(g.maxMs)}</td></tr>`;
-  });
-  c += '</tbody></table>';
-  $('tablaCiudad').innerHTML = c;
-
-  // Por zip
-  const porZip = {};
-  data.forEach(r => {
-    const g = (porZip[r.zip] ||= { total: 0, ciudades: new Set() });
-    g.total++; g.ciudades.add(r.ciudad);
-  });
-  let z = '<table><thead><tr><th>Código postal</th><th>Guías</th><th>Ciudad</th></tr></thead><tbody>';
-  Object.entries(porZip).sort((a, b) => b[1].total - a[1].total).forEach(([zip, g]) => {
-    z += `<tr><td>${esc(zip)}</td><td><strong>${g.total}</strong></td><td>${esc([...g.ciudades].join(', '))}</td></tr>`;
-  });
-  z += '</tbody></table>';
-  $('tablaZip').innerHTML = z;
-
-  // Por hora
-  const porHora = {};
-  data.forEach(r => { const k = `${pad(r.ofd.getHours())}:00`; porHora[k] = (porHora[k] || 0) + 1; });
-  const filasH = Object.entries(porHora).sort((a, b) => a[0].localeCompare(b[0]));
-  const maxH = Math.max(...filasH.map(f => f[1]), 1);
-  let h = '<table><thead><tr><th>Hora</th><th>Guías</th><th style="width:50%">Distribución</th></tr></thead><tbody>';
-  filasH.forEach(([hora, n]) => {
-    h += `<tr><td>${hora}</td><td><strong>${n}</strong></td><td><div class="bars"><div class="track"><div class="fill" style="width:${(n/maxH*100).toFixed(1)}%"></div></div></div></td></tr>`;
-  });
-  h += '</tbody></table>';
-  $('tablaHora').innerHTML = h;
-
-  $('sub').textContent = `${data.length} guías en el lote · ${batch.conductor}`;
-}
-
-function txtDeRegistros(registros) {
-  const grupos = {};
-  registros.forEach(r => { (grupos[r.conductor] ||= []).push(r.codigo); });
-  return Object.keys(grupos).sort().map(nombre => {
-    const cods = grupos[nombre];
-    return `CONDUCTOR: ${nombre}\nTOTAL DE GUIAS: ${cods.length}\n\n${cods.join('\n')}\n`;
-  }).join('\n----------------------------------------\n\n');
-}
-
-/* ================= SELECTOR Y HISTORIAL ================= */
-function renderSelector() {
-  const nombres = Object.keys(db.conductores).sort();
-  $('listaConductores').innerHTML = nombres.map(n => `
-    <label class="chip"><input type="checkbox" class="chk" value="${esc(n)}" ${desmarcados.has(n) ? '' : 'checked'}>
-      ${esc(n)} ${nuevosSesion.has(n) ? '<span class="nuevo">NUEVO</span>' : ''}</label>`).join('');
-  const todos = nombres.length > 0 && nombres.every(n => !desmarcados.has(n));
-  $('chkTodos').checked = todos;
-  if (!$('desde').value || !$('hasta').value) {
-    const fechas = Object.values(db.registros).map(r => r.fecha).sort();
-    if (fechas.length) {
-      if (!$('desde').value) $('desde').value = fechas[0];
-      if (!$('hasta').value) $('hasta').value = fechas[fechas.length - 1];
+// Une dos bases. Para una misma guía gana el registro con actualización más reciente.
+function mergeDB(remoto, local) {
+  const base = normalizar(remoto);
+  const L = normalizar(local);
+  const mapaId = {};
+  Object.values(L.mensajeros).forEach(m => {
+    const ex = Object.values(base.mensajeros).find(x => x.nombre.toLowerCase() === m.nombre.toLowerCase());
+    if (ex) {
+      mapaId[m.id] = ex.id;
+      ex.zona = m.zona || ex.zona;
+      ex.activo = m.activo;
+    } else {
+      base.mensajeros[m.id] = m;
+      mapaId[m.id] = m.id;
     }
+  });
+  Object.values(L.registros).forEach(r => {
+    const mid = mapaId[r.mensajeroId] || r.mensajeroId;
+    const ex = base.registros[r.codigo];
+    if (!ex || (r.actualizado || '') >= (ex.actualizado || '')) {
+      base.registros[r.codigo] = { ...r, mensajeroId: mid };
+    }
+  });
+  return base;
+}
+
+function cargarLocal() {
+  try { return normalizar(JSON.parse(localStorage.getItem(LS_DB) || 'null')); }
+  catch (e) { return vacio(); }
+}
+function guardarLocal() {
+  try { localStorage.setItem(LS_DB, JSON.stringify(db)); }
+  catch (e) { notify('La memoria del navegador está llena. Descarga una copia.'); }
+}
+
+function nombreM(id) { return (db.mensajeros[id] && db.mensajeros[id].nombre) || 'Sin mensajero'; }
+function nombreArchivo() {
+  let n = (localStorage.getItem(LS_FILE) || ARCHIVO_DEFAULT).trim() || ARCHIVO_DEFAULT;
+  if (!n.toLowerCase().endsWith('.json')) n += '.json';
+  return n;
+}
+
+// Crea o actualiza una asignación. Un nuevo movimiento reemplaza al anterior.
+function asignar(codigo, o) {
+  const prev = db.registros[codigo];
+  let estado;
+  if (!prev) estado = 'nueva';
+  else if (prev.mensajeroId === o.mensajeroId) estado = 'actualizada';
+  else estado = 'reasignada';
+  const anterior = prev ? nombreM(prev.mensajeroId) : '';
+  db.registros[codigo] = {
+    codigo,
+    mensajeroId: o.mensajeroId,
+    fecha: o.fecha,
+    hora: o.hora,
+    ciudad: o.ciudad || (prev && prev.ciudad) || '',
+    zip: o.zip || (prev && prev.zip) || '',
+    origen: o.origen,
+    estado,
+    actualizado: ahoraStr()
+  };
+  return { estado, anterior };
+}
+
+// Cambio local: guarda en este equipo y programa el guardado en Drive
+function cambio() {
+  guardarLocal();
+  pendiente = true;
+  localStorage.setItem(LS_PEND, '1');
+  renderAll();
+  programarGuardado();
+}
+
+/* ================= GOOGLE DRIVE ================= */
+function pintarDrive() {
+  const p = $('drivePill');
+  p.textContent = driveConectado ? '● Drive conectado' : '○ Drive sin conectar';
+  p.classList.toggle('off', !driveConectado);
+  $('estadoConfig').textContent = driveConectado
+    ? `Conectado · archivo: ${nombreArchivo()}`
+    : 'Sin conectar. Los cambios se guardan en este equipo hasta conectar Drive.';
+}
+
+function initDrive() {
+  if (!(window.google && google.accounts && google.accounts.oauth2)) {
+    if (++intentosInit < 40) setTimeout(initDrive, 500);
+    else setSync('No se pudo cargar Google. Revisa tu conexión y recarga.');
+    return;
+  }
+  tokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: CLIENT_ID,
+    scope: DRIVE_SCOPE,
+    callback: onToken,
+    error_callback: () => setSync('Pulsa "Conectar con Drive" para cargar tu base.')
+  });
+  // Intento silencioso: funciona si ya diste permiso antes en este navegador
+  try { tokenClient.requestAccessToken({ prompt: '' }); }
+  catch (e) { setSync('Pulsa "Conectar con Drive" para cargar tu base.'); }
+  setTimeout(() => { if (!driveConectado) setSync('Pulsa "Conectar con Drive" para cargar tu base.'); }, 6000);
+}
+
+function conectarDrive() {
+  if (!tokenClient) { notify('Google todavía está cargando. Intenta en unos segundos.'); return; }
+  tokenClient.requestAccessToken({ prompt: accessToken ? '' : 'consent' });
+}
+
+function onToken(resp) {
+  if (resp.error) { setSync('Error de Drive: ' + resp.error); return; }
+  accessToken = resp.access_token;
+  driveConectado = true;
+  pintarDrive();
+  // El token dura alrededor de una hora
+  setTimeout(() => {
+    accessToken = null; driveConectado = false; pintarDrive();
+    setSync('La sesión de Drive venció. Pulsa "Conectar con Drive".');
+  }, Math.max(60, (resp.expires_in || 3600) - 60) * 1000);
+  cargarDesdeDrive();
+}
+
+async function driveFetch(url, opts = {}) {
+  if (!accessToken) throw new Error('Conecta con Google Drive primero');
+  const headers = { ...(opts.headers || {}), Authorization: 'Bearer ' + accessToken };
+  const r = await fetch(url, { ...opts, headers });
+  if (r.status === 401) {
+    accessToken = null; driveConectado = false; pintarDrive();
+    throw new Error('La sesión de Drive venció. Pulsa "Conectar con Drive".');
+  }
+  if (!r.ok) throw new Error('Drive respondió ' + r.status);
+  return r;
+}
+
+async function buscarArchivo() {
+  const nombre = nombreArchivo().replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+  const q = encodeURIComponent(`name='${nombre}' and trashed=false`);
+  const r = await driveFetch(`https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id,name)&spaces=drive`);
+  const j = await r.json();
+  return j.files && j.files.length ? j.files[0].id : null;
+}
+
+async function descargarArchivo(id) {
+  const r = await driveFetch(`https://www.googleapis.com/drive/v3/files/${id}?alt=media`);
+  return r.json();
+}
+
+// Al conectar: busca el archivo, lo carga y une los cambios hechos sin conexión
+async function cargarDesdeDrive() {
+  try {
+    setSync('Buscando tu base en Drive…');
+    const id = await buscarArchivo();
+    if (id) {
+      const remoto = await descargarArchivo(id);
+      driveFileId = id;
+      db = mergeDB(remoto, db);
+      guardarLocal();
+      renderAll();
+      setSync('Base cargada desde Drive · ' + hms(new Date()));
+      if (pendiente) programarGuardado();
+    } else {
+      setSync('No hay base en Drive todavía. Se creará al guardar.');
+      if (Object.keys(db.registros).length || Object.keys(db.mensajeros).length) guardarDrive();
+    }
+  } catch (e) {
+    setSync('Error al cargar: ' + e.message);
   }
 }
 
-function seleccionados() {
-  return new Set(Array.from(document.querySelectorAll('.chk:checked')).map(c => c.value));
+function programarGuardado() {
+  clearTimeout(saveTimer);
+  if (!driveConectado) {
+    setSync('Guardado en este equipo · pendiente de Drive');
+    return;
+  }
+  setSync('Guardando en Drive…');
+  saveTimer = setTimeout(guardarDrive, 1500);
+}
+
+// Lee lo que haya en Drive, lo une con lo local y sobrescribe el mismo archivo
+async function guardarDrive() {
+  if (!driveConectado || !accessToken) return;
+  if (guardando) { reintentar = true; return; }
+  guardando = true;
+  try {
+    const id = driveFileId || await buscarArchivo();
+    let remoto = null;
+    if (id) remoto = await descargarArchivo(id);
+    db = mergeDB(remoto, db);
+    guardarLocal();
+    const contenido = JSON.stringify(db, null, 2);
+    if (id) {
+      await driveFetch(`https://www.googleapis.com/upload/drive/v3/files/${id}?uploadType=media`, {
+        method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: contenido
+      });
+      driveFileId = id;
+    } else {
+      const boundary = 'mrd' + Date.now();
+      const meta = JSON.stringify({ name: nombreArchivo(), mimeType: 'application/json' });
+      const body = `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${meta}\r\n--${boundary}\r\nContent-Type: application/json\r\n\r\n${contenido}\r\n--${boundary}--`;
+      const r = await driveFetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
+        method: 'POST', headers: { 'Content-Type': `multipart/related; boundary=${boundary}` }, body
+      });
+      const j = await r.json();
+      driveFileId = j.id;
+    }
+    pendiente = false;
+    localStorage.removeItem(LS_PEND);
+    setSync('Guardado en Drive · ' + hms(new Date()));
+    renderAll();
+  } catch (e) {
+    setSync('Error al guardar: ' + e.message + ' · los cambios siguen en este equipo');
+  } finally {
+    guardando = false;
+    if (reintentar) { reintentar = false; programarGuardado(); }
+  }
+}
+
+window.addEventListener('beforeunload', e => {
+  if (pendiente && driveConectado) { e.preventDefault(); e.returnValue = ''; }
+});
+
+/* ================= PARSEO ================= */
+function parseGuias(texto) {
+  const out = [];
+  const re = /Delivery(\d+)\s*OFD Time:\s*(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\s*Ciudad:\s*([^\r\n]*?)\s*zipCode:\s*(\d+)/g;
+  let m;
+  while ((m = re.exec(texto))) {
+    const ofd = new Date(m[2].replace(' ', 'T'));
+    if (!isNaN(ofd)) out.push({ codigo: m[1], ofd, ciudad: m[3].trim(), zip: m[4] });
+  }
+  return out;
+}
+
+function parseEntrada(texto) {
+  const rastreo = parseGuias(texto);
+  let items = [];
+  let invalidas = 0;
+  if (rastreo.length) {
+    items = rastreo.map(x => ({ codigo: x.codigo, ofd: x.ofd, ciudad: x.ciudad, zip: x.zip }));
+  } else {
+    texto.split(/[\n,\t; ]+/).map(x => x.trim()).filter(Boolean).forEach(t => {
+      if (/^\d{8,20}$/.test(t)) items.push({ codigo: t });
+      else invalidas++;
+    });
+  }
+  const vistos = new Set();
+  const unicos = [];
+  let duplicadas = 0;
+  items.forEach(it => {
+    if (vistos.has(it.codigo)) duplicadas++;
+    else { vistos.add(it.codigo); unicos.push(it); }
+  });
+  return { items: unicos, duplicadas, invalidas };
+}
+
+/* ================= FILTROS Y TOTALES ================= */
+function enRango(r, d, h) { return (!d || r.fecha >= d) && (!h || r.fecha <= h); }
+
+function regsFiltrados(d, h, mid, texto) {
+  const t = (texto || '').trim().toLowerCase();
+  return Object.values(db.registros).filter(r =>
+    enRango(r, d, h) &&
+    (!mid || r.mensajeroId === mid) &&
+    (!t || r.codigo.includes(t) || nombreM(r.mensajeroId).toLowerCase().includes(t) || (r.ciudad || '').toLowerCase().includes(t))
+  );
+}
+
+function txtPorMensajero(regs) {
+  const grupos = {};
+  regs.forEach(r => { (grupos[nombreM(r.mensajeroId)] ||= []).push(r.codigo); });
+  return Object.keys(grupos).sort().map(n =>
+    `MENSAJERO: ${n}\nTOTAL DE GUIAS: ${grupos[n].length}\n\n${grupos[n].join('\n')}\n`
+  ).join('\n----------------------------------------\n\n');
+}
+
+function llenarSelect(id, incluirTodos) {
+  const sel = $(id);
+  const prev = sel.value;
+  const lista = Object.values(db.mensajeros).filter(m => m.activo)
+    .sort((a, b) => a.nombre.localeCompare(b.nombre));
+  let html = incluirTodos ? '<option value="">Todos los mensajeros</option>' : '';
+  html += lista.map(m => `<option value="${esc(m.id)}">${esc(m.nombre)}${m.zona ? ' · ' + esc(m.zona) : ''}</option>`).join('');
+  if (!lista.length && !incluirTodos) html = '<option value="">Registra un mensajero primero</option>';
+  sel.innerHTML = html;
+  if (prev && [...sel.options].some(o => o.value === prev)) sel.value = prev;
+}
+
+/* ================= RENDER ================= */
+function renderTiles(contenedor, regs, tipo) {
+  const conteo = {};
+  regs.forEach(r => {
+    const k = tipo === 'zip' ? (r.zip || 'Sin código') : (r.ciudad || 'Sin ciudad');
+    conteo[k] = (conteo[k] || 0) + 1;
+  });
+  const entradas = Object.entries(conteo).sort((a, b) => b[1] - a[1]);
+  const max = Math.max(...entradas.map(e => e[1]), 1);
+  $(contenedor).innerHTML = entradas.map(([k, n]) =>
+    `<div class="zona" style="background:rgba(138,180,248,${(0.12 + 0.6 * n / max).toFixed(2)})">
+       <span>${esc(k)}</span><b>${n}</b></div>`
+  ).join('') || '<div class="small-muted">Sin asignaciones en el período</div>';
+}
+
+function renderPanel() {
+  const d = $('pDesde').value, h = $('pHasta').value;
+  const regs = regsFiltrados(d, h, '', '');
+  const activos = Object.values(db.mensajeros).filter(m => m.activo);
+  const porM = {};
+  regs.forEach(r => { porM[r.mensajeroId] = (porM[r.mensajeroId] || 0) + 1; });
+  $('mAsig').textContent = regs.length;
+  $('mMens').textContent = Object.keys(porM).length;
+  $('mMensNote').textContent = `de ${activos.length} activos`;
+  $('mCiu').textContent = new Set(regs.map(r => r.ciudad).filter(Boolean)).size;
+  $('mReg').textContent = Object.keys(db.registros).length;
+
+  renderTiles('mapaPanel', regs, 'ciudad');
+
+  const lista = activos.slice().sort((a, b) => (porM[b.id] || 0) - (porM[a.id] || 0));
+  $('listaMensajeros').innerHTML = lista.map(m =>
+    `<div class="driver">
+       <div class="initial">${esc(iniciales(m.nombre))}</div>
+       <div class="driver-info"><div class="driver-name">${esc(m.nombre)}</div><div class="driver-meta">${esc(m.zona || 'Sin zona')}</div></div>
+       <span class="count">${porM[m.id] || 0} guías</span>
+     </div>`
+  ).join('') || '<div class="small-muted">Registra mensajeros en la sección Mensajeros.</div>';
+
+  const act = Object.values(db.registros)
+    .sort((a, b) => (b.actualizado || '').localeCompare(a.actualizado || ''))
+    .slice(0, 8);
+  $('tablaActividad').innerHTML = act.map(r =>
+    `<tr>
+       <td>${esc((r.actualizado || '').slice(11, 16))}</td>
+       <td>${esc(nombreM(r.mensajeroId))}</td>
+       <td class="code">${esc(r.codigo)}</td>
+       <td>${esc(r.origen)}</td>
+       <td><span class="status ${r.estado === 'reasignada' ? 'pending' : ''}">${esc(ETIQ_ESTADO[r.estado] || r.estado)}</span></td>
+     </tr>`
+  ).join('') || '<tr><td colspan="5" class="small-muted">Todavía no hay movimientos.</td></tr>';
+}
+
+function renderRegistrar() {
+  llenarSelect('selRegistrar', false);
+  if (!$('fechaRegistrar').value) $('fechaRegistrar').value = hoyYmd();
+  $('btnAsignar').disabled = !Object.values(db.mensajeros).some(m => m.activo);
+}
+
+function renderEscaner() {
+  llenarSelect('selEscaner', false);
+  if (!$('fechaEscaner').value) $('fechaEscaner').value = hoyYmd();
+  const mid = $('selEscaner').value;
+  $('scanInput').disabled = !mid;
+  $('infoEscaner').textContent = mid
+    ? nombreM(mid) + (db.mensajeros[mid].zona ? ' · ' + db.mensajeros[mid].zona : '')
+    : 'Sin mensajero activo';
+  const ok = sesion.filter(s => s.tipo === 'ok' || s.tipo === 'warn').length;
+  $('scanCount').textContent = `${ok} guías · ${sesion.length} lecturas`;
+  $('scanList').innerHTML = sesion.slice(0, 30).map(s =>
+    `<div class="scan-item">
+       <span class="code">${esc(s.codigo)}</span>
+       <span class="msg-${s.tipo === 'ok' ? 'ok' : s.tipo === 'warn' ? 'warn' : 'err'}">${esc(s.texto)}</span>
+     </div>`
+  ).join('') || '<div class="small-muted">Todavía no hay lecturas en esta sesión.</div>';
+}
+
+function renderMensajeros() {
+  const porM = {};
+  Object.values(db.registros).forEach(r => { porM[r.mensajeroId] = (porM[r.mensajeroId] || 0) + 1; });
+  const lista = Object.values(db.mensajeros).sort((a, b) => a.nombre.localeCompare(b.nombre));
+  $('tablaMensajeros').innerHTML = lista.map(m =>
+    `<tr>
+       <td>${esc(m.nombre)}</td>
+       <td>${esc(m.zona || '—')}</td>
+       <td><span class="status ${m.activo ? '' : 'off'}">${m.activo ? 'Activo' : 'Inactivo'}</span></td>
+       <td>${porM[m.id] || 0}</td>
+       <td class="row">
+         <button class="outline" data-accion="renombrar" data-id="${esc(m.id)}">Renombrar</button>
+         <button class="outline" data-accion="zona" data-id="${esc(m.id)}">Zona</button>
+         <button class="outline" data-accion="estado" data-id="${esc(m.id)}">${m.activo ? 'Desactivar' : 'Activar'}</button>
+       </td>
+     </tr>`
+  ).join('') || '<tr><td colspan="5" class="small-muted">Todavía no hay mensajeros registrados.</td></tr>';
+}
+
+function renderMapa() {
+  const regs = regsFiltrados($('mapaDesde').value, $('mapaHasta').value, '', '');
+  renderTiles('mapaTiles', regs, $('mapaTipo').value);
 }
 
 function renderHistorial() {
-  const desde = $('desde').value;
-  const hasta = $('hasta').value;
-  const sel = seleccionados();
-  const regs = Object.values(db.registros)
-    .filter(r => (!desde || r.fecha >= desde) && (!hasta || r.fecha <= hasta) && sel.has(r.conductor));
-
-  if (!Object.keys(db.registros).length) {
-    $('vacio').classList.remove('hidden');
-  }
-
-  const ciudades = new Set(regs.map(r => r.ciudad));
-  const zips = new Set(regs.map(r => r.zip));
-  $('hRegistros').textContent = regs.length;
-  $('hConductores').textContent = sel.size;
-  $('hCiudades').textContent = ciudades.size;
-  $('hZips').textContent = zips.size;
-
-  // Por conductor
-  const porCond = {};
-  regs.forEach(r => {
-    const g = (porCond[r.conductor] ||= { total: 0, ciudades: new Set(), primera: r.fecha, ultima: r.fecha });
-    g.total++; g.ciudades.add(r.ciudad);
-    if (r.fecha < g.primera) g.primera = r.fecha;
-    if (r.fecha > g.ultima) g.ultima = r.fecha;
-  });
-  let t = '<table><thead><tr><th>Conductor</th><th>Registros</th><th>Primera fecha</th><th>Última fecha</th><th>Ciudades</th></tr></thead><tbody>';
-  Object.entries(porCond).sort((a, b) => b[1].total - a[1].total).forEach(([n, g]) => {
-    t += `<tr><td>${esc(n)}</td><td><strong>${g.total}</strong></td><td>${g.primera}</td><td>${g.ultima}</td><td>${g.ciudades.size}</td></tr>`;
-  });
-  t += `</tbody><tfoot><tr><td>Total</td><td>${regs.length}</td><td colspan="3"></td></tr></tfoot></table>`;
-  $('tablaHistConductor').innerHTML = t;
-
-  // Mapa de zonas
-  const tipo = $('mapaTipo').value;
-  const conteo = {};
-  regs.forEach(r => { const k = tipo === 'zip' ? r.zip : r.ciudad; conteo[k] = (conteo[k] || 0) + 1; });
-  const max = Math.max(...Object.values(conteo), 1);
-  $('mapaZonas').innerHTML = Object.entries(conteo).sort((a, b) => b[1] - a[1]).map(([k, n]) => {
-    const f = n / max;
-    const bg = `rgba(37,99,235,${(0.12 + 0.78 * f).toFixed(2)})`;
-    const color = f > 0.5 ? '#fff' : '#1e293b';
-    return `<div class="tile" style="background:${bg};color:${color}" title="${esc(k)}: ${n}">
-      <span>${esc(k)}</span><b>${n}</b></div>`;
-  }).join('') || '<div class="muted">Sin registros en el rango seleccionado</div>';
-
-  // Guías de la selección
-  const lista = regs.slice().sort((a, b) => b.fecha.localeCompare(a.fecha) || b.ofd.localeCompare(a.ofd)).slice(0, 500);
-  let g = '<table><thead><tr><th>Código</th><th>Conductor</th><th>Fecha</th><th>Ciudad</th><th>Zip</th></tr></thead><tbody>';
-  lista.forEach(r => {
-    g += `<tr><td class="code">${esc(r.codigo)}</td><td>${esc(r.conductor)}</td><td>${r.fecha}</td><td>${esc(r.ciudad)}</td><td>${esc(r.zip)}</td></tr>`;
-  });
-  g += '</tbody></table>';
-  $('tablaGuias').innerHTML = g;
-  $('infoSel').textContent = regs.length > 500 ? `Mostrando 500 de ${regs.length}. El TXT incluye todas.` : `${regs.length} guías en la selección`;
+  llenarSelect('hMens', true);
+  const texto = $('buscar').value;
+  const regs = regsFiltrados($('hDesde').value, $('hHasta').value, $('hMens').value, texto)
+    .sort((a, b) => b.fecha.localeCompare(a.fecha) || (b.actualizado || '').localeCompare(a.actualizado || ''));
+  const lista = regs.slice(0, 500);
+  $('tablaHist').innerHTML = lista.map(r =>
+    `<tr>
+       <td>${esc(r.fecha)}</td>
+       <td>${esc(r.hora)}</td>
+       <td class="code">${esc(r.codigo)}</td>
+       <td>${esc(nombreM(r.mensajeroId))}</td>
+       <td>${esc(r.ciudad)}</td>
+       <td>${esc(r.zip)}</td>
+       <td><span class="status ${r.estado === 'reasignada' ? 'pending' : ''}">${esc(ETIQ_ESTADO[r.estado] || r.estado)}</span></td>
+     </tr>`
+  ).join('') || '<tr><td colspan="7" class="small-muted">Sin registros con estos filtros.</td></tr>';
+  $('infoHist').textContent = regs.length > 500 ? `Mostrando 500 de ${regs.length}. El TXT incluye todas.` : `${regs.length} registros`;
 }
 
-/* ================= JSON ================= */
-function cargarJSON(file) {
+function renderConfig() {
+  $('archivoNombre').value = nombreArchivo();
+  pintarDrive();
+}
+
+function renderAll() {
+  renderPanel();
+  renderRegistrar();
+  renderEscaner();
+  renderMensajeros();
+  renderMapa();
+  renderHistorial();
+  renderConfig();
+}
+
+function mostrar(v) {
+  document.querySelectorAll('.view').forEach(x => x.style.display = x.id === 'v-' + v ? 'block' : 'none');
+  document.querySelectorAll('.nav').forEach(n => n.classList.toggle('active', n.dataset.view === v));
+  document.querySelector('.crumb').textContent = 'Inicio › ' + ETIQ[v];
+  if (v === 'escaner') setTimeout(() => { if (!$('scanInput').disabled) $('scanInput').focus(); }, 50);
+}
+
+/* ================= ACCIONES ================= */
+// Registrar: validar y asignar
+let borrador = null;
+
+$('btnValidar').onclick = () => {
+  const texto = $('bulk').value;
+  if (!texto.trim()) { notify('Pega primero las guías'); return; }
+  borrador = parseEntrada(texto);
+  if (!borrador.items.length) {
+    $('bulkResult').textContent = 'No encontré guías válidas';
+    $('btnAsignar').disabled = true;
+    borrador = null;
+    return;
+  }
+  $('bulkResult').textContent = `${borrador.items.length} guías válidas · ${borrador.duplicadas} repetidas · ${borrador.invalidas} con formato inválido`;
+  $('btnAsignar').disabled = !$('selRegistrar').value;
+};
+
+$('btnLimpiarBulk').onclick = () => { $('bulk').value = ''; $('bulkResult').textContent = ''; borrador = null; $('resumenAsignar').textContent = ''; };
+
+$('btnAsignar').onclick = () => {
+  const mid = $('selRegistrar').value;
+  if (!mid) { notify('Selecciona un mensajero activo'); return; }
+  if (!borrador || !borrador.items.length) { notify('Valida las guías primero'); return; }
+  const fechaBase = $('fechaRegistrar').value || hoyYmd();
+  const cuenta = { nueva: 0, actualizada: 0, reasignada: 0 };
+  borrador.items.forEach(it => {
+    const r = asignar(it.codigo, {
+      mensajeroId: mid,
+      fecha: it.ofd ? ymd(it.ofd) : fechaBase,
+      hora: it.ofd ? hms(it.ofd) : hms(new Date()),
+      ciudad: it.ciudad,
+      zip: it.zip,
+      origen: it.ofd ? 'Rastreo pegado' : 'Pegado de datos'
+    });
+    cuenta[r.estado]++;
+  });
+  const resumen = `${cuenta.nueva} nuevas · ${cuenta.actualizada} actualizadas · ${cuenta.reasignada} reasignadas a ${nombreM(mid)}`;
+  $('resumenAsignar').textContent = 'Listo: ' + resumen;
+  notify('Asignación guardada');
+  borrador = null;
+  $('bulk').value = '';
+  $('bulkResult').textContent = '';
+  $('btnAsignar').disabled = true;
+  cambio();
+};
+
+// Escáner
+function escanear(valor) {
+  const codigo = (valor || '').trim();
+  const input = $('scanInput');
+  input.value = '';
+  input.focus();
+  if (!codigo) return;
+  if (!/^\d{8,20}$/.test(codigo)) {
+    sesion.unshift({ codigo, texto: 'Formato no válido', tipo: 'err' });
+    renderEscaner();
+    return;
+  }
+  const mid = $('selEscaner').value;
+  if (!mid) { notify('Registra y selecciona un mensajero activo'); return; }
+  if (sesion.some(s => s.codigo === codigo && s.tipo !== 'err')) {
+    sesion.unshift({ codigo, texto: 'Ya escaneada en esta sesión', tipo: 'warn' });
+    renderEscaner();
+    return;
+  }
+  const fecha = $('fechaEscaner').value || hoyYmd();
+  const r = asignar(codigo, { mensajeroId: mid, fecha, hora: hms(new Date()), origen: 'Escáner' });
+  const texto = r.estado === 'nueva' ? 'Registrada'
+    : r.estado === 'actualizada' ? 'Actualizada (nuevo movimiento)'
+    : 'Reasignada desde ' + r.anterior;
+  sesion.unshift({ codigo, texto, tipo: r.estado === 'reasignada' ? 'warn' : 'ok' });
+  cambio();
+}
+
+$('scanInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') { e.preventDefault(); escanear($('scanInput').value); }
+});
+$('btnAgregarScan').onclick = () => escanear($('scanInput').value);
+$('btnVaciarScan').onclick = () => { sesion = []; renderEscaner(); };
+$('btnTerminar').onclick = () => {
+  const ok = sesion.filter(s => s.tipo === 'ok').length;
+  const warn = sesion.filter(s => s.tipo === 'warn').length;
+  const err = sesion.filter(s => s.tipo === 'err').length;
+  notify(`Sesión terminada: ${ok} registradas · ${warn} omitidas o reasignadas · ${err} con error`);
+  sesion = [];
+  renderEscaner();
+  if (driveConectado) guardarDrive();
+};
+
+// Mensajeros
+$('btnNuevoMens').onclick = () => {
+  const nombre = $('nuevoNombre').value.trim();
+  const zona = $('nuevaZona').value.trim();
+  if (!nombre) { notify('Escribe el nombre del mensajero'); return; }
+  if (Object.values(db.mensajeros).some(m => m.nombre.toLowerCase() === nombre.toLowerCase())) {
+    notify('Ya existe un mensajero con ese nombre'); return;
+  }
+  const id = nuevoId();
+  db.mensajeros[id] = { id, nombre, zona, activo: true, creado: hoyYmd() };
+  $('nuevoNombre').value = ''; $('nuevaZona').value = '';
+  notify('Mensajero registrado');
+  cambio();
+};
+
+$('tablaMensajeros').addEventListener('click', e => {
+  const b = e.target.closest('button[data-accion]');
+  if (!b) return;
+  const m = db.mensajeros[b.dataset.id];
+  if (!m) return;
+  if (b.dataset.accion === 'renombrar') {
+    const n = prompt('Nuevo nombre', m.nombre);
+    if (!n || !n.trim()) return;
+    if (Object.values(db.mensajeros).some(x => x.id !== m.id && x.nombre.toLowerCase() === n.trim().toLowerCase())) {
+      notify('Ya existe un mensajero con ese nombre'); return;
+    }
+    m.nombre = n.trim();
+  } else if (b.dataset.accion === 'zona') {
+    const z = prompt('Zona', m.zona || '');
+    if (z === null) return;
+    m.zona = z.trim();
+  } else if (b.dataset.accion === 'estado') {
+    m.activo = !m.activo;
+  }
+  cambio();
+});
+
+// Mapa, panel e historial
+['pDesde', 'pHasta'].forEach(id => $(id).onchange = renderPanel);
+['mapaDesde', 'mapaHasta', 'mapaTipo'].forEach(id => $(id).onchange = renderMapa);
+['hDesde', 'hHasta', 'hMens'].forEach(id => $(id).onchange = renderHistorial);
+$('buscar').oninput = () => { if ($('v-historial').style.display !== 'block') mostrar('historial'); renderHistorial(); };
+
+$('btnExportPanel').onclick = () => {
+  const d = $('pDesde').value, h = $('pHasta').value;
+  const regs = regsFiltrados(d, h, '', '');
+  if (!regs.length) { notify('No hay guías en el período'); return; }
+  descargar(`asignaciones_${d}_a_${h}.txt`, txtPorMensajero(regs), 'text/plain;charset=utf-8');
+};
+
+$('btnTxtHist').onclick = () => {
+  const regs = regsFiltrados($('hDesde').value, $('hHasta').value, $('hMens').value, $('buscar').value);
+  if (!regs.length) { notify('No hay registros con estos filtros'); return; }
+  descargar(`guias_${nombreSeguro($('hMens').value ? nombreM($('hMens').value) : 'todos')}_${$('hDesde').value || 'inicio'}_a_${$('hHasta').value || 'hoy'}.txt`,
+    txtPorMensajero(regs), 'text/plain;charset=utf-8');
+};
+
+// Configuración
+$('archivoNombre').onchange = () => {
+  let n = $('archivoNombre').value.trim() || ARCHIVO_DEFAULT;
+  if (!n.toLowerCase().endsWith('.json')) n += '.json';
+  localStorage.setItem(LS_FILE, n);
+  driveFileId = null;
+  notify('Nombre de archivo guardado. Se usará en el próximo guardado.');
+  renderConfig();
+};
+$('btnConectar').onclick = conectarDrive;
+$('btnGuardarAhora').onclick = () => {
+  if (!driveConectado) { conectarDrive(); return; }
+  guardarDrive();
+};
+$('btnDescargarCopia').onclick = () =>
+  descargar(`base_guias_${hoyYmd()}.json`, JSON.stringify(db, null, 2), 'application/json');
+$('btnCargarLocal').onclick = () => $('fileLocal').click();
+$('fileLocal').onchange = e => {
+  const f = e.target.files[0];
+  if (!f) return;
   const lector = new FileReader();
   lector.onload = () => {
     try {
       const d = JSON.parse(lector.result);
-      if (!d || typeof d.registros !== 'object') throw new Error('El archivo no tiene el formato de la base');
-      let nuevos = 0, actualizados = 0;
-      Object.entries(d.registros).forEach(([k, r]) => {
-        db.registros[k] ? actualizados++ : nuevos++;
-        db.registros[k] = r;
-      });
-      Object.entries(d.conductores || {}).forEach(([n, c]) => {
-        if (!db.conductores[n]) db.conductores[n] = c;
-      });
-      guardarLocal();
-      renderSelector();
-      renderHistorial();
-      $('estado').textContent = `Data cargada: ${nuevos} registros nuevos, ${actualizados} actualizados · ${fmtFecha(new Date())}`;
-    } catch (e) {
-      alert('No pude cargar el archivo: ' + e.message);
+      db = mergeDB(d, db);
+      cambio();
+      notify('Archivo cargado y unido a la base');
+    } catch (err) {
+      notify('El archivo no tiene el formato correcto');
     }
   };
-  lector.readAsText(file);
-}
-
-/* ================= EVENTOS ================= */
-$('btnProcesar').onclick = procesar;
-
-$('btnLimpiarTexto').onclick = () => { $('data').value = ''; $('bannerNuevo').innerHTML = ''; };
-
-$('btnTxtLote').onclick = () => {
-  if (!batch) { alert('Primero procesa un rastreo.'); return; }
-  const regs = batch.items.map(it => ({ codigo: it.code, conductor: batch.conductor }));
-  descargar(`codigos_${nombreSeguro(batch.conductor)}_${ymd(new Date())}.txt`, txtDeRegistros(regs), 'text/plain;charset=utf-8');
+  lector.readAsText(f);
+  e.target.value = '';
 };
-
-$('btnCargarJSON').onclick = () => $('fileJSON').click();
-$('fileJSON').onchange = e => { if (e.target.files[0]) cargarJSON(e.target.files[0]); e.target.value = ''; };
-
-$('btnGuardarJSON').onclick = () => {
-  descargar(`base_guias_${ymd(new Date())}.json`, JSON.stringify(db, null, 2), 'application/json');
-  $('estado').textContent = 'Base descargada · ' + fmtFecha(new Date());
-};
-
 $('btnBorrar').onclick = () => {
-  if (!confirm('¿Borrar toda la base guardada en este navegador? Descarga el JSON antes si la necesitas.')) return;
-  db = vacioDB();
-  batch = null;
-  nuevosSesion.clear();
-  desmarcados.clear();
-  $('desde').value = ''; $('hasta').value = '';
-  guardarLocal();
-  $('lote').classList.add('hidden');
-  $('bannerNuevo').innerHTML = '';
-  renderSelector();
-  renderHistorial();
-  $('estado').textContent = 'Base borrada';
+  if (!confirm('¿Borrar la base de este equipo? Si está guardada en Drive, se conserva ahí.')) return;
+  db = vacio();
+  sesion = [];
+  cambio();
+  notify('Base de este equipo borrada');
 };
 
-$('desde').onchange = renderHistorial;
-$('hasta').onchange = renderHistorial;
-$('mapaTipo').onchange = renderHistorial;
+// Navegación
+document.querySelectorAll('.nav').forEach(n => n.onclick = () => mostrar(n.dataset.view));
 
-$('btnHoy').onclick = () => {
-  const hoy = ymd(new Date());
-  $('desde').value = hoy; $('hasta').value = hoy;
-  renderHistorial();
-};
-$('btnTodo').onclick = () => {
-  const fechas = Object.values(db.registros).map(r => r.fecha).sort();
-  if (fechas.length) { $('desde').value = fechas[0]; $('hasta').value = fechas[fechas.length - 1]; }
-  renderHistorial();
-};
-
-$('chkTodos').onchange = e => {
-  document.querySelectorAll('.chk').forEach(c => { c.checked = e.target.checked; });
-  desmarcados.clear();
-  if (!e.target.checked) document.querySelectorAll('.chk').forEach(c => desmarcados.add(c.value));
-  renderHistorial();
-};
-
-$('listaConductores').addEventListener('change', e => {
-  if (!e.target.classList.contains('chk')) return;
-  e.target.checked ? desmarcados.delete(e.target.value) : desmarcados.add(e.target.value);
-  const todos = Array.from(document.querySelectorAll('.chk')).every(c => c.checked);
-  $('chkTodos').checked = todos;
-  renderHistorial();
-});
-
-$('btnTxtSel').onclick = () => {
-  const desde = $('desde').value, hasta = $('hasta').value, sel = seleccionados();
-  const regs = Object.values(db.registros)
-    .filter(r => (!desde || r.fecha >= desde) && (!hasta || r.fecha <= hasta) && sel.has(r.conductor));
-  if (!regs.length) { alert('No hay registros en la selección.'); return; }
-  descargar(`codigos_seleccion_${desde || 'inicio'}_a_${hasta || 'hoy'}.txt`, txtDeRegistros(regs), 'text/plain;charset=utf-8');
-};
-
-$('live').onchange = () => {
-  $('refTime').disabled = $('live').checked;
-  if (!$('live').checked) {
-    const n = new Date();
-    $('refTime').value = `${ymd(n)}T${pad(n.getHours())}:${pad(n.getMinutes())}`;
-  }
-  renderLote();
-};
-$('refTime').onchange = renderLote;
-
-setInterval(() => { if (batch && $('live').checked) renderLote(); }, 1000);
-
-// Arranque
-renderSelector();
-renderHistorial();
-infoDB();
-if (Object.keys(db.registros).length) {
-  $('estado').textContent = 'Base cargada desde este navegador';
-}
+/* ================= ARRANQUE ================= */
+(function arranque() {
+  $('pDesde').value = hoyYmd();
+  $('pHasta').value = hoyYmd();
+  $('mapaDesde').value = hoyYmd();
+  $('mapaHasta').value = hoyYmd();
+  $('fechaRegistrar').value = hoyYmd();
+  $('fechaEscaner').value = hoyYmd();
+  renderAll();
+  mostrar('panel');
+  pintarDrive();
+  initDrive();
+  if (pendiente) setSync('Hay cambios pendientes de guardar en Drive');
+})();
 </script>
 </body>
 </html>
