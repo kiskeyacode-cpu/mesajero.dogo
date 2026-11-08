@@ -3,189 +3,191 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mensajería RD · Panel de control</title>
+<title>Mensajería RD · Gestor</title>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
-:root{
-  --bg:#202124;--surface:#292a2d;--surface-2:#303134;--surface-3:#3c4043;
-  --line:#45474b;--text:#e8eaed;--muted:#aeb4bc;--blue:#8ab4f8;--blue-bg:#394b68;
-  --green:#81c995;--yellow:#fdd663;--red:#f28b82;--radius:14px;
-}
+:root{--bg:#202124;--surface:#292a2d;--line:#45474b;--text:#e8eaed;--muted:#aeb4bc;--blue:#8ab4f8;--green:#81c995;--yellow:#fdd663;--red:#f28b82;--radius:14px}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--text);font:14px/1.45 Inter,Roboto,Arial,sans-serif}
 button,input,textarea,select{font:inherit}
-.topbar{height:64px;display:flex;align-items:center;gap:18px;padding:0 24px;border-bottom:1px solid var(--line);background:#292a2d;position:sticky;top:0;z-index:5}
-.brand{display:flex;align-items:center;gap:12px;font-size:17px;font-weight:600;white-space:nowrap}
+.topbar{height:64px;display:flex;align-items:center;gap:14px;padding:0 20px;border-bottom:1px solid var(--line);background:#292a2d;position:sticky;top:0;z-index:5}
+.brand{display:flex;align-items:center;gap:10px;font-size:16px;font-weight:600;white-space:nowrap}
 .brand-mark{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,#4285f4 0 45%,#34a853 45% 70%,#fbbc04 70%);display:grid;place-items:center;color:#202124;font-weight:900}
 .project{border:1px solid #7185a5;border-radius:20px;padding:6px 12px;color:#d8e3f8;font-size:12px;white-space:nowrap}
 .project.off{border-color:#6b6e73;color:#aeb4bc}
-.search{margin:auto;max-width:520px;width:40%;background:#3c4048;border:1px solid #59677f;border-radius:9px;padding:9px 14px;color:var(--text);outline:none}
-.sync{font-size:12px;color:#9aa0a6;max-width:300px;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.search{flex:1;max-width:400px;background:#3c4048;border:1px solid #59677f;border-radius:9px;padding:9px 14px;color:var(--text);outline:none}
+.periodo{display:flex;gap:6px;align-items:center;font-size:12px;color:var(--muted);white-space:nowrap}
+.sync{font-size:12px;color:#9aa0a6;max-width:280px;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-left:auto}
 .shell{display:flex;min-height:calc(100vh - 64px)}
-.sidebar{width:236px;padding:22px 12px;border-right:1px solid var(--line);background:#242528;flex-shrink:0}
+.sidebar{width:226px;padding:20px 12px;border-right:1px solid var(--line);background:#242528;flex-shrink:0}
 .side-label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#9298a1;padding:10px 14px}
-.nav{display:flex;align-items:center;gap:13px;padding:11px 14px;border-radius:9px;color:#c8cdd3;margin:3px 0;cursor:pointer;user-select:none}
+.nav{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:9px;color:#c8cdd3;margin:2px 0;cursor:pointer;user-select:none}
 .nav:hover,.nav.active{background:#394b68;color:#dce8ff}
-.nav .ico{width:18px;text-align:center;color:var(--blue);font-size:16px}
-.main{width:min(1500px,100%);padding:30px 34px 60px;margin:0 auto;min-width:0;flex:1}
+.nav .ico{width:18px;text-align:center;color:var(--blue)}
+.main{width:min(1500px,100%);padding:28px 32px 60px;margin:0 auto;min-width:0;flex:1}
 .view{display:none}
-.crumb{font-size:12px;color:#9aa0a6;margin-bottom:18px}
-.heading{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;margin-bottom:25px;flex-wrap:wrap}
-h1{font-size:27px;font-weight:500;margin:0 0 5px}
-.subtitle{color:var(--muted);font-size:13px}
-.primary,.outline{border:1px solid #6683b3;border-radius:8px;padding:9px 14px;color:#d7e4ff;background:transparent;cursor:pointer}
-.primary{background:#8ab4f8;color:#202124;border-color:#8ab4f8;font-weight:600}
-.primary:hover{background:#a6c7fa}
-.primary:disabled,.outline:disabled{opacity:.45;cursor:not-allowed}
-.outline:hover{background:#343b48}
-.danger{border:1px solid #8d4b47;border-radius:8px;padding:9px 14px;color:var(--red);background:transparent;cursor:pointer}
-.danger:hover{background:#3d2b2a}
-.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:15px;margin-bottom:22px}
-.metric,.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius)}
-.metric{padding:17px 19px}
-.metric-top{display:flex;justify-content:space-between;color:var(--muted);font-size:12px}
-.metric-value{font-size:29px;font-weight:500;margin:9px 0 3px;letter-spacing:-.03em}
-.metric-note{font-size:11px;color:var(--green)}
-.metric-icon{color:var(--blue);font-size:18px}
-.content-grid{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(300px,.85fr);gap:18px;margin-bottom:20px}
-.panel{padding:20px}
-.panel-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:17px;flex-wrap:wrap}
+.crumb{font-size:12px;color:#9aa0a6;margin-bottom:16px}
+.heading{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:22px;flex-wrap:wrap}
+h1{font-size:26px;font-weight:500;margin:0 0 4px}
 h2{font-size:16px;font-weight:500;margin:0}
+.subtitle{color:var(--muted);font-size:13px}
 .small-muted{font-size:12px;color:var(--muted)}
-.filters{display:flex;gap:9px;align-items:center;flex-wrap:wrap}
-input,select,textarea{background:#202124;border:1px solid #5f6368;border-radius:7px;color:var(--text);padding:9px 11px;outline:none}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px;margin-bottom:18px}
+.panel-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.metrics{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px;margin-bottom:18px}
+.metric{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px}
+.metric .l{color:var(--muted);font-size:12px}
+.metric .v{font-size:26px;font-weight:500;margin-top:6px}
+.metric .n{font-size:11px;color:var(--muted);margin-top:2px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.grid-side{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(280px,.9fr);gap:18px}
+.primary,.outline,.danger{border-radius:8px;padding:9px 14px;cursor:pointer;background:transparent}
+.primary{background:var(--blue);color:#202124;border:1px solid var(--blue);font-weight:600}
+.primary:hover{background:#a6c7fa}
+.outline{border:1px solid #6683b3;color:#d7e4ff}
+.outline:hover{background:#343b48}
+.danger{border:1px solid #8d4b47;color:var(--red)}
+.success{background:#81c995;color:#14331f;border:1px solid #81c995;font-weight:600;border-radius:8px;padding:9px 14px;cursor:pointer}
+.success:hover{background:#a8dab5}
+button:disabled{opacity:.45;cursor:not-allowed}
+.small-btn{padding:5px 9px;font-size:12px;border-radius:7px}
+input,select,textarea{background:#202124;border:1px solid #5f6368;border-radius:7px;color:var(--text);padding:8px 10px;outline:none}
 input:focus,select:focus,textarea:focus{border-color:var(--blue)}
-input[type=date]{color-scheme:dark}
+input[type=date],input[type=month]{color-scheme:dark}
 select option{background:#202124}
-.map{height:300px;border-radius:10px;overflow:hidden;position:relative;background-color:#252d31;
- background-image:linear-gradient(#303a3d 1px,transparent 1px),linear-gradient(90deg,#303a3d 1px,transparent 1px);
- background-size:44px 44px}
-.zonas{position:absolute;inset:0;padding:14px;display:flex;flex-wrap:wrap;gap:10px;align-content:flex-start;overflow:auto}
-.zona{border-radius:10px;padding:10px 12px;min-width:130px;display:flex;flex-direction:column;gap:4px;color:#e8eaed;font-size:12px;box-shadow:0 2px 8px #0005}
-.zona b{font-size:19px;font-weight:500}
-.driver-list{display:flex;flex-direction:column}
-.driver{display:flex;align-items:center;gap:11px;padding:12px 0;border-bottom:1px solid #3d3f42}
-.driver:last-child{border-bottom:0}
-.initial{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:#394b68;color:#dce8ff;font-weight:600;font-size:12px;flex-shrink:0}
-.driver-info{flex:1;min-width:0}.driver-name{font-size:13px}.driver-meta{font-size:11px;color:var(--muted)}
-.count{font-size:13px;color:#dce8ff;background:#394b68;border-radius:20px;padding:4px 9px;white-space:nowrap}
-.section-title{display:flex;align-items:center;gap:12px;margin:28px 0 14px}
-.section-title h2{font-size:19px}
-.section-title span{font-size:12px;color:var(--muted)}
-.workflow-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
-.field-label{display:block;color:#c8cdd3;font-size:12px;margin:13px 0 7px}
-textarea{width:100%;min-height:200px;resize:vertical;line-height:1.6}
 .wide{width:100%}
-.hint{font-size:11px;color:var(--muted);margin-top:7px}
-.actions{display:flex;gap:9px;align-items:center;margin-top:14px;flex-wrap:wrap}
-.scan-box{border:1px dashed #647a9b;border-radius:11px;padding:19px;text-align:center;background:#252b34;margin:13px 0}
-.scan-symbol{font-size:32px;color:var(--blue);margin-bottom:6px}
-.scan-box p{color:var(--muted);font-size:12px;margin:5px 0 13px}
-.scan-row{display:flex;gap:8px}.scan-row input{flex:1;min-width:0;font-size:16px}
-.check-row{display:flex;gap:8px;align-items:center;color:#c8cdd3;font-size:12px;margin:10px 0}
+.field-label{display:block;color:#c8cdd3;font-size:12px;margin:12px 0 6px}
+textarea{width:100%;min-height:180px;resize:vertical;line-height:1.55}
+.workflow-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.actions{display:flex;gap:9px;align-items:center;margin-top:12px;flex-wrap:wrap}
+.row{display:flex;gap:9px;align-items:center;flex-wrap:wrap}
 .table-wrap{overflow:auto}
 table{width:100%;border-collapse:collapse;white-space:nowrap}
-th,td{text-align:left;padding:11px 10px;border-bottom:1px solid #414347;font-size:12px}
+th,td{text-align:left;padding:9px 10px;border-bottom:1px solid #414347;font-size:12px}
 th{color:#9aa0a6;font-weight:500}
-td{color:#e1e4e8}
-td.code,.code{font-family:Consolas,monospace}
-.status{font-size:10px;border-radius:20px;padding:4px 8px;background:#284737;color:#a8dab5;white-space:nowrap}
-.status.pending{background:#4a4025;color:#fdd663}
-.status.off{background:#3c4043;color:#aeb4bc}
-.status.err{background:#4d2a28;color:#f28b82}
-.msg-ok{color:var(--green)}
-.msg-warn{color:var(--yellow)}
-.msg-err{color:var(--red)}
-.scan-item{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid #3d3f42;font-size:12px}
-.chip{background:#394b68;color:#dce8ff;border-radius:20px;padding:4px 10px;font-size:12px}
-.metric-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#d3e3fd;color:#17243a;padding:10px 16px;border-radius:7px;box-shadow:0 4px 18px #0006;font-size:12px;display:none;z-index:10;max-width:90vw}
-@media(max-width:1000px){.sidebar{width:190px}.metrics{grid-template-columns:repeat(2,1fr)}.content-grid{grid-template-columns:1fr}.workflow-grid{grid-template-columns:1fr}}
-@media(max-width:700px){.sidebar{display:none}.main{padding:22px 15px}.topbar{padding:0 14px}.search{display:none}.sync{display:none}.metric{padding:13px}.metric-value{font-size:24px}}
+.code{font-family:Consolas,monospace}
+.badge{font-size:10px;border-radius:20px;padding:3px 8px;white-space:nowrap;display:inline-block}
+.b-asignada{background:#394b68;color:#dce8ff}
+.b-entregada{background:#284737;color:#a8dab5}
+.b-almacen{background:#4a4025;color:#fdd663}
+.b-fallido{background:#4d2a28;color:#f28b82}
+.b-abierta{background:#394b68;color:#dce8ff}
+.b-cerrada{background:#3c4043;color:#aeb4bc}
+.scan-box{border:1px dashed #647a9b;border-radius:11px;padding:16px;text-align:center;background:#252b34;margin-bottom:12px}
+.scan-row{display:flex;gap:8px;margin-top:10px}.scan-row input{flex:1;min-width:0;font-size:16px}
+.counters{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.counter{border-radius:11px;padding:12px;text-align:center}
+.counter .n{font-size:24px;font-weight:600}.counter .l{font-size:12px}
+.c-ok{background:#284737;color:#a8dab5}.c-rep{background:#4a4025;color:#fdd663}
+.two-lists{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.list-box{max-height:320px;overflow:auto;border:1px solid #3d3f42;border-radius:9px;padding:6px 10px}
+.list-box h3{font-size:11px;color:var(--muted);font-weight:500;margin:8px 0;text-transform:uppercase}
+.item{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #3d3f42;font-size:12px}
+.ok-t{color:var(--green)}.warn-t{color:var(--yellow)}.err-t{color:var(--red)}
+.zonas{display:flex;flex-wrap:wrap;gap:10px}
+.zona{border-radius:10px;padding:10px 12px;min-width:130px;display:flex;flex-direction:column;gap:4px;font-size:12px}
+.zona b{font-size:18px;font-weight:500}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.cal-h{font-size:11px;color:var(--muted);text-align:center;padding:4px}
+.day{background:#252629;border:1px solid #3d3f42;border-radius:9px;min-height:88px;padding:8px;cursor:pointer;font-size:12px}
+.day:hover{border-color:var(--blue)}
+.day.vacio{opacity:.35;cursor:default}
+.day.nuevo{background:#3a3420;border:2px solid var(--yellow);box-shadow:0 0 0 1px #fdd66340}
+.day .num{font-size:14px;color:#dce8ff;margin-bottom:4px;display:flex;justify-content:space-between;align-items:center}
+.day .tag{font-size:10px;background:var(--yellow);color:#3a2f00;border-radius:10px;padding:1px 6px;font-weight:700}
+.day .dot{display:block;font-size:11px;color:var(--muted)}
+.day .dot b{color:var(--text);font-weight:600}
+.reasignar{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#303134;border:1px solid #6683b3;border-radius:12px;padding:12px 14px;display:none;align-items:center;gap:10px;flex-wrap:wrap;box-shadow:0 8px 28px #000a;z-index:8;max-width:94vw}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#d3e3fd;color:#17243a;padding:10px 16px;border-radius:7px;font-size:12px;display:none;z-index:10;max-width:90vw}
+.alerta{border-radius:10px;padding:12px 14px;margin-bottom:12px;font-size:13px}
+.a-fallido{background:#4d2a28;color:#f8c4c0}
+.a-almacen{background:#4a4025;color:#fde9a0}
+.a-ok{background:#284737;color:#c4eed0}
+.hidden{display:none}
+@media(max-width:1200px){.metrics{grid-template-columns:repeat(3,1fr)}.grid-side{grid-template-columns:1fr}}
+@media(max-width:900px){.sidebar{display:none}.workflow-grid,.grid-2{grid-template-columns:1fr}.search{display:none}.sync{display:none}.two-lists{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <header class="topbar">
   <div class="brand"><div class="brand-mark">M</div> Mensajería RD</div>
   <div class="project off" id="drivePill">○ Drive sin conectar</div>
-  <input class="search" id="buscar" placeholder="Buscar guía o mensajero…" autocomplete="off">
+  <input class="search" id="buscarTop" placeholder="Buscar código de guía…" autocomplete="off">
+  <div class="periodo">
+    Período
+    <input type="month" id="pMes">
+    <select id="pQuin"><option value="1">1ª quincena (1–15)</option><option value="2">2ª quincena (16–fin)</option><option value="m">Mes completo</option></select>
+  </div>
   <div class="sync" id="syncEstado"></div>
 </header>
 
 <div class="shell">
 <aside class="sidebar">
-  <div class="side-label">Espacio de trabajo</div>
-  <div class="nav active" data-view="panel"><span class="ico">▦</span> Panel general</div>
-  <div class="nav" data-view="registrar"><span class="ico">＋</span> Registrar asignaciones</div>
-  <div class="nav" data-view="escaner"><span class="ico">▣</span> Escáner de guías</div>
+  <div class="side-label">Operación</div>
+  <div class="nav active" data-view="panel"><span class="ico">▦</span> Panel del período</div>
+  <div class="nav" data-view="registrar"><span class="ico">＋</span> Registrar pegado</div>
+  <div class="nav" data-view="escaner"><span class="ico">▣</span> Escáner</div>
+  <div class="nav" data-view="cargas"><span class="ico">≡</span> Cargas y rutas</div>
+  <div class="nav" data-view="devoluciones"><span class="ico">↩</span> Devoluciones</div>
+  <div class="nav" data-view="buscador"><span class="ico">⌕</span> Buscador de guías</div>
+  <div class="nav" data-view="calendario"><span class="ico">▤</span> Calendario</div>
+  <div class="side-label" style="margin-top:20px">Administración</div>
+  <div class="nav" data-view="guias"><span class="ico">◷</span> Guías</div>
   <div class="nav" data-view="mensajeros"><span class="ico">♙</span> Mensajeros</div>
-  <div class="nav" data-view="mapa"><span class="ico">⌖</span> Mapa por zona</div>
-  <div class="side-label" style="margin-top:22px">Administración</div>
-  <div class="nav" data-view="historial"><span class="ico">◷</span> Historial</div>
+  <div class="nav" data-view="mapa"><span class="ico">⌖</span> Zonas</div>
   <div class="nav" data-view="config"><span class="ico">⚙</span> Configuración</div>
 </aside>
 
 <main class="main">
-  <!-- PANEL GENERAL -->
+
+  <!-- PANEL -->
   <section class="view" id="v-panel">
-    <div class="crumb">Inicio › Panel general</div>
-    <div class="heading">
-      <div><h1>Panel de asignaciones</h1><div class="subtitle">Paquetes asignados a mensajeros registrados y seguimiento por período.</div></div>
-      <div class="row">
-        <label class="small-muted">Desde <input type="date" id="pDesde"></label>
-        <label class="small-muted">Hasta <input type="date" id="pHasta"></label>
-        <button class="primary" id="btnExportPanel">⇩ Exportar TXT del período</button>
-      </div>
+    <div class="crumb">Inicio › Panel del período</div>
+    <div class="heading"><div><h1>Panel del período</h1><div class="subtitle" id="periodoTexto"></div></div>
+      <button class="outline" id="btnExportPanel">⇩ Exportar TXT del período</button></div>
+    <div class="metrics">
+      <div class="metric"><div class="l">Entradas nuevas</div><div class="v" id="mEntradas">0</div><div class="n">Pedidos que entraron</div></div>
+      <div class="metric"><div class="l">En ruta ahora</div><div class="v" id="mRuta">0</div><div class="n">Sin decidir</div></div>
+      <div class="metric"><div class="l">Entregadas</div><div class="v" id="mEntregadas">0</div><div class="n">Rutas cerradas</div></div>
+      <div class="metric"><div class="l">Devueltas</div><div class="v" id="mDevueltas">0</div><div class="n">Regresaron de ruta</div></div>
+      <div class="metric"><div class="l">En oficina</div><div class="v" id="mAlmacen">0</div><div class="n">Almacén ahora</div></div>
+      <div class="metric"><div class="l">Fallido devolución</div><div class="v" id="mFallidos">0</div><div class="n">Despachadas al almacén</div></div>
     </div>
-
-    <section class="metrics">
-      <div class="metric"><div class="metric-top">Asignados en el período <span class="metric-icon">▣</span></div><div class="metric-value" id="mAsig">0</div><div class="metric-note" id="mAsigNote">Guías con mensajero</div></div>
-      <div class="metric"><div class="metric-top">Mensajeros con asignaciones <span class="metric-icon">♙</span></div><div class="metric-value" id="mMens">0</div><div class="metric-note" id="mMensNote"></div></div>
-      <div class="metric"><div class="metric-top">Ciudades <span class="metric-icon">⌖</span></div><div class="metric-value" id="mCiu">0</div><div class="metric-note">En el período</div></div>
-      <div class="metric"><div class="metric-top">Guías en base <span class="metric-icon">◷</span></div><div class="metric-value" id="mReg">0</div><div class="metric-note">Histórico total</div></div>
-    </section>
-
-    <section class="content-grid">
+    <div class="grid-side">
       <div class="panel">
-        <div class="panel-head"><div><h2>Distribución por zona</h2><div class="small-muted">Guías asignadas en el período seleccionado</div></div></div>
-        <div class="map"><div class="zonas" id="mapaPanel"></div></div>
+        <div class="panel-head"><h2>Movimientos recientes</h2></div>
+        <div class="table-wrap"><table><thead><tr><th>Cuándo</th><th>Guía</th><th>Acción</th><th>Mensajero / destino</th></tr></thead><tbody id="tablaRecientes"></tbody></table></div>
       </div>
       <div class="panel">
-        <div class="panel-head"><div><h2>Mensajeros activos</h2><div class="small-muted">Guías en el período seleccionado</div></div></div>
-        <div class="driver-list" id="listaMensajeros"></div>
+        <div class="panel-head"><h2>Mensajeros</h2></div>
+        <div id="listaMensajeros"></div>
       </div>
-    </section>
-
-    <div class="section-title"><h2>Actividad reciente</h2><span>Últimos movimientos registrados</span></div>
-    <div class="panel table-wrap">
-      <table><thead><tr><th>Hora</th><th>Mensajero</th><th>Guía</th><th>Origen</th><th>Estado</th></tr></thead>
-      <tbody id="tablaActividad"></tbody></table>
     </div>
   </section>
 
-  <!-- REGISTRAR -->
+  <!-- REGISTRAR PEGADO -->
   <section class="view" id="v-registrar">
-    <div class="crumb">Inicio › Registrar asignaciones</div>
-    <div class="heading"><div><h1>Registrar asignaciones</h1><div class="subtitle">Pega guías sueltas o el rastreo completo del conductor.</div></div></div>
+    <div class="crumb">Inicio › Registrar pegado</div>
+    <div class="heading"><div><h1>Registrar pegado</h1><div class="subtitle">Pega códigos o el rastreo del conductor. Se crea una carga para el mensajero.</div></div></div>
     <div class="workflow-grid">
       <div class="panel">
-        <div class="panel-head"><div><h2>1. Pegar listado</h2><div class="small-muted">Acepta códigos separados por saltos de línea, comas o tabulaciones, o el rastreo con "OFD Time".</div></div></div>
         <textarea id="bulk" placeholder="Pega aquí las guías o el rastreo..."></textarea>
-        <div class="actions">
-          <button class="primary" id="btnValidar">Validar guías</button>
-          <button class="outline" id="btnLimpiarBulk">Limpiar</button>
-          <span class="small-muted" id="bulkResult"></span>
-        </div>
+        <div class="actions"><button class="primary" id="btnValidar">Validar</button><button class="outline" id="btnLimpiarBulk">Limpiar</button></div>
+        <div class="small-muted" id="bulkResult" style="margin-top:10px"></div>
+        <div id="repetidasRegistrar" style="margin-top:8px"></div>
       </div>
       <div class="panel">
-        <div class="panel-head"><div><h2>2. Asignar a mensajero</h2><div class="small-muted">Solo aparecen mensajeros activos y registrados.</div></div></div>
         <label class="field-label" for="selRegistrar">Mensajero</label>
         <select id="selRegistrar" class="wide"></select>
-        <label class="field-label" for="fechaRegistrar">Fecha de asignación</label>
+        <label class="field-label" for="fechaRegistrar">Fecha de la carga</label>
         <input id="fechaRegistrar" type="date" class="wide">
-        <div class="hint">Si pegas el rastreo, cada guía usa su fecha y hora de salida (OFD). Si pegas solo códigos, usa la fecha de arriba.</div>
-        <div class="actions"><button class="primary" id="btnAsignar" disabled>Asignar guías</button></div>
+        <label class="field-label" for="zonaRegistrar">Zona / ciudad (opcional)</label>
+        <input id="zonaRegistrar" class="wide" placeholder="Ej. Los Alcarrizos">
+        <div class="actions">
+          <button class="primary" id="btnAsignar" disabled>Asignar nuevas</button>
+          <button class="outline" id="btnReasignarRep" disabled>Reasignar repetidas aquí</button>
+        </div>
+        <div class="actions"><button class="success" id="btnTerminarRegistro">Terminar sección y guardar</button></div>
         <div class="small-muted" id="resumenAsignar" style="margin-top:12px"></div>
       </div>
     </div>
@@ -193,135 +195,203 @@ td.code,.code{font-family:Consolas,monospace}
 
   <!-- ESCÁNER -->
   <section class="view" id="v-escaner">
-    <div class="crumb">Inicio › Escáner de guías</div>
-    <div class="heading"><div><h1>Escáner de guías</h1><div class="subtitle">Lector USB o Bluetooth: escanea y la guía se registra al mensajero seleccionado.</div></div></div>
+    <div class="crumb">Inicio › Escáner</div>
+    <div class="heading"><div><h1>Escáner</h1><div class="subtitle">Elige el modo y escanea. Cada lectura queda en el historial de la guía.</div></div></div>
     <div class="workflow-grid">
       <div class="panel">
-        <div class="panel-head"><div><h2>1. Mensajero</h2><div class="small-muted">Todas las lecturas se asignarán a esta persona.</div></div></div>
-        <label class="field-label" for="selEscaner">Mensajero activo</label>
-        <select id="selEscaner" class="wide"></select>
-        <label class="field-label" for="fechaEscaner">Fecha de asignación</label>
-        <input id="fechaEscaner" type="date" class="wide">
-        <div class="small-muted" style="margin-top:15px">Mensajero seleccionado</div>
-        <div style="font-size:19px;margin-top:4px" id="infoEscaner">—</div>
+        <label class="field-label" for="modoEscaner">Modo</label>
+        <select id="modoEscaner" class="wide">
+          <option value="asignar">Asignar a mensajero (ruta)</option>
+          <option value="devolucion">Devolución de mensajero → oficina</option>
+          <option value="fallido">Fallido devolución → almacén principal</option>
+        </select>
+        <div id="campoMensajero">
+          <label class="field-label" for="selEscaner">Mensajero</label>
+          <select id="selEscaner" class="wide"></select>
+        </div>
+        <div id="campoFecha">
+          <label class="field-label" for="fechaEscaner">Fecha de la carga</label>
+          <input id="fechaEscaner" type="date" class="wide">
+        </div>
+        <div id="campoZona">
+          <label class="field-label" for="zonaEscaner">Zona / ciudad</label>
+          <input id="zonaEscaner" class="wide" placeholder="Ej. Los Alcarrizos">
+        </div>
+        <div id="campoMotivo" class="hidden">
+          <label class="field-label" for="motivoEscaner">Motivo (opcional)</label>
+          <select id="motivoEscaner" class="wide">
+            <option value="">Sin motivo</option>
+            <option>Dirección incorrecta</option>
+            <option>No contestó</option>
+            <option>Rechazado</option>
+            <option>Otro</option>
+          </select>
+        </div>
+        <div class="small-muted" style="margin-top:14px" id="infoModo"></div>
       </div>
       <div class="panel">
-        <div class="panel-head"><div><h2>2. Escanear</h2><div class="small-muted">Haz clic en el campo y escanea. Cada lectura se guarda al momento.</div></div><span class="count" id="scanCount">0 guías</span></div>
         <div class="scan-box">
-          <div class="scan-symbol">▥</div>
           <strong>Esperando lectura</strong>
-          <p>La mayoría de lectores escriben el código y presionan Enter solos.</p>
+          <div class="small-muted" style="margin-top:4px">La mayoría de lectores escriben el código y presionan Enter solos.</div>
           <div class="scan-row">
             <input id="scanInput" placeholder="Escanea o escribe una guía…" autocomplete="off">
-            <button class="primary" id="btnAgregarScan">Agregar</button>
+            <button class="primary" id="btnAgregarScan">Procesar</button>
           </div>
         </div>
-        <div id="scanList"></div>
+        <div class="counters">
+          <div class="counter c-ok"><div class="n" id="cntOk">0</div><div class="l">Procesadas correctamente</div></div>
+          <div class="counter c-rep"><div class="n" id="cntRep">0</div><div class="l">Repetidas o con error</div></div>
+        </div>
+        <div class="two-lists">
+          <div class="list-box"><h3>Procesadas</h3><div id="listaOk"></div></div>
+          <div class="list-box"><h3>Repetidas / errores</h3><div id="listaRep"></div></div>
+        </div>
         <div class="actions">
-          <button class="primary" id="btnTerminar">Terminar sesión</button>
-          <button class="outline" id="btnVaciarScan">Limpiar lista</button>
+          <button class="success" id="btnTerminarEscaner">Terminar sección y guardar</button>
+          <button class="outline" id="btnVaciarScan">Limpiar pantalla</button>
         </div>
       </div>
+    </div>
+  </section>
+
+  <!-- CARGAS -->
+  <section class="view" id="v-cargas">
+    <div class="crumb">Inicio › Cargas y rutas</div>
+    <div class="heading"><div><h1>Cargas y rutas</h1><div class="subtitle">Cada carga es una ruta. Al terminarla, las guías que siguen en ruta se registran como entregadas.</div></div></div>
+    <div class="panel table-wrap">
+      <table><thead><tr><th>Fecha</th><th>Mensajero</th><th>Creada</th><th>Estado</th><th>En ruta</th><th>Entregadas</th><th>Devueltas</th><th>Conteo informativo</th><th>Acciones</th></tr></thead>
+      <tbody id="tablaCargas"></tbody></table>
+    </div>
+    <div class="panel hidden" id="cargaDetalleBox">
+      <div class="panel-head">
+        <h2 id="cargaTitulo"></h2>
+        <div class="row">
+          <button class="primary small-btn" id="btnTerminarRuta">Terminar ruta entregada</button>
+          <button class="outline small-btn" id="btnReabrirCarga">Reabrir carga</button>
+        </div>
+      </div>
+      <div class="table-wrap"><table><thead><tr><th>Guía</th><th>Estado</th><th>Zona</th><th>Último movimiento</th><th>Acciones</th></tr></thead><tbody id="cargaGuias"></tbody></table></div>
+    </div>
+  </section>
+
+  <!-- DEVOLUCIONES -->
+  <section class="view" id="v-devoluciones">
+    <div class="crumb">Inicio › Devoluciones</div>
+    <div class="heading"><div><h1>Devoluciones</h1><div class="subtitle">Lo que está en oficina y lo que se despachó al almacén principal.</div></div></div>
+    <div class="panel">
+      <div class="panel-head"><h2>En oficina (almacén)</h2><span class="small-muted">Siguen contando en el panel</span></div>
+      <div class="table-wrap"><table><thead><tr><th>Guía</th><th>Devuelta por</th><th>Fecha</th><th>Zona</th><th>Acciones</th></tr></thead><tbody id="tablaAlmacen"></tbody></table></div>
+    </div>
+    <div class="panel">
+      <div class="panel-head"><h2>Fallido devolución del período</h2><span class="small-muted">Fuera de los contadores activos. Queda en el historial.</span></div>
+      <div class="table-wrap"><table><thead><tr><th>Guía</th><th>Fecha</th><th>Motivo</th><th>Acciones</th></tr></thead><tbody id="tablaFallidos"></tbody></table></div>
+    </div>
+  </section>
+
+  <!-- BUSCADOR -->
+  <section class="view" id="v-buscador">
+    <div class="crumb">Inicio › Buscador de guías</div>
+    <div class="heading"><div><h1>Buscador de guías</h1><div class="subtitle">Escribe el código para ver dónde está y todo su historial.</div></div></div>
+    <div class="panel">
+      <div class="row"><input id="buscadorInput" class="wide" style="font-size:16px" placeholder="Código de guía"><button class="primary" id="btnBuscar">Buscar</button></div>
+    </div>
+    <div id="resultadoBusqueda"></div>
+  </section>
+
+  <!-- CALENDARIO -->
+  <section class="view" id="v-calendario">
+    <div class="crumb">Inicio › Calendario</div>
+    <div class="heading"><div><h1>Calendario</h1><div class="subtitle">Los días amarillos tienen pedidos nuevos. Pulsa un día para ver sus movimientos.</div></div></div>
+    <div class="panel"><div class="cal" id="calGrid"></div></div>
+    <div class="panel hidden" id="calDetalleBox">
+      <div class="panel-head"><h2 id="calDetalleTitulo"></h2></div>
+      <div class="table-wrap"><table><thead><tr><th>Hora</th><th>Guía</th><th>Acción</th><th>Mensajero</th><th>Detalle</th></tr></thead><tbody id="calDetalle"></tbody></table></div>
+    </div>
+  </section>
+
+  <!-- GUÍAS -->
+  <section class="view" id="v-guias">
+    <div class="crumb">Inicio › Guías</div>
+    <div class="heading"><div><h1>Guías del período</h1><div class="subtitle">Filtra por mensajero, estado o texto.</div></div></div>
+    <div class="panel">
+      <div class="row" style="margin-bottom:12px">
+        <select id="gMens" style="min-width:200px"></select>
+        <select id="gEstado"><option value="">Todos los estados</option><option value="asignada">En ruta</option><option value="entregada">Entregada</option><option value="almacen">En oficina</option><option value="fallido">Fallido devolución</option></select>
+        <input id="gTexto" placeholder="Código, zona o mensajero" style="min-width:240px">
+        <button class="outline" id="btnTxtGuias">Descargar TXT del período</button>
+        <span class="small-muted" id="infoGuias"></span>
+      </div>
+      <div class="table-wrap" style="max-height:560px;overflow:auto"><table><thead><tr><th>Guía</th><th>Estado</th><th>Mensajero</th><th>Carga</th><th>Zona</th><th>Entrada</th><th>Último mov.</th><th>Acciones</th></tr></thead><tbody id="tablaGuias"></tbody></table></div>
     </div>
   </section>
 
   <!-- MENSAJEROS -->
   <section class="view" id="v-mensajeros">
     <div class="crumb">Inicio › Mensajeros</div>
-    <div class="heading"><div><h1>Mensajeros registrados</h1><div class="subtitle">Solo los mensajeros de esta lista pueden recibir asignaciones.</div></div></div>
-    <div class="panel" style="margin-bottom:18px">
-      <div class="panel-head"><h2>Registrar nuevo mensajero</h2></div>
+    <div class="heading"><div><h1>Mensajeros</h1><div class="subtitle">Solo los mensajeros activos reciben cargas.</div></div></div>
+    <div class="panel">
       <div class="row">
         <input id="nuevoNombre" placeholder="Nombre completo" style="flex:1;min-width:220px">
-        <input id="nuevaZona" placeholder="Zona (opcional)" style="flex:1;min-width:180px">
+        <input id="nuevaZona" placeholder="Zona habitual (opcional)" style="flex:1;min-width:180px">
         <button class="primary" id="btnNuevoMens">Registrar</button>
       </div>
     </div>
     <div class="panel table-wrap">
-      <table><thead><tr><th>Nombre</th><th>Zona</th><th>Estado</th><th>Guías registradas</th><th>Acciones</th></tr></thead>
-      <tbody id="tablaMensajeros"></tbody></table>
+      <table><thead><tr><th>Nombre</th><th>Zona habitual</th><th>Estado</th><th>En ruta</th><th>Acciones</th></tr></thead><tbody id="tablaMensajeros"></tbody></table>
     </div>
   </section>
 
-  <!-- MAPA -->
+  <!-- ZONAS -->
   <section class="view" id="v-mapa">
-    <div class="crumb">Inicio › Mapa por zona</div>
-    <div class="heading">
-      <div><h1>Mapa por zona</h1><div class="subtitle">Guías por ciudad o código postal en el período seleccionado.</div></div>
-      <div class="row">
-        <label class="small-muted">Desde <input type="date" id="mapaDesde"></label>
-        <label class="small-muted">Hasta <input type="date" id="mapaHasta"></label>
-        <select id="mapaTipo"><option value="ciudad">Por ciudad</option><option value="zip">Por código postal</option></select>
-      </div>
-    </div>
-    <div class="panel">
-      <div class="map" style="height:440px"><div class="zonas" id="mapaTiles"></div></div>
-      <div class="small-muted" style="margin-top:12px">Más intenso = más guías. Las zonas se agrupan por lo que viene en el rastreo; no se usan coordenadas.</div>
-    </div>
+    <div class="crumb">Inicio › Zonas</div>
+    <div class="heading"><div><h1>Zonas</h1><div class="subtitle">Pedidos nuevos por zona en el período.</div></div>
+      <select id="mapaTipo"><option value="ciudad">Por zona</option><option value="zip">Por código postal</option></select></div>
+    <div class="panel"><div class="zonas" id="mapaTiles"></div></div>
   </section>
 
-  <!-- HISTORIAL -->
-  <section class="view" id="v-historial">
-    <div class="crumb">Inicio › Historial</div>
-    <div class="heading"><div><h1>Historial de asignaciones</h1><div class="subtitle">Filtra por fecha y mensajero. La búsqueda superior también aplica aquí.</div></div></div>
-    <div class="panel" style="margin-bottom:18px">
-      <div class="row">
-        <label class="small-muted">Desde <input type="date" id="hDesde"></label>
-        <label class="small-muted">Hasta <input type="date" id="hHasta"></label>
-        <select id="hMens" style="min-width:220px"></select>
-        <button class="primary" id="btnTxtHist">Descargar TXT</button>
-        <span class="small-muted" id="infoHist"></span>
-      </div>
-    </div>
-    <div class="panel table-wrap" style="max-height:560px;overflow:auto">
-      <table><thead><tr><th>Fecha</th><th>Hora</th><th>Guía</th><th>Mensajero</th><th>Ciudad</th><th>Zip</th><th>Estado</th></tr></thead>
-      <tbody id="tablaHist"></tbody></table>
-    </div>
-  </section>
-
-  <!-- CONFIGURACIÓN -->
+  <!-- CONFIG -->
   <section class="view" id="v-config">
     <div class="crumb">Inicio › Configuración</div>
-    <div class="heading"><div><h1>Configuración</h1><div class="subtitle">Conexión con Google Drive y respaldo de la base.</div></div></div>
-    <div class="workflow-grid">
+    <div class="heading"><div><h1>Configuración</h1><div class="subtitle">Conexión con Google Drive y respaldo.</div></div></div>
+    <div class="grid-2">
       <div class="panel">
-        <div class="panel-head"><h2>Google Drive</h2></div>
-        <label class="field-label" for="archivoNombre">Nombre del archivo en Drive</label>
+        <h2 style="margin-bottom:10px">Google Drive</h2>
+        <label class="field-label" for="archivoNombre">Nombre del archivo</label>
         <input id="archivoNombre" class="wide">
-        <div class="hint">La app solo ve archivos que ella misma creó. Si cambias el nombre, la app creará un archivo nuevo con ese nombre.</div>
-        <div class="actions">
-          <button class="primary" id="btnConectar">Conectar con Drive</button>
-          <button class="outline" id="btnGuardarAhora">Guardar ahora</button>
-        </div>
-        <div class="small-muted" style="margin-top:14px" id="estadoConfig"></div>
+        <div class="actions"><button class="primary" id="btnConectar">Conectar con Drive</button><button class="outline" id="btnGuardarAhora">Guardar ahora</button></div>
+        <div class="small-muted" style="margin-top:12px" id="estadoConfig"></div>
       </div>
       <div class="panel">
-        <div class="panel-head"><h2>Respaldo local</h2></div>
+        <h2 style="margin-bottom:10px">Respaldo local</h2>
         <div class="actions" style="margin-top:0">
           <button class="outline" id="btnDescargarCopia">Descargar copia (JSON)</button>
           <button class="outline" id="btnCargarLocal">Cargar archivo JSON</button>
           <input type="file" id="fileLocal" accept=".json,application/json" style="display:none">
         </div>
         <div class="actions"><button class="danger" id="btnBorrar">Borrar base de este equipo</button></div>
-        <div class="hint">Borrar solo afecta a este navegador. Si la base está guardada en Drive, se conserva ahí.</div>
       </div>
     </div>
   </section>
 </main>
 </div>
 
+<div class="reasignar" id="panelReasignar">
+  <div><strong id="reasTitulo"></strong><div class="small-muted" id="reasDetalle"></div></div>
+  <select id="reasSelect"></select>
+  <button class="primary" id="btnReasConfirmar">Reasignar</button>
+  <button class="outline" id="btnReasCancelar">Cancelar</button>
+</div>
 <div class="toast" id="toast"></div>
 
 <script>
-/* ================= CONFIGURACIÓN ================= */
+/* ================= CONFIG ================= */
 const CLIENT_ID = '869397414336-cbnhiq6ujj7qom0te3n7233plib32el6.apps.googleusercontent.com';
 const DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.file';
 const ARCHIVO_DEFAULT = 'base_guias.json';
-const LS_DB = 'mensajeriaRD_db_v2';
-const LS_PEND = 'mensajeriaRD_pendiente';
-const LS_FILE = 'mensajeriaRD_archivo';
-const ETIQ = {panel:'Panel general',registrar:'Registrar asignaciones',escaner:'Escáner de guías',mensajeros:'Mensajeros',mapa:'Mapa por zona',historial:'Historial',config:'Configuración'};
-const ETIQ_ESTADO = {nueva:'Registrada',actualizada:'Actualizada',reasignada:'Reasignada',importada:'Importada'};
+const LS_DB = 'mensajeriaRD_db_v4', LS_DB3 = 'mensajeriaRD_db_v3', LS_DB2 = 'mensajeriaRD_db_v2';
+const LS_PEND = 'mensajeriaRD_pendiente', LS_FILE = 'mensajeriaRD_archivo';
+const ETIQ = {panel:'Panel del período',registrar:'Registrar pegado',escaner:'Escáner',cargas:'Cargas y rutas',devoluciones:'Devoluciones',buscador:'Buscador de guías',calendario:'Calendario',guias:'Guías',mensajeros:'Mensajeros',mapa:'Zonas',config:'Configuración'};
+const ESTADO_TXT = {asignada:'En ruta',entregada:'Entregada',almacen:'En oficina',fallido:'Fallido devolución'};
 
 /* ================= UTILIDADES ================= */
 const $ = id => document.getElementById(id);
@@ -329,16 +399,15 @@ const pad = n => String(n).padStart(2, '0');
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const ymd = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
 const hms = d => `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
-const ahoraStr = () => { const d = new Date(); return ymd(d) + ' ' + hms(d); };
+const nowStr = () => { const d = new Date(); return ymd(d) + ' ' + hms(d); };
 const hoyYmd = () => ymd(new Date());
-const nuevoId = () => 'm' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+const nuevoId = p => p + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 const iniciales = n => n.split(/\s+/).filter(Boolean).slice(0, 2).map(p => p[0].toUpperCase()).join('') || '?';
 const nombreSeguro = s => String(s).replace(/[^\w\-]+/g, '_').replace(/^_+|_+$/g, '') || 'sin_nombre';
+const badge = e => `<span class="badge b-${e}">${esc(ESTADO_TXT[e] || e)}</span>`;
 function notify(m) {
-  const t = $('toast');
-  t.textContent = m; t.style.display = 'block';
-  clearTimeout(window.toastTimer);
-  window.toastTimer = setTimeout(() => t.style.display = 'none', 3000);
+  const t = $('toast'); t.textContent = m; t.style.display = 'block';
+  clearTimeout(window.tt); window.tt = setTimeout(() => t.style.display = 'none', 3500);
 }
 function descargar(nombre, contenido, tipo) {
   const blob = new Blob([contenido], { type: tipo });
@@ -349,100 +418,88 @@ function descargar(nombre, contenido, tipo) {
 }
 function setSync(t) { $('syncEstado').textContent = t; }
 
+/* ================= PERIODOS ================= */
+function periodoActual() {
+  const mes = $('pMes').value || hoyYmd().slice(0, 7);
+  const q = $('pQuin').value || (Number(hoyYmd().slice(8, 10)) <= 15 ? '1' : '2');
+  const [y, m] = mes.split('-').map(Number);
+  const ultimo = new Date(y, m, 0).getDate();
+  const ini = (q === '1' || q === 'm') ? `${y}-${pad(m)}-01` : `${y}-${pad(m)}-16`;
+  const fin = q === '1' ? `${y}-${pad(m)}-15` : `${y}-${pad(m)}-${pad(ultimo)}`;
+  return { ini, fin, mes, q };
+}
+const enPeriodo = f => { const p = periodoActual(); return !!f && f >= p.ini && f <= p.fin; };
+
 /* ================= BASE DE DATOS ================= */
 let db = cargarLocal();
-let sesion = [];          // lecturas de la sesión de escáner
-let driveConectado = false;
-let accessToken = null;
-let tokenClient = null;
-let driveFileId = null;
+let sesionOk = [], sesionRep = [], borrador = null, reasState = { codigos: [] };
+let driveConectado = false, accessToken = null, tokenClient = null, driveFileId = null;
 let pendiente = localStorage.getItem(LS_PEND) === '1';
-let saveTimer = null;
-let guardando = false;
-let reintentar = false;
-let intentosInit = 0;
+let saveTimer = null, guardando = false, reintentar = false, intentosInit = 0;
+let cargaSel = null, calDia = null;
 
-function vacio() { return { version: 2, mensajeros: {}, registros: {} }; }
+function vacio() { return { version: 5, mensajeros: {}, guias: {}, cargas: {} }; }
+function esV4(d) { return d && (d.version === 4 || d.version === 5) && d.guias && d.cargas; }
 
-// Acepta el formato nuevo y el de versiones anteriores (conductores/registros)
-function normalizar(d) {
+// Convierte bases de versiones anteriores (v2 y v3)
+function migrar(d) {
   const out = vacio();
-  if (!d || typeof d !== 'object') return out;
-  if (d.mensajeros) {
-    Object.values(d.mensajeros).forEach(m => {
-      if (m && m.id && m.nombre) out.mensajeros[m.id] = { id: m.id, nombre: m.nombre, zona: m.zona || '', activo: m.activo !== false, creado: m.creado || hoyYmd() };
-    });
-  }
+  if (d.mensajeros) Object.values(d.mensajeros).forEach(m => {
+    if (m && m.id && m.nombre) out.mensajeros[m.id] = { id: m.id, nombre: m.nombre, zona: m.zona || '', activo: m.activo !== false };
+  });
   const porNombre = {};
   Object.values(out.mensajeros).forEach(m => porNombre[m.nombre.toLowerCase()] = m.id);
   const idPara = nombre => {
-    const n = (nombre || 'Sin nombre').trim();
-    const k = n.toLowerCase();
-    if (!porNombre[k]) {
-      const id = nuevoId();
-      out.mensajeros[id] = { id, nombre: n, zona: '', activo: true, creado: hoyYmd() };
-      porNombre[k] = id;
-    }
+    const n = (nombre || 'Sin nombre').trim(), k = n.toLowerCase();
+    if (!porNombre[k]) { const id = nuevoId('m'); out.mensajeros[id] = { id, nombre: n, zona: '', activo: true }; porNombre[k] = id; }
     return porNombre[k];
   };
   if (d.conductores) Object.values(d.conductores).forEach(c => { if (c && c.nombre) idPara(c.nombre); });
-  if (d.registros) {
-    Object.entries(d.registros).forEach(([k, r]) => {
-      if (!r) return;
-      const nombre = r.mensajero || r.conductor || 'Sin nombre';
-      const mid = (r.mensajeroId && out.mensajeros[r.mensajeroId]) ? r.mensajeroId : idPara(nombre);
-      const fecha = r.fecha || (r.ofd ? r.ofd.slice(0, 10) : hoyYmd());
-      out.registros[String(k)] = {
-        codigo: String(k),
-        mensajeroId: mid,
-        fecha,
-        hora: r.hora || (r.ofd ? r.ofd.slice(11, 19) : ''),
-        ciudad: r.ciudad || '',
-        zip: r.zip || '',
-        origen: r.origen || 'Importado',
-        estado: r.estado || 'importada',
-        actualizado: r.actualizado || r.cargado || (fecha + ' 00:00:00')
-      };
-    });
-  }
+  const cargaPor = {};
+  Object.entries(d.registros || {}).forEach(([k, r]) => {
+    if (!r) return;
+    const mid = (r.mensajeroId && out.mensajeros[r.mensajeroId]) ? r.mensajeroId : idPara(r.mensajero || r.conductor);
+    const fecha = (r.origen === 'Rastreo pegado' && r.actualizado) ? r.actualizado.slice(0, 10)
+      : (r.fecha || (r.ofd ? r.ofd.slice(0, 10) : hoyYmd()));
+    const actualizado = r.actualizado || r.cargado || fecha + ' 00:00:00';
+    const clave = mid + '|' + fecha;
+    if (!cargaPor[clave]) {
+      const id = nuevoId('c');
+      out.cargas[id] = { id, mensajeroId: mid, fecha, creada: fecha + ' 00:00:00', cerrada: null, conteoEntregados: '', reaperturas: [] };
+      cargaPor[clave] = id;
+    }
+    const cid = cargaPor[clave];
+    const hist = Array.isArray(r.historial) && r.historial.length
+      ? r.historial.map(e => ({ at: e.at, accion: e.accion, de: e.de || '', a: e.a || '', detalle: e.detalle || '', motivo: '', cargaId: cid }))
+      : [{ at: actualizado, accion: 'Asignada', de: '', a: out.mensajeros[mid].nombre, detalle: r.origen || '', motivo: '', cargaId: cid }];
+    out.guias[String(k)] = { codigo: String(k), estado: 'asignada', mensajeroId: mid, cargaId: cid, ciudad: r.ciudad || '', zip: r.zip || '', origen: r.origen || 'Importado', creada: fecha, ultimoMov: actualizado, historial: hist };
+  });
   return out;
 }
 
-// Une dos bases. Para una misma guía gana el registro con actualización más reciente.
-function mergeDB(remoto, local) {
-  const base = normalizar(remoto);
-  const L = normalizar(local);
-  const mapaId = {};
-  Object.values(L.mensajeros).forEach(m => {
-    const ex = Object.values(base.mensajeros).find(x => x.nombre.toLowerCase() === m.nombre.toLowerCase());
-    if (ex) {
-      mapaId[m.id] = ex.id;
-      ex.zona = m.zona || ex.zona;
-      ex.activo = m.activo;
-    } else {
-      base.mensajeros[m.id] = m;
-      mapaId[m.id] = m.id;
-    }
-  });
-  Object.values(L.registros).forEach(r => {
-    const mid = mapaId[r.mensajeroId] || r.mensajeroId;
-    const ex = base.registros[r.codigo];
-    if (!ex || (r.actualizado || '') >= (ex.actualizado || '')) {
-      base.registros[r.codigo] = { ...r, mensajeroId: mid };
-    }
-  });
-  return base;
+function normalizarV(d) {
+  const out = vacio();
+  Object.assign(out.mensajeros, d.mensajeros || {});
+  Object.assign(out.guias, d.guias || {});
+  Object.assign(out.cargas, d.cargas || {});
+  // Estado "devuelta" de versiones anteriores pasa a "En oficina"
+  Object.values(out.guias).forEach(g => { if (g.estado === 'devuelta') g.estado = 'almacen'; });
+  return out;
 }
 
 function cargarLocal() {
-  try { return normalizar(JSON.parse(localStorage.getItem(LS_DB) || 'null')); }
-  catch (e) { return vacio(); }
+  try {
+    const actual = localStorage.getItem(LS_DB);
+    if (actual) return normalizarV(JSON.parse(actual));
+    const v3 = localStorage.getItem(LS_DB3) || localStorage.getItem(LS_DB2);
+    if (v3) return migrar(JSON.parse(v3));
+  } catch (e) {}
+  return vacio();
 }
 function guardarLocal() {
   try { localStorage.setItem(LS_DB, JSON.stringify(db)); }
-  catch (e) { notify('La memoria del navegador está llena. Descarga una copia.'); }
+  catch (e) { notify('Memoria del navegador llena. Descarga una copia.'); }
 }
-
 function nombreM(id) { return (db.mensajeros[id] && db.mensajeros[id].nombre) || 'Sin mensajero'; }
 function nombreArchivo() {
   let n = (localStorage.getItem(LS_FILE) || ARCHIVO_DEFAULT).trim() || ARCHIVO_DEFAULT;
@@ -450,29 +507,120 @@ function nombreArchivo() {
   return n;
 }
 
-// Crea o actualiza una asignación. Un nuevo movimiento reemplaza al anterior.
-function asignar(codigo, o) {
-  const prev = db.registros[codigo];
-  let estado;
-  if (!prev) estado = 'nueva';
-  else if (prev.mensajeroId === o.mensajeroId) estado = 'actualizada';
-  else estado = 'reasignada';
-  const anterior = prev ? nombreM(prev.mensajeroId) : '';
-  db.registros[codigo] = {
-    codigo,
-    mensajeroId: o.mensajeroId,
-    fecha: o.fecha,
-    hora: o.hora,
-    ciudad: o.ciudad || (prev && prev.ciudad) || '',
-    zip: o.zip || (prev && prev.zip) || '',
-    origen: o.origen,
-    estado,
-    actualizado: ahoraStr()
-  };
-  return { estado, anterior };
+// Une dos bases: para cada guía gana el movimiento más reciente
+function mergeDB(remotoRaw, local) {
+  const remoto = esV4(remotoRaw) ? normalizarV(remotoRaw) : migrar(remotoRaw || {});
+  const base = normalizarV(remoto);
+  const mapa = {};
+  Object.values(local.mensajeros).forEach(m => {
+    const ex = Object.values(base.mensajeros).find(x => x.nombre.toLowerCase() === m.nombre.toLowerCase());
+    if (ex) { mapa[m.id] = ex.id; ex.zona = m.zona || ex.zona; ex.activo = m.activo; }
+    else { base.mensajeros[m.id] = m; mapa[m.id] = m.id; }
+  });
+  Object.values(local.guias).forEach(g => {
+    const ex = base.guias[g.codigo];
+    const g2 = { ...g, mensajeroId: mapa[g.mensajeroId] || g.mensajeroId };
+    if (!ex || (g.ultimoMov || '') >= (ex.ultimoMov || '')) base.guias[g.codigo] = g2;
+  });
+  Object.assign(base.cargas, local.cargas);
+  return base;
 }
 
-// Cambio local: guarda en este equipo y programa el guardado en Drive
+/* ============ Lógica de guías, cargas y devoluciones ============ */
+function evento(g, accion, de, a, detalle, motivo) {
+  g.historial.push({ at: nowStr(), accion, de: de || '', a: a || '', detalle: detalle || '', motivo: motivo || '', cargaId: g.cargaId || '' });
+  g.ultimoMov = nowStr();
+}
+
+function cargaAbierta(mid, fecha) {
+  const c = Object.values(db.cargas).find(x => x.mensajeroId === mid && !x.cerrada);
+  if (c) return c;
+  const id = nuevoId('c');
+  db.cargas[id] = { id, mensajeroId: mid, fecha, creada: nowStr(), cerrada: null, conteoEntregados: '', reaperturas: [] };
+  return db.cargas[id];
+}
+
+function guiasDeCarga(cid) { return Object.values(db.guias).filter(g => g.cargaId === cid); }
+
+// Asigna una guía a una carga. Si ya existía, es un ciclo nuevo.
+function asignarA(codigo, mid, carga, o) {
+  let g = db.guias[codigo];
+  if (!g) {
+    g = { codigo, estado: 'asignada', mensajeroId: mid, cargaId: carga.id, ciudad: o.ciudad || '', zip: o.zip || '', origen: o.origen, creada: o.fecha, ultimoMov: '', historial: [] };
+    db.guias[codigo] = g;
+    evento(g, 'Asignada', '', nombreM(mid), o.origen);
+    return 'nueva';
+  }
+  const de = nombreM(g.mensajeroId);
+  const previo = g.estado;
+  g.estado = 'asignada'; g.mensajeroId = mid; g.cargaId = carga.id;
+  if (o.ciudad) g.ciudad = o.ciudad;
+  if (o.zip) g.zip = o.zip;
+  evento(g, previo === 'asignada' ? 'Reasignada' : 'Nuevo ciclo: asignada', de, nombreM(mid), o.origen);
+  return 'ciclo';
+}
+
+function reasignarEnRuta(codigos, mid) {
+  const carga = cargaAbierta(mid, hoyYmd());
+  let n = 0;
+  codigos.forEach(c => {
+    const g = db.guias[c];
+    if (!g || g.estado !== 'asignada' || g.mensajeroId === mid) return;
+    const de = nombreM(g.mensajeroId);
+    g.mensajeroId = mid; g.cargaId = carga.id;
+    evento(g, 'Reasignada', de, nombreM(mid), 'Cambio de mensajero');
+    n++;
+  });
+  return n;
+}
+
+function terminarRuta(cid) {
+  const c = db.cargas[cid];
+  if (!c || c.cerrada) return 0;
+  let n = 0;
+  guiasDeCarga(cid).forEach(g => {
+    if (g.estado === 'asignada') {
+      g.estado = 'entregada';
+      evento(g, 'Entregada', nombreM(g.mensajeroId), '', 'Ruta terminada');
+      n++;
+    }
+  });
+  c.cerrada = nowStr();
+  return n;
+}
+
+function reabrirCarga(cid) {
+  const c = db.cargas[cid];
+  if (!c || !c.cerrada) return 0;
+  let n = 0;
+  guiasDeCarga(cid).forEach(g => {
+    if (g.estado === 'entregada') {
+      g.estado = 'asignada';
+      evento(g, 'Reabierta', '', nombreM(g.mensajeroId), 'Carga reabierta por error');
+      n++;
+    }
+  });
+  c.reaperturas.push(nowStr());
+  c.cerrada = null;
+  return n;
+}
+
+// Devolución de mensajero: la guía regresa a oficina (almacén)
+function devolverDeMensajero(g) {
+  const de = nombreM(g.mensajeroId);
+  g.estado = 'almacen';
+  evento(g, 'Devuelta por mensajero', de, 'Oficina', 'Regresó a oficina');
+}
+
+// Fallido devolución: si la tenía un mensajero, primero queda registrada la devolución
+function despacharFallido(g, motivo) {
+  if (g.estado === 'asignada') {
+    evento(g, 'Devuelta por mensajero', nombreM(g.mensajeroId), 'Almacén principal', 'Devolución directa al almacén principal');
+  }
+  g.estado = 'fallido';
+  evento(g, 'Fallido devolución', '', 'Almacén principal', 'Despachada al almacén principal', motivo || '');
+}
+
 function cambio() {
   guardarLocal();
   pendiente = true;
@@ -486,11 +634,8 @@ function pintarDrive() {
   const p = $('drivePill');
   p.textContent = driveConectado ? '● Drive conectado' : '○ Drive sin conectar';
   p.classList.toggle('off', !driveConectado);
-  $('estadoConfig').textContent = driveConectado
-    ? `Conectado · archivo: ${nombreArchivo()}`
-    : 'Sin conectar. Los cambios se guardan en este equipo hasta conectar Drive.';
+  $('estadoConfig').textContent = driveConectado ? `Conectado · archivo: ${nombreArchivo()}` : 'Sin conectar. Los cambios se guardan en este equipo.';
 }
-
 function initDrive() {
   if (!(window.google && google.accounts && google.accounts.oauth2)) {
     if (++intentosInit < 40) setTimeout(initDrive, 500);
@@ -498,47 +643,31 @@ function initDrive() {
     return;
   }
   tokenClient = google.accounts.oauth2.initTokenClient({
-    client_id: CLIENT_ID,
-    scope: DRIVE_SCOPE,
-    callback: onToken,
+    client_id: CLIENT_ID, scope: DRIVE_SCOPE, callback: onToken,
     error_callback: () => setSync('Pulsa "Conectar con Drive" para cargar tu base.')
   });
-  // Intento silencioso: funciona si ya diste permiso antes en este navegador
   try { tokenClient.requestAccessToken({ prompt: '' }); }
   catch (e) { setSync('Pulsa "Conectar con Drive" para cargar tu base.'); }
   setTimeout(() => { if (!driveConectado) setSync('Pulsa "Conectar con Drive" para cargar tu base.'); }, 6000);
 }
-
 function conectarDrive() {
-  if (!tokenClient) { notify('Google todavía está cargando. Intenta en unos segundos.'); return; }
+  if (!tokenClient) { notify('Google todavía está cargando.'); return; }
   tokenClient.requestAccessToken({ prompt: accessToken ? '' : 'consent' });
 }
-
 function onToken(resp) {
   if (resp.error) { setSync('Error de Drive: ' + resp.error); return; }
-  accessToken = resp.access_token;
-  driveConectado = true;
-  pintarDrive();
-  // El token dura alrededor de una hora
-  setTimeout(() => {
-    accessToken = null; driveConectado = false; pintarDrive();
-    setSync('La sesión de Drive venció. Pulsa "Conectar con Drive".');
-  }, Math.max(60, (resp.expires_in || 3600) - 60) * 1000);
+  accessToken = resp.access_token; driveConectado = true; pintarDrive();
+  setTimeout(() => { accessToken = null; driveConectado = false; pintarDrive(); setSync('La sesión de Drive venció. Pulsa "Conectar con Drive".'); },
+    Math.max(60, (resp.expires_in || 3600) - 60) * 1000);
   cargarDesdeDrive();
 }
-
 async function driveFetch(url, opts = {}) {
   if (!accessToken) throw new Error('Conecta con Google Drive primero');
-  const headers = { ...(opts.headers || {}), Authorization: 'Bearer ' + accessToken };
-  const r = await fetch(url, { ...opts, headers });
-  if (r.status === 401) {
-    accessToken = null; driveConectado = false; pintarDrive();
-    throw new Error('La sesión de Drive venció. Pulsa "Conectar con Drive".');
-  }
+  const r = await fetch(url, { ...opts, headers: { ...(opts.headers || {}), Authorization: 'Bearer ' + accessToken } });
+  if (r.status === 401) { accessToken = null; driveConectado = false; pintarDrive(); throw new Error('La sesión de Drive venció.'); }
   if (!r.ok) throw new Error('Drive respondió ' + r.status);
   return r;
 }
-
 async function buscarArchivo() {
   const nombre = nombreArchivo().replace(/\\/g, '\\\\').replace(/'/g, "\\'");
   const q = encodeURIComponent(`name='${nombre}' and trashed=false`);
@@ -546,91 +675,88 @@ async function buscarArchivo() {
   const j = await r.json();
   return j.files && j.files.length ? j.files[0].id : null;
 }
-
-async function descargarArchivo(id) {
-  const r = await driveFetch(`https://www.googleapis.com/drive/v3/files/${id}?alt=media`);
-  return r.json();
-}
-
-// Al conectar: busca el archivo, lo carga y une los cambios hechos sin conexión
+async function descargarArchivo(id) { return (await driveFetch(`https://www.googleapis.com/drive/v3/files/${id}?alt=media`)).json(); }
 async function cargarDesdeDrive() {
   try {
     setSync('Buscando tu base en Drive…');
     const id = await buscarArchivo();
     if (id) {
-      const remoto = await descargarArchivo(id);
       driveFileId = id;
-      db = mergeDB(remoto, db);
-      guardarLocal();
-      renderAll();
+      db = mergeDB(await descargarArchivo(id), db);
+      guardarLocal(); renderAll();
       setSync('Base cargada desde Drive · ' + hms(new Date()));
       if (pendiente) programarGuardado();
     } else {
       setSync('No hay base en Drive todavía. Se creará al guardar.');
-      if (Object.keys(db.registros).length || Object.keys(db.mensajeros).length) guardarDrive();
+      if (Object.keys(db.guias).length) guardarDrive();
     }
-  } catch (e) {
-    setSync('Error al cargar: ' + e.message);
-  }
+  } catch (e) { setSync('Error al cargar: ' + e.message); }
 }
-
 function programarGuardado() {
   clearTimeout(saveTimer);
-  if (!driveConectado) {
-    setSync('Guardado en este equipo · pendiente de Drive');
-    return;
-  }
+  if (!driveConectado) { setSync('Guardado en este equipo · pendiente de Drive'); return; }
   setSync('Guardando en Drive…');
   saveTimer = setTimeout(guardarDrive, 1500);
 }
-
-// Lee lo que haya en Drive, lo une con lo local y sobrescribe el mismo archivo
 async function guardarDrive() {
-  if (!driveConectado || !accessToken) return;
-  if (guardando) { reintentar = true; return; }
+  if (!driveConectado || !accessToken) return false;
+  if (guardando) { reintentar = true; return false; }
   guardando = true;
   try {
     const id = driveFileId || await buscarArchivo();
-    let remoto = null;
-    if (id) remoto = await descargarArchivo(id);
+    const remoto = id ? await descargarArchivo(id) : null;
     db = mergeDB(remoto, db);
     guardarLocal();
     const contenido = JSON.stringify(db, null, 2);
     if (id) {
-      await driveFetch(`https://www.googleapis.com/upload/drive/v3/files/${id}?uploadType=media`, {
-        method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: contenido
-      });
+      await driveFetch(`https://www.googleapis.com/upload/drive/v3/files/${id}?uploadType=media`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: contenido });
       driveFileId = id;
     } else {
-      const boundary = 'mrd' + Date.now();
+      const b = 'mrd' + Date.now();
       const meta = JSON.stringify({ name: nombreArchivo(), mimeType: 'application/json' });
-      const body = `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${meta}\r\n--${boundary}\r\nContent-Type: application/json\r\n\r\n${contenido}\r\n--${boundary}--`;
-      const r = await driveFetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
-        method: 'POST', headers: { 'Content-Type': `multipart/related; boundary=${boundary}` }, body
-      });
-      const j = await r.json();
-      driveFileId = j.id;
+      const body = `--${b}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${meta}\r\n--${b}\r\nContent-Type: application/json\r\n\r\n${contenido}\r\n--${b}--`;
+      const r = await driveFetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', { method: 'POST', headers: { 'Content-Type': `multipart/related; boundary=${b}` }, body });
+      driveFileId = (await r.json()).id;
     }
-    pendiente = false;
-    localStorage.removeItem(LS_PEND);
+    pendiente = false; localStorage.removeItem(LS_PEND);
     setSync('Guardado en Drive · ' + hms(new Date()));
     renderAll();
+    return true;
   } catch (e) {
     setSync('Error al guardar: ' + e.message + ' · los cambios siguen en este equipo');
+    return false;
   } finally {
     guardando = false;
     if (reintentar) { reintentar = false; programarGuardado(); }
   }
 }
+window.addEventListener('beforeunload', e => { if (pendiente && driveConectado) { e.preventDefault(); e.returnValue = ''; } });
 
-window.addEventListener('beforeunload', e => {
-  if (pendiente && driveConectado) { e.preventDefault(); e.returnValue = ''; }
-});
+// Terminar sección: limpia la captura de pantalla y guarda de inmediato
+async function terminarSeccion(resumenBase) {
+  const ok = sesionOk.length, rep = sesionRep.length;
+  sesionOk = []; sesionRep = [];
+  guardarLocal();
+  pendiente = true;
+  localStorage.setItem(LS_PEND, '1');
+  renderAll();
+  if (!driveConectado) {
+    notify(`${resumenBase} · ${ok} procesadas, ${rep} repetidas. Guardado en este equipo; conecta Drive para subirlo.`);
+    return;
+  }
+  clearTimeout(saveTimer);
+  setSync('Guardando sección en Drive…');
+  const subio = await guardarDrive();
+  notify(subio
+    ? `Sección terminada y guardada en Drive · ${ok} procesadas, ${rep} repetidas`
+    : 'No se pudo guardar en Drive. Los cambios siguen en este equipo.');
+}
 
 /* ================= PARSEO ================= */
+// Detecta cada guía aunque el texto empiece a mitad del rastreo (sin la palabra "Delivery")
 function parseGuias(texto) {
   const out = [];
-  const re = /Delivery(\d+)\s*OFD Time:\s*(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\s*Ciudad:\s*([^\r\n]*?)\s*zipCode:\s*(\d+)/g;
+  const re = /(\d{8,20})\s*OFD Time:\s*(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\s*(?:Ciudad|City):([^\r\n]*)\s*zipCode:\s*(\d+)/g;
   let m;
   while ((m = re.exec(texto))) {
     const ofd = new Date(m[2].replace(' ', 'T'));
@@ -638,194 +764,304 @@ function parseGuias(texto) {
   }
   return out;
 }
-
 function parseEntrada(texto) {
-  const rastreo = parseGuias(texto);
-  let items = [];
-  let invalidas = 0;
-  if (rastreo.length) {
-    items = rastreo.map(x => ({ codigo: x.codigo, ofd: x.ofd, ciudad: x.ciudad, zip: x.zip }));
-  } else {
-    texto.split(/[\n,\t; ]+/).map(x => x.trim()).filter(Boolean).forEach(t => {
-      if (/^\d{8,20}$/.test(t)) items.push({ codigo: t });
-      else invalidas++;
-    });
-  }
-  const vistos = new Set();
-  const unicos = [];
-  let duplicadas = 0;
-  items.forEach(it => {
-    if (vistos.has(it.codigo)) duplicadas++;
-    else { vistos.add(it.codigo); unicos.push(it); }
-  });
-  return { items: unicos, duplicadas, invalidas };
+  const r = parseGuias(texto);
+  let items = r.length ? r.map(x => ({ codigo: x.codigo, ofd: x.ofd, ciudad: x.ciudad, zip: x.zip }))
+    : (texto.match(/(?<!\d)\d{8,20}(?!\d)/g) || []).map(t => ({ codigo: t }));
+  const vistos = new Set(), unicos = []; let duplicadas = 0;
+  items.forEach(it => { if (vistos.has(it.codigo)) duplicadas++; else { vistos.add(it.codigo); unicos.push(it); } });
+  const repetidas = unicos.filter(it => db.guias[it.codigo] && db.guias[it.codigo].estado === 'asignada');
+  const nuevas = unicos.filter(it => !repetidas.includes(it));
+  return { nuevas, repetidas, duplicadas };
 }
 
-/* ================= FILTROS Y TOTALES ================= */
-function enRango(r, d, h) { return (!d || r.fecha >= d) && (!h || r.fecha <= h); }
-
-function regsFiltrados(d, h, mid, texto) {
-  const t = (texto || '').trim().toLowerCase();
-  return Object.values(db.registros).filter(r =>
-    enRango(r, d, h) &&
-    (!mid || r.mensajeroId === mid) &&
-    (!t || r.codigo.includes(t) || nombreM(r.mensajeroId).toLowerCase().includes(t) || (r.ciudad || '').toLowerCase().includes(t))
-  );
-}
-
-function txtPorMensajero(regs) {
-  const grupos = {};
-  regs.forEach(r => { (grupos[nombreM(r.mensajeroId)] ||= []).push(r.codigo); });
-  return Object.keys(grupos).sort().map(n =>
-    `MENSAJERO: ${n}\nTOTAL DE GUIAS: ${grupos[n].length}\n\n${grupos[n].join('\n')}\n`
-  ).join('\n----------------------------------------\n\n');
-}
-
-function llenarSelect(id, incluirTodos) {
-  const sel = $(id);
-  const prev = sel.value;
-  const lista = Object.values(db.mensajeros).filter(m => m.activo)
-    .sort((a, b) => a.nombre.localeCompare(b.nombre));
-  let html = incluirTodos ? '<option value="">Todos los mensajeros</option>' : '';
+/* ================= SELECTORES ================= */
+function llenarSelect(id, todos) {
+  const sel = $(id), prev = sel.value;
+  const lista = Object.values(db.mensajeros).filter(m => m.activo).sort((a, b) => a.nombre.localeCompare(b.nombre));
+  let html = todos ? '<option value="">Todos los mensajeros</option>' : '';
   html += lista.map(m => `<option value="${esc(m.id)}">${esc(m.nombre)}${m.zona ? ' · ' + esc(m.zona) : ''}</option>`).join('');
-  if (!lista.length && !incluirTodos) html = '<option value="">Registra un mensajero primero</option>';
+  if (!lista.length && !todos) html = '<option value="">Registra un mensajero primero</option>';
   sel.innerHTML = html;
   if (prev && [...sel.options].some(o => o.value === prev)) sel.value = prev;
 }
 
 /* ================= RENDER ================= */
-function renderTiles(contenedor, regs, tipo) {
-  const conteo = {};
-  regs.forEach(r => {
-    const k = tipo === 'zip' ? (r.zip || 'Sin código') : (r.ciudad || 'Sin ciudad');
-    conteo[k] = (conteo[k] || 0) + 1;
-  });
-  const entradas = Object.entries(conteo).sort((a, b) => b[1] - a[1]);
-  const max = Math.max(...entradas.map(e => e[1]), 1);
-  $(contenedor).innerHTML = entradas.map(([k, n]) =>
-    `<div class="zona" style="background:rgba(138,180,248,${(0.12 + 0.6 * n / max).toFixed(2)})">
-       <span>${esc(k)}</span><b>${n}</b></div>`
-  ).join('') || '<div class="small-muted">Sin asignaciones en el período</div>';
+function eventosPeriodo(accion) {
+  const { ini, fin } = periodoActual();
+  const out = [];
+  Object.values(db.guias).forEach(g => g.historial.forEach(e => {
+    const d = (e.at || '').slice(0, 10);
+    if (e.accion === accion && d >= ini && d <= fin) out.push({ ...e, g });
+  }));
+  return out;
 }
 
 function renderPanel() {
-  const d = $('pDesde').value, h = $('pHasta').value;
-  const regs = regsFiltrados(d, h, '', '');
+  const { ini, fin } = periodoActual();
+  $('periodoTexto').textContent = `Período del ${ini} al ${fin}`;
+  const guias = Object.values(db.guias);
+  $('mEntradas').textContent = guias.filter(g => enPeriodo(g.creada)).length;
+  $('mRuta').textContent = guias.filter(g => g.estado === 'asignada').length;
+  $('mEntregadas').textContent = new Set(eventosPeriodo('Entregada').map(e => e.g.codigo)).size;
+  $('mDevueltas').textContent = new Set(eventosPeriodo('Devuelta por mensajero').map(e => e.g.codigo)).size;
+  $('mAlmacen').textContent = guias.filter(g => g.estado === 'almacen').length;
+  $('mFallidos').textContent = new Set(eventosPeriodo('Fallido devolución').map(e => e.g.codigo)).size;
+
+  const recientes = [];
+  guias.forEach(g => g.historial.forEach(e => recientes.push({ ...e, codigo: g.codigo })));
+  recientes.sort((a, b) => (b.at || '').localeCompare(a.at || ''));
+  $('tablaRecientes').innerHTML = recientes.slice(0, 12).map(e =>
+    `<tr><td>${esc(e.at)}</td><td class="code">${esc(e.codigo)}</td><td>${esc(e.accion)}</td><td>${esc(e.a || e.de || '—')}</td></tr>`
+  ).join('') || '<tr><td colspan="4" class="small-muted">Sin movimientos todavía.</td></tr>';
+
   const activos = Object.values(db.mensajeros).filter(m => m.activo);
-  const porM = {};
-  regs.forEach(r => { porM[r.mensajeroId] = (porM[r.mensajeroId] || 0) + 1; });
-  $('mAsig').textContent = regs.length;
-  $('mMens').textContent = Object.keys(porM).length;
-  $('mMensNote').textContent = `de ${activos.length} activos`;
-  $('mCiu').textContent = new Set(regs.map(r => r.ciudad).filter(Boolean)).size;
-  $('mReg').textContent = Object.keys(db.registros).length;
-
-  renderTiles('mapaPanel', regs, 'ciudad');
-
-  const lista = activos.slice().sort((a, b) => (porM[b.id] || 0) - (porM[a.id] || 0));
-  $('listaMensajeros').innerHTML = lista.map(m =>
-    `<div class="driver">
-       <div class="initial">${esc(iniciales(m.nombre))}</div>
-       <div class="driver-info"><div class="driver-name">${esc(m.nombre)}</div><div class="driver-meta">${esc(m.zona || 'Sin zona')}</div></div>
-       <span class="count">${porM[m.id] || 0} guías</span>
-     </div>`
-  ).join('') || '<div class="small-muted">Registra mensajeros en la sección Mensajeros.</div>';
-
-  const act = Object.values(db.registros)
-    .sort((a, b) => (b.actualizado || '').localeCompare(a.actualizado || ''))
-    .slice(0, 8);
-  $('tablaActividad').innerHTML = act.map(r =>
-    `<tr>
-       <td>${esc((r.actualizado || '').slice(11, 16))}</td>
-       <td>${esc(nombreM(r.mensajeroId))}</td>
-       <td class="code">${esc(r.codigo)}</td>
-       <td>${esc(r.origen)}</td>
-       <td><span class="status ${r.estado === 'reasignada' ? 'pending' : ''}">${esc(ETIQ_ESTADO[r.estado] || r.estado)}</span></td>
-     </tr>`
-  ).join('') || '<tr><td colspan="5" class="small-muted">Todavía no hay movimientos.</td></tr>';
+  $('listaMensajeros').innerHTML = activos.map(m => {
+    const enRuta = guias.filter(g => g.mensajeroId === m.id && g.estado === 'asignada').length;
+    const entr = eventosPeriodo('Entregada').filter(e => e.g.mensajeroId === m.id).length;
+    const devs = eventosPeriodo('Devuelta por mensajero').filter(e => e.de === m.nombre).length;
+    return `<div class="item"><span><strong>${esc(m.nombre)}</strong><br><span class="small-muted">${esc(m.zona || 'Sin zona')}</span></span>
+      <span class="small-muted">En ruta <b>${enRuta}</b> · Entregadas <b>${entr}</b> · Devueltas <b>${devs}</b></span></div>`;
+  }).join('') || '<div class="small-muted">Registra mensajeros para ver su resumen.</div>';
 }
 
 function renderRegistrar() {
   llenarSelect('selRegistrar', false);
   if (!$('fechaRegistrar').value) $('fechaRegistrar').value = hoyYmd();
-  $('btnAsignar').disabled = !Object.values(db.mensajeros).some(m => m.activo);
+  const hay = Object.values(db.mensajeros).some(m => m.activo);
+  $('btnAsignar').disabled = !hay || !borrador || !borrador.nuevas.length;
+  $('btnReasignarRep').disabled = !hay || !borrador || !borrador.repetidas.length;
 }
 
+const MODO_INFO = {
+  asignar: 'Cada código nuevo entra a la carga abierta del mensajero (se crea si no hay). Si ya está en ruta, aparece como repetida.',
+  devolucion: 'No hace falta elegir mensajero: el sistema detecta quién tiene la guía y la registra como devuelta a oficina.',
+  fallido: 'No hace falta elegir mensajero. Si la guía la tiene un mensajero, se registra su devolución y luego pasa al almacén principal.'
+};
 function renderEscaner() {
+  const modo = $('modoEscaner').value;
   llenarSelect('selEscaner', false);
   if (!$('fechaEscaner').value) $('fechaEscaner').value = hoyYmd();
-  const mid = $('selEscaner').value;
-  $('scanInput').disabled = !mid;
-  $('infoEscaner').textContent = mid
-    ? nombreM(mid) + (db.mensajeros[mid].zona ? ' · ' + db.mensajeros[mid].zona : '')
-    : 'Sin mensajero activo';
-  const ok = sesion.filter(s => s.tipo === 'ok' || s.tipo === 'warn').length;
-  $('scanCount').textContent = `${ok} guías · ${sesion.length} lecturas`;
-  $('scanList').innerHTML = sesion.slice(0, 30).map(s =>
-    `<div class="scan-item">
-       <span class="code">${esc(s.codigo)}</span>
-       <span class="msg-${s.tipo === 'ok' ? 'ok' : s.tipo === 'warn' ? 'warn' : 'err'}">${esc(s.texto)}</span>
-     </div>`
-  ).join('') || '<div class="small-muted">Todavía no hay lecturas en esta sesión.</div>';
+  $('campoMensajero').classList.toggle('hidden', modo !== 'asignar');
+  $('campoFecha').classList.toggle('hidden', modo !== 'asignar');
+  $('campoZona').classList.toggle('hidden', modo !== 'asignar');
+  $('campoMotivo').classList.toggle('hidden', modo !== 'fallido');
+  $('infoModo').textContent = MODO_INFO[modo];
+  $('scanInput').disabled = modo === 'asignar' && !$('selEscaner').value;
+  $('cntOk').textContent = sesionOk.length;
+  $('cntRep').textContent = sesionRep.length;
+  $('listaOk').innerHTML = sesionOk.slice(0, 60).map(s =>
+    `<div class="item"><span class="code">${esc(s.codigo)}</span><span class="ok-t">${esc(s.texto)}</span></div>`).join('') || '<div class="small-muted">Sin lecturas.</div>';
+  $('listaRep').innerHTML = sesionRep.slice(0, 60).map(s =>
+    `<div class="item"><span><span class="code">${esc(s.codigo)}</span><br><span class="small-muted">${esc(s.detalle)}</span></span>
+     ${s.reasignable && modo === 'asignar' ? `<button class="outline small-btn" data-rep="${esc(s.codigo)}">Reasignar aquí</button>` : ''}</div>`).join('') || '<div class="small-muted">Sin repetidas ni errores.</div>';
+}
+
+function renderCargas() {
+  const { ini, fin } = periodoActual();
+  const lista = Object.values(db.cargas)
+    .filter(c => c.fecha >= ini && c.fecha <= fin)
+    .sort((a, b) => (b.creada || '').localeCompare(a.creada || ''));
+  $('tablaCargas').innerHTML = lista.map(c => {
+    const gs = guiasDeCarga(c.id);
+    const ruta = gs.filter(g => g.estado === 'asignada').length;
+    const ent = gs.filter(g => g.estado === 'entregada').length;
+    const dev = gs.filter(g => ['almacen', 'fallido'].includes(g.estado)).length;
+    return `<tr>
+      <td>${esc(c.fecha)}</td>
+      <td>${esc(nombreM(c.mensajeroId))}</td>
+      <td>${esc(c.creada.slice(11, 16))}</td>
+      <td><span class="badge ${c.cerrada ? 'b-cerrada' : 'b-abierta'}">${c.cerrada ? 'Cerrada' : 'Abierta'}</span></td>
+      <td>${ruta}</td><td>${ent}</td><td>${dev}</td>
+      <td><input type="number" min="0" data-conteo="${esc(c.id)}" value="${esc(c.conteoEntregados)}" style="width:80px"></td>
+      <td class="row">
+        <button class="outline small-btn" data-carga="ver" data-id="${esc(c.id)}">Ver</button>
+        <button class="outline small-btn" data-carga="pasar" data-id="${esc(c.id)}" ${ruta ? '' : 'disabled'}>Pasar en ruta</button>
+      </td></tr>`;
+  }).join('') || '<tr><td colspan="9" class="small-muted">No hay cargas en este período.</td></tr>';
+
+  if (cargaSel && db.cargas[cargaSel]) {
+    const c = db.cargas[cargaSel];
+    $('cargaDetalleBox').classList.remove('hidden');
+    $('cargaTitulo').textContent = `${nombreM(c.mensajeroId)} · ${c.fecha} · ${c.cerrada ? 'cerrada ' + c.cerrada : 'abierta'}`;
+    $('btnTerminarRuta').disabled = !!c.cerrada;
+    $('btnReabrirCarga').disabled = !c.cerrada;
+    $('cargaGuias').innerHTML = guiasDeCarga(cargaSel).sort((a, b) => a.codigo.localeCompare(b.codigo)).map(g =>
+      `<tr><td class="code">${esc(g.codigo)}</td><td>${badge(g.estado)}</td><td>${esc(g.ciudad || '—')}</td><td>${esc(g.ultimoMov)}</td>
+       <td>${g.estado === 'asignada' ? `<button class="outline small-btn" data-cg="devolver" data-codigo="${esc(g.codigo)}">Marcar devuelta</button>` : ''}</td></tr>`
+    ).join('') || '<tr><td colspan="5" class="small-muted">Carga vacía</td></tr>';
+  } else {
+    $('cargaDetalleBox').classList.add('hidden');
+  }
+}
+
+function renderDevoluciones() {
+  const guias = Object.values(db.guias);
+  const alm = guias.filter(g => g.estado === 'almacen');
+  $('tablaAlmacen').innerHTML = alm.map(g => {
+    const ult = [...g.historial].reverse().find(e => e.accion === 'Devuelta por mensajero');
+    return `<tr><td class="code">${esc(g.codigo)}</td><td>${esc(ult ? ult.de : '—')}</td><td>${esc(ult ? ult.at : '')}</td><td>${esc(g.ciudad || '—')}</td>
+      <td class="row"><button class="outline small-btn" data-dev="fallido" data-codigo="${esc(g.codigo)}">→ Fallido devolución</button>
+      <button class="outline small-btn" data-dev="reenviar" data-codigo="${esc(g.codigo)}">Reenviar a mensajero</button></td></tr>`;
+  }).join('') || '<tr><td colspan="5" class="small-muted">Oficina vacía.</td></tr>';
+
+  const fallidos = [];
+  guias.forEach(g => g.historial.forEach(e => {
+    if (e.accion === 'Fallido devolución' && enPeriodo((e.at || '').slice(0, 10))) fallidos.push({ ...e, codigo: g.codigo });
+  }));
+  fallidos.sort((a, b) => b.at.localeCompare(a.at));
+  $('tablaFallidos').innerHTML = fallidos.map(e =>
+    `<tr><td class="code">${esc(e.codigo)}</td><td>${esc(e.at)}</td><td>${esc(e.motivo || 'Sin motivo')}</td>
+     <td><button class="outline small-btn" data-buscar="${esc(e.codigo)}">Ver historial</button></td></tr>`
+  ).join('') || '<tr><td colspan="4" class="small-muted">No hay fallidos en este período.</td></tr>';
+}
+
+function renderBuscador() {
+  const q = $('buscadorInput').value.trim();
+  const box = $('resultadoBusqueda');
+  if (!q) { box.innerHTML = ''; return; }
+  const g = db.guias[q];
+  if (!g) {
+    const coincidencias = Object.keys(db.guias).filter(c => c.startsWith(q)).slice(0, 20);
+    box.innerHTML = coincidencias.length
+      ? `<div class="panel"><div class="small-muted" style="margin-bottom:8px">Coincidencias:</div>${coincidencias.map(c => `<div class="item"><span class="code">${esc(c)}</span><button class="outline small-btn" data-buscar="${esc(c)}">Ver</button></div>`).join('')}</div>`
+      : `<div class="alerta a-almacen">No encontré la guía ${esc(q)}.</div>`;
+    return;
+  }
+  const carga = db.cargas[g.cargaId];
+  const ultDev = [...g.historial].reverse().find(e => e.accion === 'Devuelta por mensajero');
+  const fall = [...g.historial].reverse().find(e => e.accion === 'Fallido devolución');
+  let aviso;
+  if (g.estado === 'fallido') aviso = `<div class="alerta a-fallido">Esta guía fue devuelta al almacén principal (Fallido devolución) el ${esc(fall ? fall.at.slice(0, 10) : '')}.${fall && fall.motivo ? ' Motivo: ' + esc(fall.motivo) + '.' : ''} Ya no está en la oficina ni con un mensajero.</div>`;
+  else if (g.estado === 'almacen') aviso = `<div class="alerta a-almacen">Esta guía está en oficina${ultDev ? `, devuelta por ${esc(ultDev.de)} el ${esc(ultDev.at.slice(0, 10))}` : ''}.</div>`;
+  else if (g.estado === 'entregada') aviso = `<div class="alerta a-ok">Esta guía fue entregada por ${esc(nombreM(g.mensajeroId))}.</div>`;
+  else aviso = `<div class="alerta a-ok">Esta guía está en ruta con ${esc(nombreM(g.mensajeroId))}.</div>`;
+  box.innerHTML = `
+    ${aviso}
+    <div class="panel">
+      <div class="panel-head"><div><div class="small-muted">Guía</div><div class="code" style="font-size:20px">${esc(g.codigo)}</div></div><div>${badge(g.estado)}</div></div>
+      <div class="grid-2" style="font-size:13px">
+        <div><span class="small-muted">Mensajero actual:</span> ${esc(nombreM(g.mensajeroId))}</div>
+        <div><span class="small-muted">Carga:</span> ${carga ? esc(carga.fecha + ' · ' + (carga.cerrada ? 'cerrada' : 'abierta')) : '—'}</div>
+        <div><span class="small-muted">Zona:</span> ${esc(g.ciudad || '—')}</div>
+        <div><span class="small-muted">Entró:</span> ${esc(g.creada)}</div>
+        <div><span class="small-muted">Último movimiento:</span> ${esc(g.ultimoMov)}</div>
+        <div><span class="small-muted">Origen:</span> ${esc(g.origen)}</div>
+      </div>
+      <h2 style="margin:16px 0 8px">Historial completo</h2>
+      <div class="table-wrap"><table><thead><tr><th>Cuándo</th><th>Acción</th><th>De</th><th>A</th><th>Motivo / detalle</th></tr></thead><tbody>
+      ${[...g.historial].reverse().map(e => `<tr><td>${esc(e.at)}</td><td>${esc(e.accion)}</td><td>${esc(e.de || '—')}</td><td>${esc(e.a || '—')}</td><td>${esc([e.motivo, e.detalle].filter(Boolean).join(' · '))}</td></tr>`).join('')}
+      </tbody></table></div>
+    </div>`;
+}
+
+function renderCalendario() {
+  const { mes } = periodoActual();
+  const [y, m] = mes.split('-').map(Number);
+  const primero = new Date(y, m - 1, 1).getDay();
+  const dias = new Date(y, m, 0).getDate();
+  const cuenta = {};
+  const sumar = (f, k) => {
+    if (!f) return;
+    cuenta[f] = cuenta[f] || { nuevos: 0, entregadas: 0, devueltas: 0, fallidos: 0 };
+    cuenta[f][k]++;
+  };
+  Object.values(db.guias).forEach(g => {
+    sumar(g.creada, 'nuevos');
+    const marcas = new Set();
+    g.historial.forEach(e => {
+      const d = (e.at || '').slice(0, 10);
+      const tipo = { 'Entregada': 'entregadas', 'Devuelta por mensajero': 'devueltas', 'Fallido devolución': 'fallidos' }[e.accion];
+      if (tipo && !marcas.has(tipo + d)) { marcas.add(tipo + d); sumar(d, tipo); }
+    });
+  });
+  let html = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'].map(d => `<div class="cal-h">${d}</div>`).join('');
+  for (let i = 0; i < primero; i++) html += '<div></div>';
+  for (let d = 1; d <= dias; d++) {
+    const f = `${y}-${pad(m)}-${pad(d)}`;
+    if (!enPeriodo(f)) { html += `<div class="day vacio"><div class="num">${d}</div></div>`; continue; }
+    const c = cuenta[f] || { nuevos: 0, entregadas: 0, devueltas: 0, fallidos: 0 };
+    html += `<div class="day ${c.nuevos ? 'nuevo' : ''}" data-dia="${f}">
+      <div class="num">${d}${c.nuevos ? `<span class="tag">+${c.nuevos} nuevos</span>` : ''}</div>
+      <span class="dot">Entregas <b>${c.entregadas}</b></span>
+      <span class="dot">Devueltas <b>${c.devueltas}</b></span>
+      <span class="dot">Fallidos <b>${c.fallidos}</b></span></div>`;
+  }
+  $('calGrid').innerHTML = html;
+  if (calDia) renderCalDetalle(calDia);
+}
+
+function renderCalDetalle(f) {
+  const filas = [];
+  Object.values(db.guias).forEach(g => {
+    if (g.creada === f) filas.push({ at: g.creada + ' 00:00:00', codigo: g.codigo, accion: 'Entró (pedido nuevo)', mens: nombreM(g.mensajeroId), det: g.origen });
+    g.historial.forEach(e => { if ((e.at || '').slice(0, 10) === f) filas.push({ at: e.at, codigo: g.codigo, accion: e.accion, mens: e.a || e.de || '—', det: [e.motivo, e.detalle].filter(Boolean).join(' · ') }); });
+  });
+  filas.sort((a, b) => b.at.localeCompare(a.at));
+  if (!enPeriodo(f)) { $('calDetalleBox').classList.add('hidden'); return; }
+  $('calDetalleBox').classList.remove('hidden');
+  $('calDetalleTitulo').textContent = `Movimientos del ${f} (${filas.length})`;
+  $('calDetalle').innerHTML = filas.map(x =>
+    `<tr><td>${esc(x.at.slice(11, 16))}</td><td class="code">${esc(x.codigo)}</td><td>${esc(x.accion)}</td><td>${esc(x.mens)}</td><td>${esc(x.det)}</td></tr>`
+  ).join('') || '<tr><td colspan="5" class="small-muted">Sin movimientos ese día.</td></tr>';
+}
+
+function renderGuias() {
+  llenarSelect('gMens', true);
+  const { ini, fin } = periodoActual();
+  const mid = $('gMens').value, est = $('gEstado').value, t = $('gTexto').value.trim().toLowerCase();
+  const lista = Object.values(db.guias).filter(g => {
+    const u = (g.ultimoMov || '').slice(0, 10);
+    const enP = (g.creada >= ini && g.creada <= fin) || (u >= ini && u <= fin);
+    return enP && (!mid || g.mensajeroId === mid) && (!est || g.estado === est) &&
+      (!t || g.codigo.includes(t) || nombreM(g.mensajeroId).toLowerCase().includes(t) || (g.ciudad || '').toLowerCase().includes(t));
+  }).sort((a, b) => (b.ultimoMov || '').localeCompare(a.ultimoMov || ''));
+  $('tablaGuias').innerHTML = lista.slice(0, 500).map(g => {
+    const c = db.cargas[g.cargaId];
+    return `<tr><td class="code">${esc(g.codigo)}</td><td>${badge(g.estado)}</td><td>${esc(nombreM(g.mensajeroId))}</td>
+      <td>${c ? esc(c.fecha) : '—'}</td><td>${esc(g.ciudad || '—')}</td><td>${esc(g.creada)}</td><td>${esc(g.ultimoMov)}</td>
+      <td class="row"><button class="outline small-btn" data-buscar="${esc(g.codigo)}">Historial</button>
+      <button class="outline small-btn" data-g="zona" data-codigo="${esc(g.codigo)}">Zona</button>
+      ${g.estado === 'asignada' ? `<button class="outline small-btn" data-g="reasignar" data-codigo="${esc(g.codigo)}">Reasignar</button>` : ''}</td></tr>`;
+  }).join('') || '<tr><td colspan="8" class="small-muted">Sin guías con estos filtros.</td></tr>';
+  $('infoGuias').textContent = lista.length > 500 ? `Mostrando 500 de ${lista.length}` : `${lista.length} guías`;
 }
 
 function renderMensajeros() {
-  const porM = {};
-  Object.values(db.registros).forEach(r => { porM[r.mensajeroId] = (porM[r.mensajeroId] || 0) + 1; });
   const lista = Object.values(db.mensajeros).sort((a, b) => a.nombre.localeCompare(b.nombre));
-  $('tablaMensajeros').innerHTML = lista.map(m =>
-    `<tr>
-       <td>${esc(m.nombre)}</td>
-       <td>${esc(m.zona || '—')}</td>
-       <td><span class="status ${m.activo ? '' : 'off'}">${m.activo ? 'Activo' : 'Inactivo'}</span></td>
-       <td>${porM[m.id] || 0}</td>
-       <td class="row">
-         <button class="outline" data-accion="renombrar" data-id="${esc(m.id)}">Renombrar</button>
-         <button class="outline" data-accion="zona" data-id="${esc(m.id)}">Zona</button>
-         <button class="outline" data-accion="estado" data-id="${esc(m.id)}">${m.activo ? 'Desactivar' : 'Activar'}</button>
-       </td>
-     </tr>`
-  ).join('') || '<tr><td colspan="5" class="small-muted">Todavía no hay mensajeros registrados.</td></tr>';
+  $('tablaMensajeros').innerHTML = lista.map(m => {
+    const ruta = Object.values(db.guias).filter(g => g.mensajeroId === m.id && g.estado === 'asignada').length;
+    return `<tr><td>${esc(m.nombre)}</td><td>${esc(m.zona || '—')}</td>
+      <td><span class="badge ${m.activo ? 'b-entregada' : 'b-cerrada'}">${m.activo ? 'Activo' : 'Inactivo'}</span></td>
+      <td>${ruta}</td>
+      <td class="row">
+        <button class="outline small-btn" data-m="renombrar" data-id="${esc(m.id)}">Renombrar</button>
+        <button class="outline small-btn" data-m="zona" data-id="${esc(m.id)}">Zona</button>
+        <button class="outline small-btn" data-m="estado" data-id="${esc(m.id)}">${m.activo ? 'Desactivar' : 'Activar'}</button>
+      </td></tr>`;
+  }).join('') || '<tr><td colspan="5" class="small-muted">Todavía no hay mensajeros.</td></tr>';
 }
 
-function renderMapa() {
-  const regs = regsFiltrados($('mapaDesde').value, $('mapaHasta').value, '', '');
-  renderTiles('mapaTiles', regs, $('mapaTipo').value);
+function renderZonas() {
+  const { ini, fin } = periodoActual();
+  const tipo = $('mapaTipo').value;
+  const conteo = {};
+  Object.values(db.guias).filter(g => g.creada >= ini && g.creada <= fin).forEach(g => {
+    const k = tipo === 'zip' ? (g.zip || 'Sin código') : (g.ciudad || 'Sin zona');
+    conteo[k] = (conteo[k] || 0) + 1;
+  });
+  const ent = Object.entries(conteo).sort((a, b) => b[1] - a[1]);
+  const max = Math.max(...ent.map(e => e[1]), 1);
+  $('mapaTiles').innerHTML = ent.map(([k, n]) =>
+    `<div class="zona" style="background:rgba(138,180,248,${(0.12 + 0.6 * n / max).toFixed(2)})"><span>${esc(k)}</span><b>${n}</b></div>`
+  ).join('') || '<div class="small-muted">Sin pedidos en este período.</div>';
 }
 
-function renderHistorial() {
-  llenarSelect('hMens', true);
-  const texto = $('buscar').value;
-  const regs = regsFiltrados($('hDesde').value, $('hHasta').value, $('hMens').value, texto)
-    .sort((a, b) => b.fecha.localeCompare(a.fecha) || (b.actualizado || '').localeCompare(a.actualizado || ''));
-  const lista = regs.slice(0, 500);
-  $('tablaHist').innerHTML = lista.map(r =>
-    `<tr>
-       <td>${esc(r.fecha)}</td>
-       <td>${esc(r.hora)}</td>
-       <td class="code">${esc(r.codigo)}</td>
-       <td>${esc(nombreM(r.mensajeroId))}</td>
-       <td>${esc(r.ciudad)}</td>
-       <td>${esc(r.zip)}</td>
-       <td><span class="status ${r.estado === 'reasignada' ? 'pending' : ''}">${esc(ETIQ_ESTADO[r.estado] || r.estado)}</span></td>
-     </tr>`
-  ).join('') || '<tr><td colspan="7" class="small-muted">Sin registros con estos filtros.</td></tr>';
-  $('infoHist').textContent = regs.length > 500 ? `Mostrando 500 de ${regs.length}. El TXT incluye todas.` : `${regs.length} registros`;
-}
-
-function renderConfig() {
-  $('archivoNombre').value = nombreArchivo();
-  pintarDrive();
-}
+function renderConfig() { $('archivoNombre').value = nombreArchivo(); pintarDrive(); }
 
 function renderAll() {
-  renderPanel();
-  renderRegistrar();
-  renderEscaner();
-  renderMensajeros();
-  renderMapa();
-  renderHistorial();
-  renderConfig();
+  renderPanel(); renderRegistrar(); renderEscaner(); renderCargas(); renderDevoluciones();
+  renderBuscador(); renderCalendario(); renderGuias(); renderMensajeros(); renderZonas(); renderConfig();
 }
 
 function mostrar(v) {
@@ -835,206 +1071,308 @@ function mostrar(v) {
   if (v === 'escaner') setTimeout(() => { if (!$('scanInput').disabled) $('scanInput').focus(); }, 50);
 }
 
-/* ================= ACCIONES ================= */
-// Registrar: validar y asignar
-let borrador = null;
+/* ================= REASIGNAR FLOTANTE ================= */
+function abrirReasignar(codigos, titulo) {
+  reasState.codigos = codigos;
+  $('reasTitulo').textContent = titulo;
+  $('reasDetalle').textContent = `${codigos.length} guía(s) en ruta`;
+  llenarSelect('reasSelect', false);
+  $('panelReasignar').style.display = 'flex';
+}
+function cerrarReasignar() { $('panelReasignar').style.display = 'none'; reasState = { codigos: [] }; }
+$('btnReasConfirmar').onclick = () => {
+  const mid = $('reasSelect').value;
+  if (!mid) { notify('Selecciona un mensajero activo'); return; }
+  const n = reasignarEnRuta(reasState.codigos, mid);
+  notify(n ? `${n} guía(s) pasadas a ${nombreM(mid)}` : 'Ninguna guía cambió de mensajero');
+  cerrarReasignar(); cambio();
+};
+$('btnReasCancelar').onclick = cerrarReasignar;
 
+/* ================= REGISTRAR PEGADO ================= */
+function mostrarRepetidas() {
+  const box = $('repetidasRegistrar');
+  if (!borrador || !borrador.repetidas.length) { box.innerHTML = ''; return; }
+  box.innerHTML = '<div class="small-muted" style="margin-bottom:6px">Repetidas (ya están en ruta):</div>' +
+    borrador.repetidas.map(it => {
+      const g = db.guias[it.codigo];
+      return `<div class="item"><span class="code">${esc(it.codigo)}</span><span class="warn-t">${esc(nombreM(g.mensajeroId))} · ${esc(g.creada)}</span></div>`;
+    }).join('');
+}
 $('btnValidar').onclick = () => {
   const texto = $('bulk').value;
   if (!texto.trim()) { notify('Pega primero las guías'); return; }
   borrador = parseEntrada(texto);
-  if (!borrador.items.length) {
-    $('bulkResult').textContent = 'No encontré guías válidas';
-    $('btnAsignar').disabled = true;
-    borrador = null;
-    return;
-  }
-  $('bulkResult').textContent = `${borrador.items.length} guías válidas · ${borrador.duplicadas} repetidas · ${borrador.invalidas} con formato inválido`;
-  $('btnAsignar').disabled = !$('selRegistrar').value;
+  const total = borrador.nuevas.length + borrador.repetidas.length;
+  if (!total) { $('bulkResult').textContent = 'No encontré guías en el texto.'; borrador = null; }
+  else $('bulkResult').textContent = `${total} guías detectadas · ${borrador.nuevas.length} nuevas · ${borrador.repetidas.length} repetidas · ${borrador.duplicadas} duplicadas en el texto`;
+  mostrarRepetidas(); renderRegistrar();
 };
-
-$('btnLimpiarBulk').onclick = () => { $('bulk').value = ''; $('bulkResult').textContent = ''; borrador = null; $('resumenAsignar').textContent = ''; };
-
+$('btnLimpiarBulk').onclick = () => {
+  $('bulk').value = ''; $('bulkResult').textContent = ''; $('resumenAsignar').textContent = '';
+  borrador = null; $('repetidasRegistrar').innerHTML = ''; renderRegistrar();
+};
 $('btnAsignar').onclick = () => {
   const mid = $('selRegistrar').value;
-  if (!mid) { notify('Selecciona un mensajero activo'); return; }
-  if (!borrador || !borrador.items.length) { notify('Valida las guías primero'); return; }
-  const fechaBase = $('fechaRegistrar').value || hoyYmd();
-  const cuenta = { nueva: 0, actualizada: 0, reasignada: 0 };
-  borrador.items.forEach(it => {
-    const r = asignar(it.codigo, {
-      mensajeroId: mid,
-      fecha: it.ofd ? ymd(it.ofd) : fechaBase,
-      hora: it.ofd ? hms(it.ofd) : hms(new Date()),
-      ciudad: it.ciudad,
-      zip: it.zip,
-      origen: it.ofd ? 'Rastreo pegado' : 'Pegado de datos'
-    });
-    cuenta[r.estado]++;
-  });
-  const resumen = `${cuenta.nueva} nuevas · ${cuenta.actualizada} actualizadas · ${cuenta.reasignada} reasignadas a ${nombreM(mid)}`;
-  $('resumenAsignar').textContent = 'Listo: ' + resumen;
-  notify('Asignación guardada');
-  borrador = null;
-  $('bulk').value = '';
-  $('bulkResult').textContent = '';
-  $('btnAsignar').disabled = true;
+  if (!mid) { notify('Selecciona un mensajero'); return; }
+  if (!borrador || !borrador.nuevas.length) { notify('Valida primero'); return; }
+  const fecha = $('fechaRegistrar').value || hoyYmd();
+  const zonaForm = $('zonaRegistrar').value.trim();
+  const carga = cargaAbierta(mid, fecha);
+  borrador.nuevas.forEach(it => asignarA(it.codigo, mid, carga, {
+    fecha, ciudad: zonaForm || it.ciudad || '', zip: it.zip || '', origen: it.ofd ? 'Rastreo pegado' : 'Pegado de datos'
+  }));
+  $('resumenAsignar').textContent = `Listo: ${borrador.nuevas.length} asignadas a ${nombreM(mid)}` + (borrador.repetidas.length ? ` · ${borrador.repetidas.length} repetidas sin cambios` : '');
+  borrador = null; $('bulk').value = ''; $('bulkResult').textContent = ''; $('repetidasRegistrar').innerHTML = '';
   cambio();
 };
+$('btnReasignarRep').onclick = () => {
+  const mid = $('selRegistrar').value;
+  if (!mid || !borrador || !borrador.repetidas.length) { notify('Selecciona mensajero y valida'); return; }
+  const n = reasignarEnRuta(borrador.repetidas.map(x => x.codigo), mid);
+  $('resumenAsignar').textContent = `Reasignadas ${n} repetidas a ${nombreM(mid)}`;
+  borrador = null; $('bulk').value = ''; $('bulkResult').textContent = ''; $('repetidasRegistrar').innerHTML = '';
+  notify(`${n} guía(s) reasignadas`); cambio();
+};
+$('btnTerminarRegistro').onclick = () => terminarSeccion('Registro terminado');
 
-// Escáner
-function escanear(valor) {
+/* ================= ESCÁNER ================= */
+function procesarEscaneo(valor) {
   const codigo = (valor || '').trim();
   const input = $('scanInput');
-  input.value = '';
-  input.focus();
+  input.value = ''; input.focus();
   if (!codigo) return;
-  if (!/^\d{8,20}$/.test(codigo)) {
-    sesion.unshift({ codigo, texto: 'Formato no válido', tipo: 'err' });
-    renderEscaner();
-    return;
+  if (!/^\d{8,20}$/.test(codigo)) { sesionRep.unshift({ codigo, detalle: 'Formato no válido', reasignable: false }); return renderEscaner(); }
+  const modo = $('modoEscaner').value;
+  const g = db.guias[codigo];
+
+  if (modo === 'asignar') {
+    const mid = $('selEscaner').value;
+    if (!mid) { notify('Selecciona un mensajero'); return; }
+    if (sesionOk.some(s => s.codigo === codigo) || sesionRep.some(s => s.codigo === codigo)) {
+      sesionRep.unshift({ codigo, detalle: 'Ya escaneada en esta sección', reasignable: false }); return renderEscaner();
+    }
+    if (g && g.estado === 'asignada') {
+      sesionRep.unshift({ codigo, detalle: `Ya está en ruta con ${nombreM(g.mensajeroId)} · ${g.creada}`, reasignable: g.mensajeroId !== mid });
+      return renderEscaner();
+    }
+    const fecha = $('fechaEscaner').value || hoyYmd();
+    const carga = cargaAbierta(mid, fecha);
+    const tipo = asignarA(codigo, mid, carga, { fecha, ciudad: $('zonaEscaner').value.trim(), origen: 'Escáner' });
+    sesionOk.unshift({ codigo, texto: `→ ${nombreM(mid)}${tipo === 'ciclo' ? ' (nuevo ciclo)' : ''}` });
+    return cambio();
   }
-  const mid = $('selEscaner').value;
-  if (!mid) { notify('Registra y selecciona un mensajero activo'); return; }
-  if (sesion.some(s => s.codigo === codigo && s.tipo !== 'err')) {
-    sesion.unshift({ codigo, texto: 'Ya escaneada en esta sesión', tipo: 'warn' });
-    renderEscaner();
-    return;
+
+  if (modo === 'devolucion') {
+    if (!g) { sesionRep.unshift({ codigo, detalle: 'No existe en la base', reasignable: false }); return renderEscaner(); }
+    if (g.estado !== 'asignada') { sesionRep.unshift({ codigo, detalle: `Estado actual: ${ESTADO_TXT[g.estado]}`, reasignable: false }); return renderEscaner(); }
+    const de = nombreM(g.mensajeroId);
+    devolverDeMensajero(g);
+    sesionOk.unshift({ codigo, texto: `↩ Devuelta por ${de} → oficina` });
+    return cambio();
   }
-  const fecha = $('fechaEscaner').value || hoyYmd();
-  const r = asignar(codigo, { mensajeroId: mid, fecha, hora: hms(new Date()), origen: 'Escáner' });
-  const texto = r.estado === 'nueva' ? 'Registrada'
-    : r.estado === 'actualizada' ? 'Actualizada (nuevo movimiento)'
-    : 'Reasignada desde ' + r.anterior;
-  sesion.unshift({ codigo, texto, tipo: r.estado === 'reasignada' ? 'warn' : 'ok' });
-  cambio();
+
+  if (modo === 'fallido') {
+    if (!g) { sesionRep.unshift({ codigo, detalle: 'No existe en la base', reasignable: false }); return renderEscaner(); }
+    if (!['asignada', 'almacen'].includes(g.estado)) {
+      sesionRep.unshift({ codigo, detalle: `Estado actual: ${ESTADO_TXT[g.estado]}. No se puede despachar.`, reasignable: false }); return renderEscaner();
+    }
+    const motivo = $('motivoEscaner').value;
+    const via = g.estado === 'asignada' ? ` (devuelta por ${nombreM(g.mensajeroId)})` : '';
+    despacharFallido(g, motivo);
+    sesionOk.unshift({ codigo, texto: `✕ Fallido devolución${via}${motivo ? ' · ' + motivo : ''}` });
+    return cambio();
+  }
 }
 
-$('scanInput').addEventListener('keydown', e => {
-  if (e.key === 'Enter') { e.preventDefault(); escanear($('scanInput').value); }
-});
-$('btnAgregarScan').onclick = () => escanear($('scanInput').value);
-$('btnVaciarScan').onclick = () => { sesion = []; renderEscaner(); };
-$('btnTerminar').onclick = () => {
-  const ok = sesion.filter(s => s.tipo === 'ok').length;
-  const warn = sesion.filter(s => s.tipo === 'warn').length;
-  const err = sesion.filter(s => s.tipo === 'err').length;
-  notify(`Sesión terminada: ${ok} registradas · ${warn} omitidas o reasignadas · ${err} con error`);
-  sesion = [];
-  renderEscaner();
-  if (driveConectado) guardarDrive();
-};
-
-// Mensajeros
-$('btnNuevoMens').onclick = () => {
-  const nombre = $('nuevoNombre').value.trim();
-  const zona = $('nuevaZona').value.trim();
-  if (!nombre) { notify('Escribe el nombre del mensajero'); return; }
-  if (Object.values(db.mensajeros).some(m => m.nombre.toLowerCase() === nombre.toLowerCase())) {
-    notify('Ya existe un mensajero con ese nombre'); return;
+$('scanInput').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); procesarEscaneo($('scanInput').value); } });
+$('btnAgregarScan').onclick = () => procesarEscaneo($('scanInput').value);
+$('modoEscaner').onchange = renderEscaner;
+$('btnVaciarScan').onclick = () => { sesionOk = []; sesionRep = []; renderEscaner(); };
+$('btnTerminarEscaner').onclick = () => terminarSeccion('Sección terminada');
+$('listaRep').addEventListener('click', e => {
+  const b = e.target.closest('button[data-rep]');
+  if (!b) return;
+  const mid = $('selEscaner').value;
+  const codigo = b.dataset.rep;
+  if (reasignarEnRuta([codigo], mid)) {
+    sesionRep = sesionRep.filter(s => s.codigo !== codigo);
+    sesionOk.unshift({ codigo, texto: `↺ Reasignada a ${nombreM(mid)}` });
+    notify('Guía reasignada'); cambio();
   }
-  const id = nuevoId();
-  db.mensajeros[id] = { id, nombre, zona, activo: true, creado: hoyYmd() };
-  $('nuevoNombre').value = ''; $('nuevaZona').value = '';
-  notify('Mensajero registrado');
+});
+
+/* ================= CARGAS ================= */
+$('tablaCargas').addEventListener('click', e => {
+  const b = e.target.closest('button[data-carga]');
+  if (!b) return;
+  const c = db.cargas[b.dataset.id];
+  if (!c) return;
+  if (b.dataset.carga === 'ver') { cargaSel = c.id; renderCargas(); }
+  if (b.dataset.carga === 'pasar') abrirReasignar(guiasDeCarga(c.id).filter(g => g.estado === 'asignada').map(g => g.codigo), `Pasar ruta de ${nombreM(c.mensajeroId)} (${c.fecha})`);
+});
+$('tablaCargas').addEventListener('change', e => {
+  const i = e.target.closest('input[data-conteo]');
+  if (!i || !db.cargas[i.dataset.conteo]) return;
+  db.cargas[i.dataset.conteo].conteoEntregados = i.value;
+  cambio();
+});
+$('btnTerminarRuta').onclick = () => {
+  if (!cargaSel) return;
+  const n = terminarRuta(cargaSel);
+  notify(`Ruta terminada: ${n} guía(s) registradas como entregadas`);
   cambio();
 };
+$('btnReabrirCarga').onclick = () => {
+  if (!cargaSel) return;
+  if (!confirm('¿Reabrir esta carga? Las guías entregadas volverán a estar en ruta.')) return;
+  const n = reabrirCarga(cargaSel);
+  notify(`Carga reabierta: ${n} guía(s) vuelven a ruta`);
+  cambio();
+};
+$('cargaGuias').addEventListener('click', e => {
+  const b = e.target.closest('button[data-cg="devolver"]');
+  if (!b) return;
+  const g = db.guias[b.dataset.codigo];
+  if (!g || g.estado !== 'asignada') return;
+  devolverDeMensajero(g);
+  notify('Guía devuelta a oficina');
+  cambio();
+});
 
+/* ================= DEVOLUCIONES ================= */
+$('v-devoluciones').addEventListener('click', e => {
+  const b = e.target.closest('button[data-dev]');
+  if (!b) return;
+  const g = db.guias[b.dataset.codigo];
+  if (!g) return;
+  if (b.dataset.dev === 'fallido') {
+    if (!['asignada', 'almacen'].includes(g.estado)) { notify('La guía ya no está en oficina'); return; }
+    const motivo = prompt('Motivo (opcional). Déjalo vacío si no aplica:', '');
+    if (motivo === null) return;
+    despacharFallido(g, motivo.trim());
+  } else if (b.dataset.dev === 'reenviar' && g.estado === 'almacen') {
+    const nombre = prompt('Escribe el nombre exacto del mensajero que lo recibe:');
+    const m = Object.values(db.mensajeros).find(x => x.activo && nombre && x.nombre.toLowerCase() === nombre.trim().toLowerCase());
+    if (!m) { notify('No encontré ese mensajero activo'); return; }
+    asignarA(g.codigo, m.id, cargaAbierta(m.id, hoyYmd()), { fecha: hoyYmd(), ciudad: g.ciudad, zip: g.zip, origen: 'Oficina' });
+  } else return;
+  cambio();
+});
+
+/* ================= BUSCADOR, GUÍAS, CALENDARIO ================= */
+$('btnBuscar').onclick = renderBuscador;
+$('buscadorInput').addEventListener('keydown', e => { if (e.key === 'Enter') renderBuscador(); });
+$('buscadorInput').oninput = renderBuscador;
+$('buscarTop').addEventListener('keydown', e => {
+  if (e.key !== 'Enter') return;
+  $('buscadorInput').value = $('buscarTop').value.trim();
+  mostrar('buscador'); renderBuscador();
+});
+document.addEventListener('click', e => {
+  const b = e.target.closest('button[data-buscar]');
+  if (!b) return;
+  $('buscadorInput').value = b.dataset.buscar;
+  mostrar('buscador'); renderBuscador();
+});
+$('gMens').onchange = renderGuias;
+$('gEstado').onchange = renderGuias;
+$('gTexto').oninput = renderGuias;
+$('tablaGuias').addEventListener('click', e => {
+  const b = e.target.closest('button[data-g]');
+  if (!b) return;
+  const g = db.guias[b.dataset.codigo];
+  if (!g) return;
+  if (b.dataset.g === 'zona') {
+    const z = prompt(`Zona para la guía ${g.codigo}`, g.ciudad || '');
+    if (z === null) return;
+    const anterior = g.ciudad || 'Sin zona';
+    g.ciudad = z.trim();
+    evento(g, 'Zona cambiada', anterior, g.ciudad, '');
+    cambio();
+  } else if (b.dataset.g === 'reasignar') {
+    abrirReasignar([g.codigo], `Reasignar ${g.codigo}`);
+  }
+});
+$('btnTxtGuias').onclick = () => {
+  const { ini, fin } = periodoActual();
+  const lista = Object.values(db.guias).filter(g => g.creada >= ini && g.creada <= fin);
+  if (!lista.length) { notify('No hay guías en el período'); return; }
+  const grupos = {};
+  lista.forEach(g => (grupos[nombreM(g.mensajeroId)] ||= []).push(`${g.codigo}\t${ESTADO_TXT[g.estado]}`));
+  const txt = Object.keys(grupos).sort().map(n => `MENSAJERO: ${n}\nTOTAL: ${grupos[n].length}\n${grupos[n].join('\n')}`).join('\n\n');
+  descargar(`guias_${ini}_a_${fin}.txt`, txt, 'text/plain;charset=utf-8');
+};
+$('btnExportPanel').onclick = () => $('btnTxtGuias').click();
+$('calGrid').addEventListener('click', e => {
+  const d = e.target.closest('.day');
+  if (!d) return;
+  calDia = d.dataset.dia;
+  renderCalDetalle(calDia);
+});
+$('mapaTipo').onchange = renderZonas;
+
+/* ================= MENSAJEROS ================= */
+$('btnNuevoMens').onclick = () => {
+  const nombre = $('nuevoNombre').value.trim(), zona = $('nuevaZona').value.trim();
+  if (!nombre) { notify('Escribe el nombre'); return; }
+  if (Object.values(db.mensajeros).some(m => m.nombre.toLowerCase() === nombre.toLowerCase())) { notify('Ya existe ese mensajero'); return; }
+  const id = nuevoId('m');
+  db.mensajeros[id] = { id, nombre, zona, activo: true };
+  $('nuevoNombre').value = ''; $('nuevaZona').value = '';
+  notify('Mensajero registrado'); cambio();
+};
 $('tablaMensajeros').addEventListener('click', e => {
-  const b = e.target.closest('button[data-accion]');
+  const b = e.target.closest('button[data-m]');
   if (!b) return;
   const m = db.mensajeros[b.dataset.id];
   if (!m) return;
-  if (b.dataset.accion === 'renombrar') {
+  if (b.dataset.m === 'renombrar') {
     const n = prompt('Nuevo nombre', m.nombre);
     if (!n || !n.trim()) return;
-    if (Object.values(db.mensajeros).some(x => x.id !== m.id && x.nombre.toLowerCase() === n.trim().toLowerCase())) {
-      notify('Ya existe un mensajero con ese nombre'); return;
-    }
+    if (Object.values(db.mensajeros).some(x => x.id !== m.id && x.nombre.toLowerCase() === n.trim().toLowerCase())) { notify('Ya existe ese nombre'); return; }
     m.nombre = n.trim();
-  } else if (b.dataset.accion === 'zona') {
-    const z = prompt('Zona', m.zona || '');
-    if (z === null) return;
-    m.zona = z.trim();
-  } else if (b.dataset.accion === 'estado') {
-    m.activo = !m.activo;
-  }
+  } else if (b.dataset.m === 'zona') {
+    const z = prompt('Zona habitual', m.zona || ''); if (z === null) return; m.zona = z.trim();
+  } else if (b.dataset.m === 'estado') m.activo = !m.activo;
   cambio();
 });
 
-// Mapa, panel e historial
-['pDesde', 'pHasta'].forEach(id => $(id).onchange = renderPanel);
-['mapaDesde', 'mapaHasta', 'mapaTipo'].forEach(id => $(id).onchange = renderMapa);
-['hDesde', 'hHasta', 'hMens'].forEach(id => $(id).onchange = renderHistorial);
-$('buscar').oninput = () => { if ($('v-historial').style.display !== 'block') mostrar('historial'); renderHistorial(); };
-
-$('btnExportPanel').onclick = () => {
-  const d = $('pDesde').value, h = $('pHasta').value;
-  const regs = regsFiltrados(d, h, '', '');
-  if (!regs.length) { notify('No hay guías en el período'); return; }
-  descargar(`asignaciones_${d}_a_${h}.txt`, txtPorMensajero(regs), 'text/plain;charset=utf-8');
-};
-
-$('btnTxtHist').onclick = () => {
-  const regs = regsFiltrados($('hDesde').value, $('hHasta').value, $('hMens').value, $('buscar').value);
-  if (!regs.length) { notify('No hay registros con estos filtros'); return; }
-  descargar(`guias_${nombreSeguro($('hMens').value ? nombreM($('hMens').value) : 'todos')}_${$('hDesde').value || 'inicio'}_a_${$('hHasta').value || 'hoy'}.txt`,
-    txtPorMensajero(regs), 'text/plain;charset=utf-8');
-};
-
-// Configuración
+/* ================= CONFIG ================= */
 $('archivoNombre').onchange = () => {
   let n = $('archivoNombre').value.trim() || ARCHIVO_DEFAULT;
   if (!n.toLowerCase().endsWith('.json')) n += '.json';
-  localStorage.setItem(LS_FILE, n);
-  driveFileId = null;
-  notify('Nombre de archivo guardado. Se usará en el próximo guardado.');
-  renderConfig();
+  localStorage.setItem(LS_FILE, n); driveFileId = null;
+  notify('Nombre guardado'); renderConfig();
 };
 $('btnConectar').onclick = conectarDrive;
-$('btnGuardarAhora').onclick = () => {
-  if (!driveConectado) { conectarDrive(); return; }
-  guardarDrive();
-};
-$('btnDescargarCopia').onclick = () =>
-  descargar(`base_guias_${hoyYmd()}.json`, JSON.stringify(db, null, 2), 'application/json');
+$('btnGuardarAhora').onclick = async () => { if (!driveConectado) conectarDrive(); else { const ok = await guardarDrive(); notify(ok ? 'Guardado en Drive' : 'No se pudo guardar'); } };
+$('btnDescargarCopia').onclick = () => descargar(`base_guias_${hoyYmd()}.json`, JSON.stringify(db, null, 2), 'application/json');
 $('btnCargarLocal').onclick = () => $('fileLocal').click();
 $('fileLocal').onchange = e => {
-  const f = e.target.files[0];
-  if (!f) return;
+  const f = e.target.files[0]; if (!f) return;
   const lector = new FileReader();
   lector.onload = () => {
-    try {
-      const d = JSON.parse(lector.result);
-      db = mergeDB(d, db);
-      cambio();
-      notify('Archivo cargado y unido a la base');
-    } catch (err) {
-      notify('El archivo no tiene el formato correcto');
-    }
+    try { db = mergeDB(JSON.parse(lector.result), db); cambio(); notify('Archivo cargado y unido'); }
+    catch (err) { notify('El archivo no tiene el formato correcto'); }
   };
-  lector.readAsText(f);
-  e.target.value = '';
+  lector.readAsText(f); e.target.value = '';
 };
 $('btnBorrar').onclick = () => {
-  if (!confirm('¿Borrar la base de este equipo? Si está guardada en Drive, se conserva ahí.')) return;
-  db = vacio();
-  sesion = [];
-  cambio();
-  notify('Base de este equipo borrada');
+  if (!confirm('¿Borrar la base de este equipo? Si está en Drive, se conserva ahí.')) return;
+  db = vacio(); sesionOk = []; sesionRep = []; cargaSel = null; cambio(); notify('Base de este equipo borrada');
 };
 
-// Navegación
+['pMes', 'pQuin'].forEach(id => $(id).onchange = renderAll);
 document.querySelectorAll('.nav').forEach(n => n.onclick = () => mostrar(n.dataset.view));
 
 /* ================= ARRANQUE ================= */
 (function arranque() {
-  $('pDesde').value = hoyYmd();
-  $('pHasta').value = hoyYmd();
-  $('mapaDesde').value = hoyYmd();
-  $('mapaHasta').value = hoyYmd();
-  $('fechaRegistrar').value = hoyYmd();
-  $('fechaEscaner').value = hoyYmd();
+  const hoy = hoyYmd();
+  $('pMes').value = hoy.slice(0, 7);
+  $('pQuin').value = Number(hoy.slice(8, 10)) <= 15 ? '1' : '2';
+  $('fechaRegistrar').value = hoy;
+  $('fechaEscaner').value = hoy;
   renderAll();
   mostrar('panel');
   pintarDrive();
