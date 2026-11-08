@@ -103,6 +103,13 @@ th{color:#9aa0a6;font-weight:500}
 .a-fallido{background:#4d2a28;color:#f8c4c0}
 .a-almacen{background:#4a4025;color:#fde9a0}
 .a-ok{background:#284737;color:#c4eed0}
+.driver{display:flex;align-items:center;gap:11px;padding:12px 0;border-bottom:1px solid #3d3f42}
+.driver:last-child{border-bottom:0}
+.initial{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:#394b68;color:#dce8ff;font-weight:600;font-size:12px;flex-shrink:0}
+.driver-info{flex:1;min-width:0}
+.driver-name{font-size:13px}
+.driver-meta{font-size:11px;color:var(--muted);text-transform:uppercase}
+.count{font-size:13px;color:#dce8ff;background:#394b68;border-radius:20px;padding:4px 10px;white-space:nowrap}
 .hidden{display:none}
 @media(max-width:1200px){.metrics{grid-template-columns:repeat(3,1fr)}.grid-side{grid-template-columns:1fr}}
 @media(max-width:900px){.sidebar{display:none}.workflow-grid,.grid-2{grid-template-columns:1fr}.search{display:none}.sync{display:none}.two-lists{grid-template-columns:1fr}}
@@ -820,8 +827,12 @@ function renderPanel() {
     const enRuta = guias.filter(g => g.mensajeroId === m.id && g.estado === 'asignada').length;
     const entr = eventosPeriodo('Entregada').filter(e => e.g.mensajeroId === m.id).length;
     const devs = eventosPeriodo('Devuelta por mensajero').filter(e => e.de === m.nombre).length;
-    return `<div class="item"><span><strong>${esc(m.nombre)}</strong><br><span class="small-muted">${esc(m.zona || 'Sin zona')}</span></span>
-      <span class="small-muted">En ruta <b>${enRuta}</b> · Entregadas <b>${entr}</b> · Devueltas <b>${devs}</b></span></div>`;
+    return `<div class="driver">
+      <div class="initial">${esc(iniciales(m.nombre))}</div>
+      <div class="driver-info"><div class="driver-name">${esc(m.nombre)}</div><div class="driver-meta">${esc(m.zona || 'Sin zona')}</div></div>
+      <span class="count">${enRuta} en ruta</span>
+      <span class="small-muted" style="min-width:160px;text-align:right">Entregadas ${entr} · Devueltas ${devs}</span>
+    </div>`;
   }).join('') || '<div class="small-muted">Registra mensajeros para ver su resumen.</div>';
 }
 
