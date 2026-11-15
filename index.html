@@ -3,1693 +3,341 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mensajería RD · Gestor</title>
-<script src="https://accounts.google.com/gsi/client" async defer></script>
+<title>Mensajería</title>
 <style>
-:root{--bg:#202124;--surface:#292a2d;--line:#45474b;--text:#e8eaed;--muted:#aeb4bc;--blue:#8ab4f8;--green:#81c995;--yellow:#fdd663;--red:#f28b82;--radius:14px}
+:root{--bg:#202124;--surface:#292a2d;--line:#45474b;--text:#e8eaed;--muted:#aeb4bc;--blue:#8ab4f8;--green:#81c995;--yellow:#fdd663;--red:#f28b82}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--text);font:14px/1.45 Inter,Roboto,Arial,sans-serif}
-button,input,textarea,select{font:inherit}
-.topbar{height:64px;display:flex;align-items:center;gap:14px;padding:0 20px;border-bottom:1px solid var(--line);background:#292a2d;position:sticky;top:0;z-index:5}
-.brand{display:flex;align-items:center;gap:10px;font-size:16px;font-weight:600;white-space:nowrap}
-.brand-mark{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,#4285f4 0 45%,#34a853 45% 70%,#fbbc04 70%);display:grid;place-items:center;color:#202124;font-weight:900}
-.project{border:1px solid #7185a5;border-radius:20px;padding:6px 12px;color:#d8e3f8;font-size:12px;white-space:nowrap}
-.project.off{border-color:#6b6e73;color:#aeb4bc}
-.search{flex:1;max-width:400px;background:#3c4048;border:1px solid #59677f;border-radius:9px;padding:9px 14px;color:var(--text);outline:none}
-.periodo{display:flex;gap:6px;align-items:center;font-size:12px;color:var(--muted);white-space:nowrap}
-.sync{font-size:12px;color:#9aa0a6;max-width:280px;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-left:auto}
-.shell{display:flex;min-height:calc(100vh - 64px)}
-.sidebar{width:226px;padding:20px 12px;border-right:1px solid var(--line);background:#242528;flex-shrink:0}
-.side-label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#9298a1;padding:10px 14px}
-.nav{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:9px;color:#c8cdd3;margin:2px 0;cursor:pointer;user-select:none}
-.nav:hover,.nav.active{background:#394b68;color:#dce8ff}
-.nav .ico{width:18px;text-align:center;color:var(--blue)}
-.main{width:min(1500px,100%);padding:28px 32px 60px;margin:0 auto;min-width:0;flex:1}
-.view{display:none}
-.crumb{font-size:12px;color:#9aa0a6;margin-bottom:16px}
-.heading{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:22px;flex-wrap:wrap}
-h1{font-size:26px;font-weight:500;margin:0 0 4px}
-h2{font-size:16px;font-weight:500;margin:0}
-.subtitle{color:var(--muted);font-size:13px}
-.small-muted{font-size:12px;color:var(--muted)}
-.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px;margin-bottom:18px}
-.panel-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap}
-.metrics{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px;margin-bottom:18px}
-.metric{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px}
-.metric .l{color:var(--muted);font-size:12px}
-.metric .v{font-size:26px;font-weight:500;margin-top:6px}
-.metric .n{font-size:11px;color:var(--muted);margin-top:2px}
-.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
-.grid-side{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(280px,.9fr);gap:18px}
+button,input,select,textarea{font:inherit}
+.oculto{display:none!important}
+input,select,textarea{background:#202124;border:1px solid #5f6368;border-radius:7px;color:var(--text);padding:8px 10px;outline:none}
+textarea{width:100%;min-height:170px;resize:vertical;line-height:1.5}
+input:focus,select:focus,textarea:focus{border-color:var(--blue)}
 .primary,.outline,.danger{border-radius:8px;padding:9px 14px;cursor:pointer;background:transparent}
 .primary{background:var(--blue);color:#202124;border:1px solid var(--blue);font-weight:600}
-.primary:hover{background:#a6c7fa}
 .outline{border:1px solid #6683b3;color:#d7e4ff}
 .outline:hover{background:#343b48}
 .danger{border:1px solid #8d4b47;color:var(--red)}
-.success{background:#81c995;color:#14331f;border:1px solid #81c995;font-weight:600;border-radius:8px;padding:9px 14px;cursor:pointer}
-.success:hover{background:#a8dab5}
 button:disabled{opacity:.45;cursor:not-allowed}
-.small-btn{padding:5px 9px;font-size:12px;border-radius:7px}
-input,select,textarea{background:#202124;border:1px solid #5f6368;border-radius:7px;color:var(--text);padding:8px 10px;outline:none}
-input:focus,select:focus,textarea:focus{border-color:var(--blue)}
-input[type=date],input[type=month]{color-scheme:dark}
-select option{background:#202124}
-.wide{width:100%}
-.field-label{display:block;color:#c8cdd3;font-size:12px;margin:12px 0 6px}
-textarea{width:100%;min-height:180px;resize:vertical;line-height:1.55}
-.workflow-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
-.actions{display:flex;gap:9px;align-items:center;margin-top:12px;flex-wrap:wrap}
+.sm{padding:5px 9px;font-size:12px;border-radius:7px}
+.small{font-size:12px;color:var(--muted)}
+h1{font-size:26px;font-weight:500;margin:0 0 4px}
+h2{font-size:16px;font-weight:500;margin:0 0 12px}
+h3{font-size:14px;font-weight:600;margin:16px 0 8px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:18px}
 .row{display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+.acciones{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
 .table-wrap{overflow:auto}
 table{width:100%;border-collapse:collapse;white-space:nowrap}
 th,td{text-align:left;padding:9px 10px;border-bottom:1px solid #414347;font-size:12px}
 th{color:#9aa0a6;font-weight:500}
-.code{font-family:Consolas,monospace}
+code,.code{font-family:Consolas,monospace}
+.grande{font-size:20px}
+.grid2{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;font-size:13px}
+.grid2 small{color:var(--muted);display:block}
 .badge{font-size:10px;border-radius:20px;padding:3px 8px;white-space:nowrap;display:inline-block}
 .b-asignada{background:#394b68;color:#dce8ff}
 .b-entregada{background:#284737;color:#a8dab5}
 .b-almacen{background:#4a4025;color:#fdd663}
 .b-fallido{background:#4d2a28;color:#f28b82}
-.b-abierta{background:#394b68;color:#dce8ff}
 .b-cerrada{background:#3c4043;color:#aeb4bc}
-.scan-box{border:1px dashed #647a9b;border-radius:11px;padding:16px;text-align:center;background:#252b34;margin-bottom:12px}
-.scan-row{display:flex;gap:8px;margin-top:10px}.scan-row input{flex:1;min-width:0;font-size:16px}
-.counters{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
-.counter{border-radius:11px;padding:12px;text-align:center}
-.counter .n{font-size:24px;font-weight:600}.counter .l{font-size:12px}
-.c-ok{background:#284737;color:#a8dab5}.c-rep{background:#4a4025;color:#fdd663}
-.two-lists{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.list-box{max-height:320px;overflow:auto;border:1px solid #3d3f42;border-radius:9px;padding:6px 10px}
-.list-box h3{font-size:11px;color:var(--muted);font-weight:500;margin:8px 0;text-transform:uppercase}
-.item{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #3d3f42;font-size:12px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.chip{background:#3c4043;border-radius:20px;padding:5px 11px;font-size:12px}
+.chip.ok{background:#284737;color:#a8dab5}
+.chip.warn{background:#4a4025;color:#fdd663}
+.chip.err{background:#4d2a28;color:#f28b82}
+.item{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #3d3f42;font-size:12px}
+.item small{color:var(--muted)}
 .ok-t{color:var(--green)}.warn-t{color:var(--yellow)}.err-t{color:var(--red)}
+.codigos{max-height:220px;overflow:auto;font-family:Consolas,monospace;font-size:12px;line-height:1.8;padding:6px 0}
+details{margin:8px 0}summary{cursor:pointer;color:#d7e4ff;padding:4px 0}
+.alerta{border-radius:10px;padding:12px 14px;margin-bottom:12px;background:#3c4043}
+.alerta.fallido{background:#4d2a28;color:#f8c4c0}
+.alerta.ok{background:#284737;color:#c4eed0}
+.alerta.almacen{background:#4a4025;color:#fde9a0}
 .zonas{display:flex;flex-wrap:wrap;gap:10px}
 .zona{border-radius:10px;padding:10px 12px;min-width:130px;display:flex;flex-direction:column;gap:4px;font-size:12px}
 .zona b{font-size:18px;font-weight:500}
-.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
-.cal-h{font-size:11px;color:var(--muted);text-align:center;padding:4px}
-.day{background:#252629;border:1px solid #3d3f42;border-radius:9px;min-height:88px;padding:8px;cursor:pointer;font-size:12px}
-.day:hover{border-color:var(--blue)}
-.day.vacio{opacity:.35;cursor:default}
-.day.nuevo{background:#3a3420;border:2px solid var(--yellow);box-shadow:0 0 0 1px #fdd66340}
-.day .num{font-size:14px;color:#dce8ff;margin-bottom:4px;display:flex;justify-content:space-between;align-items:center}
-.day .tag{font-size:10px;background:var(--yellow);color:#3a2f00;border-radius:10px;padding:1px 6px;font-weight:700}
-.day .dot{display:block;font-size:11px;color:var(--muted)}
-.day .dot b{color:var(--text);font-weight:600}
-.reasignar{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#303134;border:1px solid #6683b3;border-radius:12px;padding:12px 14px;display:none;align-items:center;gap:10px;flex-wrap:wrap;box-shadow:0 8px 28px #000a;z-index:8;max-width:94vw}
-.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#d3e3fd;color:#17243a;padding:10px 16px;border-radius:7px;font-size:12px;display:none;z-index:10;max-width:90vw}
-.alerta{border-radius:10px;padding:12px 14px;margin-bottom:12px;font-size:13px}
-.a-fallido{background:#4d2a28;color:#f8c4c0}
-.a-almacen{background:#4a4025;color:#fde9a0}
-.a-ok{background:#284737;color:#c4eed0}
-.driver{display:flex;align-items:center;gap:11px;padding:12px 0;border-bottom:1px solid #3d3f42}
-.driver:last-child{border-bottom:0}
-.initial{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:#394b68;color:#dce8ff;font-weight:600;font-size:12px;flex-shrink:0}
-.driver-info{flex:1;min-width:0}
-.driver-name{font-size:13px}
-.driver-meta{font-size:11px;color:var(--muted);text-transform:uppercase}
-.count{font-size:13px;color:#dce8ff;background:#394b68;border-radius:20px;padding:4px 10px;white-space:nowrap}
-.hidden{display:none}
-@media(max-width:1200px){.metrics{grid-template-columns:repeat(3,1fr)}.grid-side{grid-template-columns:1fr}}
-@media(max-width:900px){.sidebar{display:none}.workflow-grid,.grid-2{grid-template-columns:1fr}.search{display:none}.sync{display:none}.two-lists{grid-template-columns:1fr}}
-/* ===== Generador de códigos de barras ===== */
-.gen-hint{font-size:13px;color:var(--muted);margin:4px 0 12px}
-.gen-btn{padding:10px 16px;border:none;border-radius:7px;cursor:pointer;font-size:14px;font-weight:600;margin:5px 3px}
-.gen-btn:hover{opacity:.85}
-.gen-primary{background:var(--blue);color:#202124}
-.gen-secondary{background:#394b68;color:#dce8ff}
-.gen-danger{background:#8d4b47;color:#fff}
-#v-codigos textarea{width:100%;height:180px;padding:12px;font-size:15px;border:1px solid #5f6368;border-radius:8px;resize:vertical;background:#202124;color:var(--text)}
-#v-codigos .gen-settings{display:flex;gap:20px;flex-wrap:wrap;margin:15px 0}
-#v-codigos .gen-settings label{display:flex;flex-direction:column;gap:6px;color:#c8cdd3;font-size:13px}
-#v-codigos input[type=number],#v-codigos input[type=text]{padding:9px;width:110px;border:1px solid #5f6368;border-radius:6px;background:#202124;color:var(--text)}
-#v-codigos input[type=range]{width:220px}
-#v-codigos .gen-stats{font-weight:600;margin:15px 0 5px}
-#v-codigos .gen-info{color:var(--green);font-size:13px;margin-top:6px}
-#v-codigos .gen-error{color:var(--red);font-size:13px;margin-top:6px}
-#results.gen-results{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:18px}
-#results .label{background:#fff;color:#000;border:1px solid #ddd;padding:15px 8px;text-align:center;border-radius:6px;overflow:hidden;break-inside:avoid}
-#results .label svg{width:100%;height:auto;max-height:100px}
-#results .tracking{font-size:16px;font-weight:bold;letter-spacing:1px;margin-top:8px;overflow-wrap:anywhere;color:#000}
-@media(max-width:600px){#results.gen-results{grid-template-columns:1fr}}
-#credits{position:fixed;inset:0;background:#000;color:#fff;z-index:1000;display:none}
-#credits.open{display:block}
-#credits .credits-controls{position:absolute;top:12px;right:12px;z-index:2;display:flex;gap:12px;align-items:center;flex-wrap:wrap;background:#000c;padding:10px 14px;border-radius:10px;font-size:13px}
-#credits .credits-controls label{display:flex;gap:6px;align-items:center}
-#credits .credits-controls input[type=range]{width:160px}
-#credits .credits-view{position:absolute;inset:0;overflow:hidden}
-#credits .credits-track{position:absolute;top:0;left:0;width:100%;display:flex;flex-direction:column;align-items:center;will-change:transform}
-#credits .credit-item{background:#fff;color:#000;width:min(70vw,600px);padding:16px 22px;border-radius:8px;margin-bottom:48px;text-align:center;box-sizing:border-box}
-#credits .credit-item svg{width:100%;height:auto;display:block}
-#credits .credit-num{font-size:22px;font-weight:bold;letter-spacing:2px;margin-top:8px;color:#000}
-@media print{
-  .topbar,.sidebar,.reasignar,.toast,.gen-no-print,#v-codigos .crumb,#v-codigos .heading{display:none!important}
-  body{background:#fff}
-  .main{padding:0}
-  #results.gen-results{gap:5px}
-  #results .label{border:none;border-radius:0}
-}
+.metrics{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px;margin-bottom:18px}
+.metric{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px}
+.metric .l{color:var(--muted);font-size:12px}
+.metric .v{font-size:26px;font-weight:500;margin-top:6px}
+.metric .n{font-size:11px;color:var(--muted)}
+.topbar{height:60px;display:flex;align-items:center;gap:14px;padding:0 20px;border-bottom:1px solid var(--line);background:var(--surface);position:sticky;top:0;z-index:5}
+.brand{display:flex;align-items:center;gap:10px;font-size:16px;font-weight:600;white-space:nowrap}
+.brand-mark{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;color:#fff;font-weight:900;font-style:normal}
+.brand-mark.imile{background:linear-gradient(135deg,#1769e0,#2f7cf0)}
+.brand-mark.jt{background:#E31B23;font-style:italic}
+.shell{display:flex;min-height:calc(100vh - 60px)}
+.sidebar{width:220px;padding:18px 12px;border-right:1px solid var(--line);background:#242528;flex-shrink:0}
+.nav{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:9px;color:#c8cdd3;margin:2px 0;cursor:pointer;user-select:none}
+.nav:hover,.nav.activo{background:#394b68;color:#dce8ff}
+.main{flex:1;min-width:0;padding:26px 30px 60px;max-width:1400px}
+.view{display:none}
+.view.activa{display:block}
+.crumb{font-size:12px;color:#9aa0a6;margin-bottom:14px}
+.heading{margin-bottom:18px}
+.subtitle{color:var(--muted);font-size:13px}
+#home{position:fixed;inset:0;z-index:50;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:34px;padding:24px}
+.home-title{text-align:center}
+.home-title h1{margin:12px 0 6px}
+.home-title p{color:var(--muted);margin:0}
+.home-cards{display:grid;grid-template-columns:1fr 1fr;gap:24px;width:min(920px,100%)}
+.empresa-card{border:none;border-radius:20px;padding:56px 24px;color:#fff;cursor:pointer;text-align:center;box-shadow:0 10px 30px #0006;transition:transform .15s}
+.empresa-card:hover{transform:translateY(-4px)}
+.empresa-card .logo{font-size:52px;font-weight:800;letter-spacing:2px}
+.empresa-card .sub{font-size:14px;opacity:.9;margin-top:10px}
+.empresa-card.imile{background:linear-gradient(135deg,#1769e0,#2f7cf0)}
+.empresa-card.jt{background:linear-gradient(135deg,#E31B23,#b5121b)}
+.empresa-card.jt .logo{font-style:italic}
+#login{position:fixed;inset:0;z-index:60;background:#000a;display:flex;align-items:center;justify-content:center;padding:20px}
+#login form{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:24px;width:min(380px,100%);display:flex;flex-direction:column;gap:12px}
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#d3e3fd;color:#17243a;padding:10px 16px;border-radius:7px;font-size:12px;display:none;z-index:70}
+#toast.visible{display:block}
+#tPanel{position:fixed;inset:0;background:#000b;display:flex;align-items:center;justify-content:center;z-index:40;padding:20px}
+#tPanel .caja{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px;width:min(640px,100%);max-height:80vh;display:flex;flex-direction:column}
+#tPanel .lista{overflow:auto;flex:1;margin:10px 0}
+@media(max-width:900px){.sidebar{display:none}.metrics{grid-template-columns:repeat(2,1fr)}.home-cards{grid-template-columns:1fr}.grid2{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
-<header class="topbar">
-  <div class="brand"><div class="brand-mark">M</div> Mensajería RD</div>
-  <div class="project off" id="drivePill">○ Drive sin conectar</div>
-  <input class="search" id="buscarTop" placeholder="Buscar código de guía…" autocomplete="off">
-  <div class="periodo">
-    Período
-    <input type="month" id="pMes">
-    <select id="pQuin"><option value="1">1ª quincena (1–15)</option><option value="2">2ª quincena (16–fin)</option><option value="m">Mes completo</option></select>
+
+<!-- Inicio: elige la empresa -->
+<div id="home">
+  <div class="home-title">
+    <div class="brand-mark imile" style="width:56px;height:56px;margin:0 auto;font-size:26px">M</div>
+    <h1>Mensajería</h1>
+    <p>Elige la empresa para abrir su sistema</p>
   </div>
-  <div class="sync" id="syncEstado"></div>
-</header>
+  <div class="home-cards">
+    <button class="empresa-card imile" data-emp="imile"><div class="logo">IMILE</div><div class="sub">Sistema de mensajería IMILE</div></button>
+    <button class="empresa-card jt" data-emp="jt"><div class="logo">J&amp;T</div><div class="sub">Sistema de mensajería J&amp;T</div></button>
+  </div>
+</div>
 
-<div class="shell">
-<aside class="sidebar">
-  <div class="side-label">Operación</div>
-  <div class="nav active" data-view="panel"><span class="ico">▦</span> Panel del período</div>
-  <div class="nav" data-view="registrar"><span class="ico">＋</span> Registrar pegado</div>
-  <div class="nav" data-view="escaner"><span class="ico">▣</span> Escáner</div>
-  <div class="nav" data-view="cargas"><span class="ico">≡</span> Cargas y rutas</div>
-  <div class="nav" data-view="devoluciones"><span class="ico">↩</span> Devoluciones</div>
-  <div class="nav" data-view="buscador"><span class="ico">⌕</span> Buscador de guías</div>
-  <div class="nav" data-view="calendario"><span class="ico">▤</span> Calendario</div>
-  <div class="nav" data-view="codigos"><span class="ico">▥</span> Códigos de barras</div>
-  <div class="side-label" style="margin-top:20px">Administración</div>
-  <div class="nav" data-view="guias"><span class="ico">◷</span> Guías</div>
-  <div class="nav" data-view="mensajeros"><span class="ico">♙</span> Mensajeros</div>
-  <div class="nav" data-view="mapa"><span class="ico">⌖</span> Zonas</div>
-  <div class="nav" data-view="config"><span class="ico">⚙</span> Configuración</div>
-</aside>
+<!-- Inicio de sesión -->
+<div id="login" class="oculto">
+  <form id="formLogin">
+    <h2>Iniciar sesión</h2>
+    <input id="loginEmail" type="email" placeholder="Correo" required autocomplete="username">
+    <input id="loginPass" type="password" placeholder="Contraseña" required autocomplete="current-password">
+    <button class="primary" type="submit">Entrar</button>
+    <div class="small">Solo entran las cuentas autorizadas en el proyecto.</div>
+  </form>
+</div>
 
-<main class="main">
+<!-- Sistema -->
+<div id="shell" class="oculto">
+  <header class="topbar">
+    <div class="brand"><div class="brand-mark" id="brandMark">M</div> <span id="brandNombre">Mensajería</span></div>
+    <div style="flex:1"></div>
+    <button class="outline sm" onclick="location.reload()">⇄ Cambiar empresa</button>
+    <button class="outline sm" id="btnSalir">Salir</button>
+  </header>
 
-  <!-- PANEL -->
-  <section class="view" id="v-panel">
-    <div class="crumb">Inicio › Panel del período</div>
-    <div class="heading"><div><h1>Panel del período</h1><div class="subtitle" id="periodoTexto"></div></div>
-      <button class="outline" id="btnExportPanel">⇩ Exportar TXT del período</button></div>
-    <div class="metrics">
-      <div class="metric"><div class="l">Entradas nuevas</div><div class="v" id="mEntradas">0</div><div class="n">Pedidos que entraron</div></div>
-      <div class="metric"><div class="l">En ruta ahora</div><div class="v" id="mRuta">0</div><div class="n">Sin decidir</div></div>
-      <div class="metric"><div class="l">Entregadas</div><div class="v" id="mEntregadas">0</div><div class="n">Rutas cerradas</div></div>
-      <div class="metric"><div class="l">Devueltas</div><div class="v" id="mDevueltas">0</div><div class="n">Regresaron de ruta</div></div>
-      <div class="metric"><div class="l">En oficina</div><div class="v" id="mAlmacen">0</div><div class="n">Almacén ahora</div></div>
-      <div class="metric"><div class="l">Fallido devolución</div><div class="v" id="mFallidos">0</div><div class="n">Despachadas al almacén</div></div>
-    </div>
-    <div class="grid-side">
-      <div class="panel">
-        <div class="panel-head"><h2>Movimientos recientes</h2></div>
-        <div class="table-wrap"><table><thead><tr><th>Cuándo</th><th>Guía</th><th>Acción</th><th>Mensajero / destino</th></tr></thead><tbody id="tablaRecientes"></tbody></table></div>
-      </div>
-      <div class="panel">
-        <div class="panel-head"><h2>Mensajeros</h2></div>
-        <div id="listaMensajeros"></div>
-      </div>
-    </div>
-  </section>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="nav activo" data-view="panel">▦ Panel del período</div>
+      <div class="nav" data-view="pegado">＋ Pegado</div>
+      <div class="nav" data-view="escaner">▣ Escáner</div>
+      <div class="nav" data-view="cargas">≡ Cargas y rutas</div>
+      <div class="nav" data-view="devoluciones">↩ Devoluciones</div>
+      <div class="nav" data-view="buscador">⌕ Buscador de guías</div>
+      <div class="nav" data-view="mensajeros">♙ Mensajeros</div>
+      <div class="nav" data-view="config">⚙ Configuración</div>
+    </aside>
 
-  <!-- REGISTRAR PEGADO -->
-  <section class="view" id="v-registrar">
-    <div class="crumb">Inicio › Registrar pegado</div>
-    <div class="heading"><div><h1>Registrar pegado</h1><div class="subtitle">Pega códigos o el rastreo del conductor. Se crea una carga para el mensajero.</div></div></div>
-    <div class="workflow-grid">
-      <div class="panel">
-        <textarea id="bulk" placeholder="Pega aquí las guías o el rastreo..."></textarea>
-        <div class="actions"><button class="primary" id="btnValidar">Validar</button><button class="outline" id="btnLimpiarBulk">Limpiar</button></div>
-        <div class="small-muted" id="bulkResult" style="margin-top:10px"></div>
-        <div id="repetidasRegistrar" style="margin-top:8px"></div>
-      </div>
-      <div class="panel">
-        <label class="field-label" for="selRegistrar">Mensajero</label>
-        <select id="selRegistrar" class="wide"></select>
-        <label class="field-label" for="fechaRegistrar">Fecha de la carga</label>
-        <input id="fechaRegistrar" type="date" class="wide">
-        <label class="field-label" for="zonaRegistrar">Zona / ciudad (opcional)</label>
-        <input id="zonaRegistrar" class="wide" placeholder="Ej. Los Alcarrizos">
-        <div class="actions">
-          <button class="primary" id="btnAsignar" disabled>Asignar nuevas</button>
-          <button class="outline" id="btnReasignarRep" disabled>Reasignar repetidas aquí</button>
+    <main class="main">
+
+      <!-- PANEL -->
+      <section class="view activa" id="v-panel">
+        <div class="crumb">Inicio › Panel del período</div>
+        <div class="heading">
+          <h1>Panel del período</h1>
+          <div class="subtitle" id="pPeriodo"></div>
         </div>
-        <div class="actions"><button class="success" id="btnTerminarRegistro">Terminar sección y guardar</button></div>
-        <div class="small-muted" id="resumenAsignar" style="margin-top:12px"></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ESCÁNER -->
-  <section class="view" id="v-escaner">
-    <div class="crumb">Inicio › Escáner</div>
-    <div class="heading"><div><h1>Escáner</h1><div class="subtitle">Elige el modo y escanea. Cada lectura queda en el historial de la guía.</div></div></div>
-    <div class="workflow-grid">
-      <div class="panel">
-        <label class="field-label" for="modoEscaner">Modo</label>
-        <select id="modoEscaner" class="wide">
-          <option value="asignar">Asignar a mensajero (ruta)</option>
-          <option value="devolucion">Devolución de mensajero → oficina</option>
-          <option value="fallido">Fallido devolución → almacén principal</option>
-        </select>
-        <div id="campoMensajero">
-          <label class="field-label" for="selEscaner">Mensajero</label>
-          <select id="selEscaner" class="wide"></select>
-        </div>
-        <div id="campoFecha">
-          <label class="field-label" for="fechaEscaner">Fecha de la carga</label>
-          <input id="fechaEscaner" type="date" class="wide">
-        </div>
-        <div id="campoZona">
-          <label class="field-label" for="zonaEscaner">Zona / ciudad</label>
-          <input id="zonaEscaner" class="wide" placeholder="Ej. Los Alcarrizos">
-        </div>
-        <div id="campoMotivo" class="hidden">
-          <label class="field-label" for="motivoEscaner">Motivo (opcional)</label>
-          <select id="motivoEscaner" class="wide">
-            <option value="">Sin motivo</option>
-            <option>Dirección incorrecta</option>
-            <option>No contestó</option>
-            <option>Rechazado</option>
-            <option>Otro</option>
+        <div class="row" style="margin-bottom:14px">
+          <input type="month" id="pMes">
+          <select id="pQuin">
+            <option value="1">1ª quincena (1–15)</option>
+            <option value="2">2ª quincena (16–fin)</option>
+            <option value="m">Mes completo</option>
           </select>
+          <button class="outline" id="btnZonas">Ver zonas del período</button>
         </div>
-        <div class="small-muted" style="margin-top:14px" id="infoModo"></div>
-      </div>
-      <div class="panel">
-        <div class="scan-box">
-          <strong>Esperando lectura</strong>
-          <div class="small-muted" style="margin-top:4px">La mayoría de lectores escriben el código y presionan Enter solos.</div>
-          <div class="scan-row">
-            <input id="scanInput" placeholder="Escanea o escribe una guía…" autocomplete="off">
-            <button class="primary" id="btnAgregarScan">Procesar</button>
+        <div class="metrics">
+          <div class="metric"><div class="l">Entradas</div><div class="v" id="mEntradas">0</div><div class="n">Guías que entraron</div></div>
+          <div class="metric"><div class="l">En ruta ahora</div><div class="v" id="mRuta">0</div><div class="n">Sin decidir</div></div>
+          <div class="metric"><div class="l">Entregadas</div><div class="v" id="mEntregadas">0</div><div class="n">En el período</div></div>
+          <div class="metric"><div class="l">En oficina</div><div class="v" id="mAlmacen">0</div><div class="n">Almacén ahora</div></div>
+          <div class="metric"><div class="l">Fallido devolución</div><div class="v" id="mFallidos">0</div><div class="n">En el período</div></div>
+          <div class="metric"><div class="l">Mensajeros activos</div><div class="v" id="mMensajeros">0</div><div class="n">Registrados</div></div>
+        </div>
+        <div class="panel"><h2>Zonas</h2><div class="zonas" id="zonasTiles"></div></div>
+      </section>
+
+      <!-- PEGADO -->
+      <section class="view" id="v-pegado">
+        <div class="crumb">Inicio › Pegado</div>
+        <div class="heading"><h1>Registrar pegado</h1><div class="subtitle">Revisa la vista previa antes de guardar. Nada se escribe hasta que confirmes.</div></div>
+        <div class="panel">
+          <textarea id="pTexto" placeholder="Pega aquí el pegado de la empresa..."></textarea>
+          <div class="row" style="margin-top:10px">
+            <div id="pModoWrap" class="oculto">
+              <select id="pModo">
+                <option value="auto">J&amp;T automático: cada guía va al mensajero de su fila</option>
+                <option value="fijo">Mensajero específico: todas al mensajero elegido</option>
+              </select>
+            </div>
+            <div id="pMensFijoWrap"><select id="pMensFijo" style="min-width:240px"></select></div>
+            <input type="date" id="pFecha">
+            <input id="pZona" placeholder="Zona (opcional)">
+            <button class="primary" id="btnPrevia">Vista previa</button>
           </div>
         </div>
-        <div class="counters">
-          <div class="counter c-ok"><div class="n" id="cntOk">0</div><div class="l">Procesadas correctamente</div></div>
-          <div class="counter c-rep"><div class="n" id="cntRep">0</div><div class="l">Repetidas o con error</div></div>
+        <div class="panel">
+          <label class="row small"><input type="checkbox" id="pReasOtros"> Reasignar también las guías que están con otro mensajero</label>
+          <div id="pPreview" style="margin-top:12px"></div>
+          <div class="row" style="margin-top:14px">
+            <button class="primary" id="pAplicar" disabled>Confirmar y guardar</button>
+            <button class="outline" id="pCancelar">Cancelar</button>
+          </div>
         </div>
-        <div class="two-lists">
-          <div class="list-box"><h3>Procesadas</h3><div id="listaOk"></div></div>
-          <div class="list-box"><h3>Repetidas / errores</h3><div id="listaRep"></div></div>
+      </section>
+
+      <!-- ESCÁNER -->
+      <section class="view" id="v-escaner">
+        <div class="crumb">Inicio › Escáner</div>
+        <div class="heading"><h1>Escáner</h1><div class="subtitle">Elige el modo y escanea. Cada lectura queda en el historial de la guía.</div></div>
+        <div class="panel">
+          <div class="row">
+            <select id="sMod">
+              <option value="asignar">Asignar a mensajero (ruta)</option>
+              <option value="devolucion">Devolución de mensajero → oficina</option>
+              <option value="fallido">Fallido devolución → almacén principal</option>
+            </select>
+            <div id="sMensWrap"><select id="sMens" style="min-width:240px"></select></div>
+            <input type="date" id="sFecha">
+            <div id="sZonaWrap"><input id="sZona" placeholder="Zona (opcional)"></div>
+            <div id="sMotivoWrap" class="oculto">
+              <select id="sMotivo">
+                <option value="">Sin motivo</option>
+                <option>Dirección incorrecta</option>
+                <option>No contestó</option>
+                <option>Rechazado</option>
+                <option>Otro</option>
+              </select>
+            </div>
+          </div>
+          <div class="row" style="margin-top:14px">
+            <input id="sInput" class="code" style="flex:1;min-width:260px;font-size:16px" placeholder="Escanea o escribe una guía y presiona Enter" autocomplete="off">
+            <button class="primary" id="sBtn">Procesar</button>
+          </div>
+          <div class="small" id="sContador" style="margin:12px 0 4px"></div>
+          <div id="sLista"></div>
+          <div class="row" style="margin-top:10px"><button class="outline" id="sLimpiar">Limpiar pantalla</button></div>
         </div>
-        <div class="actions">
-          <button class="success" id="btnTerminarEscaner">Terminar sección y guardar</button>
-          <button class="outline" id="btnVaciarScan">Limpiar pantalla</button>
+      </section>
+
+      <!-- CARGAS -->
+      <section class="view" id="v-cargas">
+        <div class="crumb">Inicio › Cargas y rutas</div>
+        <div class="heading"><h1>Cargas y rutas</h1><div class="subtitle">Terminar ruta te pide marcar cuáles se entregaron. Las que no marques siguen en ruta.</div></div>
+        <div class="row" style="margin-bottom:12px">
+          <label class="small">Desde <input type="date" id="cDesde"></label>
+          <label class="small">Hasta <input type="date" id="cHasta"></label>
         </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- CARGAS -->
-  <section class="view" id="v-cargas">
-    <div class="crumb">Inicio › Cargas y rutas</div>
-    <div class="heading"><div><h1>Cargas y rutas</h1><div class="subtitle">Cada carga es una ruta. Al terminarla, las guías que siguen en ruta se registran como entregadas.</div></div></div>
-    <div class="panel table-wrap">
-      <table><thead><tr><th>Fecha</th><th>Mensajero</th><th>Creada</th><th>Estado</th><th>En ruta</th><th>Entregadas</th><th>Devueltas</th><th>Conteo informativo</th><th>Acciones</th></tr></thead>
-      <tbody id="tablaCargas"></tbody></table>
-    </div>
-    <div class="panel hidden" id="cargaDetalleBox">
-      <div class="panel-head">
-        <h2 id="cargaTitulo"></h2>
-        <div class="row">
-          <button class="primary small-btn" id="btnTerminarRuta">Terminar ruta entregada</button>
-          <button class="outline small-btn" id="btnReabrirCarga">Reabrir carga</button>
+        <div class="panel table-wrap">
+          <table>
+            <thead><tr><th>Fecha</th><th>Mensajero</th><th>Estado</th><th>En ruta</th><th>Entregadas</th><th>Devueltas</th><th>Acciones</th></tr></thead>
+            <tbody id="cTabla"></tbody>
+          </table>
         </div>
-      </div>
-      <div class="table-wrap"><table><thead><tr><th>Guía</th><th>Estado</th><th>Zona</th><th>Último movimiento</th><th>Acciones</th></tr></thead><tbody id="cargaGuias"></tbody></table></div>
-    </div>
-  </section>
+      </section>
 
-  <!-- DEVOLUCIONES -->
-  <section class="view" id="v-devoluciones">
-    <div class="crumb">Inicio › Devoluciones</div>
-    <div class="heading"><div><h1>Devoluciones</h1><div class="subtitle">Lo que está en oficina y lo que se despachó al almacén principal.</div></div></div>
-    <div class="panel">
-      <div class="panel-head"><h2>En oficina (almacén)</h2><span class="small-muted">Siguen contando en el panel</span></div>
-      <div class="table-wrap"><table><thead><tr><th>Guía</th><th>Devuelta por</th><th>Fecha</th><th>Zona</th><th>Acciones</th></tr></thead><tbody id="tablaAlmacen"></tbody></table></div>
-    </div>
-    <div class="panel">
-      <div class="panel-head"><h2>Fallido devolución del período</h2><span class="small-muted">Fuera de los contadores activos. Queda en el historial.</span></div>
-      <div class="table-wrap"><table><thead><tr><th>Guía</th><th>Fecha</th><th>Motivo</th><th>Acciones</th></tr></thead><tbody id="tablaFallidos"></tbody></table></div>
-    </div>
-  </section>
-
-  <!-- BUSCADOR -->
-  <section class="view" id="v-buscador">
-    <div class="crumb">Inicio › Buscador de guías</div>
-    <div class="heading"><div><h1>Buscador de guías</h1><div class="subtitle">Escribe el código para ver dónde está y todo su historial.</div></div></div>
-    <div class="panel">
-      <div class="row"><input id="buscadorInput" class="wide" style="font-size:16px" placeholder="Código de guía"><button class="primary" id="btnBuscar">Buscar</button></div>
-    </div>
-    <div id="resultadoBusqueda"></div>
-  </section>
-
-  <!-- CALENDARIO -->
-  <section class="view" id="v-calendario">
-    <div class="crumb">Inicio › Calendario</div>
-    <div class="heading"><div><h1>Calendario</h1><div class="subtitle">Los días amarillos tienen pedidos nuevos. Pulsa un día para ver sus movimientos.</div></div></div>
-    <div class="panel"><div class="cal" id="calGrid"></div></div>
-    <div class="panel hidden" id="calDetalleBox">
-      <div class="panel-head"><h2 id="calDetalleTitulo"></h2></div>
-      <div class="table-wrap"><table><thead><tr><th>Hora</th><th>Guía</th><th>Acción</th><th>Mensajero</th><th>Detalle</th></tr></thead><tbody id="calDetalle"></tbody></table></div>
-    </div>
-  </section>
-
-  <!-- CÓDIGOS DE BARRAS -->
-  <section class="view" id="v-codigos">
-    <div class="crumb">Inicio › Códigos de barras</div>
-    <div class="heading"><div><h1>Generador de códigos de barras</h1><div class="subtitle">Pega cualquier texto, extrae los códigos de seguimiento y genera las etiquetas.</div></div></div>
-    <div class="panel gen-no-print">
-      <h2>Pega cualquier texto</h2>
-      <p class="gen-hint">Al pegar, el texto se limpia solo: se detectan los números de seguimiento, se eliminan duplicados y se descarta todo lo demás.</p>
-      <textarea id="codes" placeholder="Pega aquí cualquier texto con los códigos de seguimiento. Se detectarán y limpiarán automáticamente."></textarea>
-      <div class="gen-settings">
-        <label>Prefijo <input id="prefix" type="text" value="610" maxlength="13" inputmode="numeric"></label>
-        <label>Altura de barras (mm) <input id="height" type="number" value="22" min="10" max="80"></label>
-        <label>Ancho de barras (px) <input id="width" type="number" value="2" min="1" max="5"></label>
-      </div>
-      <button class="gen-btn gen-primary" onclick="cleanCodes()">Limpiar y extraer códigos</button>
-      <button class="gen-btn gen-primary" onclick="generate()">Generar códigos</button>
-      <button class="gen-btn gen-secondary" onclick="window.print()">Imprimir todos</button>
-      <button class="gen-btn gen-secondary" onclick="downloadCSV()">Exportar lista</button>
-      <button class="gen-btn gen-danger" onclick="clearAll()">Limpiar</button>
-      <div class="gen-stats" id="stats">0 códigos generados</div>
-      <div id="info" class="gen-info"></div>
-      <div id="error" class="gen-error"></div>
-    </div>
-    <div class="panel gen-no-print">
-      <h2>Modo créditos</h2>
-      <p class="gen-hint">Muestra los códigos en pantalla completa, centrados y bajando como los créditos de una película.</p>
-      <div class="gen-settings">
-        <label>Velocidad: <span id="speedVal">60</span> px/s
-          <input id="speed" type="range" min="10" max="400" value="60" oninput="setSpeed(this.value)">
-        </label>
-      </div>
-      <button class="gen-btn gen-primary" onclick="openCredits()">Iniciar créditos</button>
-    </div>
-    <div id="results" class="gen-results"></div>
-  </section>
-
-  <!-- GUÍAS -->
-  <section class="view" id="v-guias">
-    <div class="crumb">Inicio › Guías</div>
-    <div class="heading"><div><h1>Guías del período</h1><div class="subtitle">Filtra por mensajero, estado o texto.</div></div></div>
-    <div class="panel">
-      <div class="row" style="margin-bottom:12px">
-        <select id="gMens" style="min-width:200px"></select>
-        <select id="gEstado"><option value="">Todos los estados</option><option value="asignada">En ruta</option><option value="entregada">Entregada</option><option value="almacen">En oficina</option><option value="fallido">Fallido devolución</option></select>
-        <input id="gTexto" placeholder="Código, zona o mensajero" style="min-width:240px">
-        <button class="outline" id="btnTxtGuias">Descargar TXT del período</button>
-        <span class="small-muted" id="infoGuias"></span>
-      </div>
-      <div class="table-wrap" style="max-height:560px;overflow:auto"><table><thead><tr><th>Guía</th><th>Estado</th><th>Mensajero</th><th>Carga</th><th>Zona</th><th>Entrada</th><th>Último mov.</th><th>Acciones</th></tr></thead><tbody id="tablaGuias"></tbody></table></div>
-    </div>
-  </section>
-
-  <!-- MENSAJEROS -->
-  <section class="view" id="v-mensajeros">
-    <div class="crumb">Inicio › Mensajeros</div>
-    <div class="heading"><div><h1>Mensajeros</h1><div class="subtitle">Solo los mensajeros activos reciben cargas.</div></div></div>
-    <div class="panel">
-      <div class="row">
-        <input id="nuevoNombre" placeholder="Nombre completo" style="flex:1;min-width:220px">
-        <input id="nuevaZona" placeholder="Zona habitual (opcional)" style="flex:1;min-width:180px">
-        <button class="primary" id="btnNuevoMens">Registrar</button>
-      </div>
-    </div>
-    <div class="panel table-wrap">
-      <table><thead><tr><th>Nombre</th><th>Zona habitual</th><th>Estado</th><th>En ruta</th><th>Acciones</th></tr></thead><tbody id="tablaMensajeros"></tbody></table>
-    </div>
-  </section>
-
-  <!-- ZONAS -->
-  <section class="view" id="v-mapa">
-    <div class="crumb">Inicio › Zonas</div>
-    <div class="heading"><div><h1>Zonas</h1><div class="subtitle">Pedidos nuevos por zona en el período.</div></div>
-      <select id="mapaTipo"><option value="ciudad">Por zona</option><option value="zip">Por código postal</option></select></div>
-    <div class="panel"><div class="zonas" id="mapaTiles"></div></div>
-  </section>
-
-  <!-- CONFIG -->
-  <section class="view" id="v-config">
-    <div class="crumb">Inicio › Configuración</div>
-    <div class="heading"><div><h1>Configuración</h1><div class="subtitle">Conexión con Google Drive y respaldo.</div></div></div>
-    <div class="grid-2">
-      <div class="panel">
-        <h2 style="margin-bottom:10px">Google Drive</h2>
-        <label class="field-label" for="archivoNombre">Nombre del archivo</label>
-        <input id="archivoNombre" class="wide">
-        <div class="actions"><button class="primary" id="btnConectar">Conectar con Drive</button><button class="outline" id="btnGuardarAhora">Guardar ahora</button></div>
-        <div class="small-muted" style="margin-top:12px" id="estadoConfig"></div>
-      </div>
-      <div class="panel">
-        <h2 style="margin-bottom:10px">Respaldo local</h2>
-        <div class="actions" style="margin-top:0">
-          <button class="outline" id="btnDescargarCopia">Descargar copia (JSON)</button>
-          <button class="outline" id="btnCargarLocal">Cargar archivo JSON</button>
-          <input type="file" id="fileLocal" accept=".json,application/json" style="display:none">
+      <!-- DEVOLUCIONES -->
+      <section class="view" id="v-devoluciones">
+        <div class="crumb">Inicio › Devoluciones</div>
+        <div class="heading"><h1>Devoluciones</h1><div class="subtitle">Lo que está en oficina y lo que se despachó al almacén principal.</div></div>
+        <div class="panel">
+          <h2>En oficina</h2>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Guía</th><th>Zona</th><th>Desde</th><th>Acciones</th></tr></thead>
+            <tbody id="dAlmacen"></tbody>
+          </table></div>
         </div>
-        <div class="actions"><button class="danger" id="btnBorrar">Borrar base de este equipo</button></div>
-      </div>
-    </div>
-  </section>
-</main>
-</div>
+        <div class="panel">
+          <h2>Fallido devolución</h2>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Guía</th><th>Fecha</th><th>Historial</th></tr></thead>
+            <tbody id="dFallido"></tbody>
+          </table></div>
+        </div>
+      </section>
 
-<div class="reasignar" id="panelReasignar">
-  <div><strong id="reasTitulo"></strong><div class="small-muted" id="reasDetalle"></div></div>
-  <select id="reasSelect"></select>
-  <button class="primary" id="btnReasConfirmar">Reasignar</button>
-  <button class="outline" id="btnReasCancelar">Cancelar</button>
-</div>
-<div id="credits" class="gen-no-print">
-  <div class="credits-controls">
-    <button class="gen-btn gen-secondary" id="playBtn" onclick="togglePlay()">Pausa</button>
-    <label>Velocidad
-      <input id="speed2" type="range" min="10" max="400" value="60" oninput="setSpeed(this.value)">
-      <span id="speedVal2">60</span>
-    </label>
-    <button class="gen-btn gen-danger" onclick="closeCredits()">Cerrar (Esc)</button>
+      <!-- BUSCADOR -->
+      <section class="view" id="v-buscador">
+        <div class="crumb">Inicio › Buscador de guías</div>
+        <div class="heading"><h1>Buscador de guías</h1><div class="subtitle">Escribe el código para ver dónde está y todo su historial.</div></div>
+        <div class="panel">
+          <div class="row">
+            <input id="bBuscar" class="code" style="flex:1;font-size:16px" placeholder="Código de guía">
+            <button class="primary" id="bBtn">Buscar</button>
+          </div>
+        </div>
+        <div id="bResultado"></div>
+      </section>
+
+      <!-- MENSAJEROS -->
+      <section class="view" id="v-mensajeros">
+        <div class="crumb">Inicio › Mensajeros</div>
+        <div class="heading"><h1>Mensajeros</h1><div class="subtitle">Solo los activos reciben asignaciones. Los nombres de estado no se pueden usar.</div></div>
+        <div class="panel">
+          <div class="row">
+            <input id="mNombre" placeholder="Nombre completo" style="flex:1;min-width:220px">
+            <input id="mZona" placeholder="Zona habitual (opcional)" style="flex:1;min-width:180px">
+            <button class="primary" id="mNuevo">Registrar</button>
+          </div>
+        </div>
+        <div class="panel table-wrap">
+          <table>
+            <thead><tr><th>Nombre</th><th>Código J&amp;T</th><th>Zona</th><th>Estado</th><th>Acciones</th></tr></thead>
+            <tbody id="mTabla"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- CONFIGURACIÓN -->
+      <section class="view" id="v-config">
+        <div class="crumb">Inicio › Configuración</div>
+        <div class="heading"><h1>Configuración</h1><div class="subtitle">Importación de la base anterior (archivo JSON de la versión 5).</div></div>
+        <div class="panel">
+          <h2>Importar base anterior</h2>
+          <p class="small">Sube el archivo <code>base_guias.json</code> de la versión anterior. Se importan guías, mensajeros, cargas e historial. Se puede correr una sola vez por empresa.</p>
+          <button class="outline" id="btnImportar">Elegir archivo JSON</button>
+          <input type="file" id="fImport" accept=".json,application/json" style="display:none">
+        </div>
+      </section>
+
+    </main>
   </div>
-  <div class="credits-view"><div id="creditsTrack" class="credits-track"></div></div>
-</div>
-<div class="toast" id="toast"></div>
 
-<script>
-/* ================= CONFIG ================= */
-const CLIENT_ID = '869397414336-cbnhiq6ujj7qom0te3n7233plib32el6.apps.googleusercontent.com';
-const DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.file';
-const ARCHIVO_DEFAULT = 'base_guias.json';
-const LS_DB = 'mensajeriaRD_db_v4', LS_DB3 = 'mensajeriaRD_db_v3', LS_DB2 = 'mensajeriaRD_db_v2';
-const LS_PEND = 'mensajeriaRD_pendiente', LS_FILE = 'mensajeriaRD_archivo';
-const ETIQ = {codigos:'Códigos de barras',panel:'Panel del período',registrar:'Registrar pegado',escaner:'Escáner',cargas:'Cargas y rutas',devoluciones:'Devoluciones',buscador:'Buscador de guías',calendario:'Calendario',guias:'Guías',mensajeros:'Mensajeros',mapa:'Zonas',config:'Configuración'};
-const ESTADO_TXT = {asignada:'En ruta',entregada:'Entregada',almacen:'En oficina',fallido:'Fallido devolución'};
-
-/* ================= UTILIDADES ================= */
-const $ = id => document.getElementById(id);
-const pad = n => String(n).padStart(2, '0');
-const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const ymd = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
-const hms = d => `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
-const nowStr = () => { const d = new Date(); return ymd(d) + ' ' + hms(d); };
-const hoyYmd = () => ymd(new Date());
-const nuevoId = p => p + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
-const iniciales = n => n.split(/\s+/).filter(Boolean).slice(0, 2).map(p => p[0].toUpperCase()).join('') || '?';
-const nombreSeguro = s => String(s).replace(/[^\w\-]+/g, '_').replace(/^_+|_+$/g, '') || 'sin_nombre';
-const badge = e => `<span class="badge b-${e}">${esc(ESTADO_TXT[e] || e)}</span>`;
-function notify(m) {
-  const t = $('toast'); t.textContent = m; t.style.display = 'block';
-  clearTimeout(window.tt); window.tt = setTimeout(() => t.style.display = 'none', 3500);
-}
-function descargar(nombre, contenido, tipo) {
-  const blob = new Blob([contenido], { type: tipo });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob); a.download = nombre;
-  document.body.appendChild(a); a.click();
-  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
-}
-function setSync(t) { $('syncEstado').textContent = t; }
-
-/* ================= PERIODOS ================= */
-function periodoActual() {
-  const mes = $('pMes').value || hoyYmd().slice(0, 7);
-  const q = $('pQuin').value || (Number(hoyYmd().slice(8, 10)) <= 15 ? '1' : '2');
-  const [y, m] = mes.split('-').map(Number);
-  const ultimo = new Date(y, m, 0).getDate();
-  const ini = (q === '1' || q === 'm') ? `${y}-${pad(m)}-01` : `${y}-${pad(m)}-16`;
-  const fin = q === '1' ? `${y}-${pad(m)}-15` : `${y}-${pad(m)}-${pad(ultimo)}`;
-  return { ini, fin, mes, q };
-}
-const enPeriodo = f => { const p = periodoActual(); return !!f && f >= p.ini && f <= p.fin; };
-
-/* ================= BASE DE DATOS ================= */
-let db = cargarLocal();
-let sesionOk = [], sesionRep = [], borrador = null, reasState = { codigos: [] };
-let driveConectado = false, accessToken = null, tokenClient = null, driveFileId = null;
-let pendiente = localStorage.getItem(LS_PEND) === '1';
-let saveTimer = null, guardando = false, reintentar = false, intentosInit = 0;
-let cargaSel = null, calDia = null;
-
-function vacio() { return { version: 5, mensajeros: {}, guias: {}, cargas: {} }; }
-function esV4(d) { return d && (d.version === 4 || d.version === 5) && d.guias && d.cargas; }
-
-// Convierte bases de versiones anteriores (v2 y v3)
-function migrar(d) {
-  const out = vacio();
-  if (d.mensajeros) Object.values(d.mensajeros).forEach(m => {
-    if (m && m.id && m.nombre) out.mensajeros[m.id] = { id: m.id, nombre: m.nombre, zona: m.zona || '', activo: m.activo !== false };
-  });
-  const porNombre = {};
-  Object.values(out.mensajeros).forEach(m => porNombre[m.nombre.toLowerCase()] = m.id);
-  const idPara = nombre => {
-    const n = (nombre || 'Sin nombre').trim(), k = n.toLowerCase();
-    if (!porNombre[k]) { const id = nuevoId('m'); out.mensajeros[id] = { id, nombre: n, zona: '', activo: true }; porNombre[k] = id; }
-    return porNombre[k];
-  };
-  if (d.conductores) Object.values(d.conductores).forEach(c => { if (c && c.nombre) idPara(c.nombre); });
-  const cargaPor = {};
-  Object.entries(d.registros || {}).forEach(([k, r]) => {
-    if (!r) return;
-    const mid = (r.mensajeroId && out.mensajeros[r.mensajeroId]) ? r.mensajeroId : idPara(r.mensajero || r.conductor);
-    const fecha = (r.origen === 'Rastreo pegado' && r.actualizado) ? r.actualizado.slice(0, 10)
-      : (r.fecha || (r.ofd ? r.ofd.slice(0, 10) : hoyYmd()));
-    const actualizado = r.actualizado || r.cargado || fecha + ' 00:00:00';
-    const clave = mid + '|' + fecha;
-    if (!cargaPor[clave]) {
-      const id = nuevoId('c');
-      out.cargas[id] = { id, mensajeroId: mid, fecha, creada: fecha + ' 00:00:00', cerrada: null, conteoEntregados: '', reaperturas: [] };
-      cargaPor[clave] = id;
-    }
-    const cid = cargaPor[clave];
-    const hist = Array.isArray(r.historial) && r.historial.length
-      ? r.historial.map(e => ({ at: e.at, accion: e.accion, de: e.de || '', a: e.a || '', detalle: e.detalle || '', motivo: '', cargaId: cid }))
-      : [{ at: actualizado, accion: 'Asignada', de: '', a: out.mensajeros[mid].nombre, detalle: r.origen || '', motivo: '', cargaId: cid }];
-    out.guias[String(k)] = { codigo: String(k), estado: 'asignada', mensajeroId: mid, cargaId: cid, ciudad: r.ciudad || '', zip: r.zip || '', origen: r.origen || 'Importado', creada: fecha, ultimoMov: actualizado, historial: hist };
-  });
-  return out;
-}
-
-function normalizarV(d) {
-  const out = vacio();
-  Object.assign(out.mensajeros, d.mensajeros || {});
-  Object.assign(out.guias, d.guias || {});
-  Object.assign(out.cargas, d.cargas || {});
-  // Estado "devuelta" de versiones anteriores pasa a "En oficina"
-  Object.values(out.guias).forEach(g => { if (g.estado === 'devuelta') g.estado = 'almacen'; });
-  return out;
-}
-
-function cargarLocal() {
-  try {
-    const actual = localStorage.getItem(LS_DB);
-    if (actual) return normalizarV(JSON.parse(actual));
-    const v3 = localStorage.getItem(LS_DB3) || localStorage.getItem(LS_DB2);
-    if (v3) return migrar(JSON.parse(v3));
-  } catch (e) {}
-  return vacio();
-}
-function guardarLocal() {
-  try { localStorage.setItem(LS_DB, JSON.stringify(db)); }
-  catch (e) { notify('Memoria del navegador llena. Descarga una copia.'); }
-}
-function nombreM(id) { return (db.mensajeros[id] && db.mensajeros[id].nombre) || 'Sin mensajero'; }
-function nombreArchivo() {
-  let n = (localStorage.getItem(LS_FILE) || ARCHIVO_DEFAULT).trim() || ARCHIVO_DEFAULT;
-  if (!n.toLowerCase().endsWith('.json')) n += '.json';
-  return n;
-}
-
-// Une dos bases: para cada guía gana el movimiento más reciente
-function mergeDB(remotoRaw, local) {
-  const remoto = esV4(remotoRaw) ? normalizarV(remotoRaw) : migrar(remotoRaw || {});
-  const base = normalizarV(remoto);
-  const mapa = {};
-  Object.values(local.mensajeros).forEach(m => {
-    const ex = Object.values(base.mensajeros).find(x => x.nombre.toLowerCase() === m.nombre.toLowerCase());
-    if (ex) { mapa[m.id] = ex.id; ex.zona = m.zona || ex.zona; ex.activo = m.activo; }
-    else { base.mensajeros[m.id] = m; mapa[m.id] = m.id; }
-  });
-  Object.values(local.guias).forEach(g => {
-    const ex = base.guias[g.codigo];
-    const g2 = { ...g, mensajeroId: mapa[g.mensajeroId] || g.mensajeroId };
-    if (!ex || (g.ultimoMov || '') >= (ex.ultimoMov || '')) base.guias[g.codigo] = g2;
-  });
-  Object.assign(base.cargas, local.cargas);
-  return base;
-}
-
-/* ============ Lógica de guías, cargas y devoluciones ============ */
-function evento(g, accion, de, a, detalle, motivo) {
-  g.historial.push({ at: nowStr(), accion, de: de || '', a: a || '', detalle: detalle || '', motivo: motivo || '', cargaId: g.cargaId || '' });
-  g.ultimoMov = nowStr();
-}
-
-function cargaAbierta(mid, fecha) {
-  const c = Object.values(db.cargas).find(x => x.mensajeroId === mid && !x.cerrada);
-  if (c) return c;
-  const id = nuevoId('c');
-  db.cargas[id] = { id, mensajeroId: mid, fecha, creada: nowStr(), cerrada: null, conteoEntregados: '', reaperturas: [] };
-  return db.cargas[id];
-}
-
-function guiasDeCarga(cid) { return Object.values(db.guias).filter(g => g.cargaId === cid); }
-
-// Asigna una guía a una carga. Si ya existía, es un ciclo nuevo.
-function asignarA(codigo, mid, carga, o) {
-  let g = db.guias[codigo];
-  if (!g) {
-    g = { codigo, estado: 'asignada', mensajeroId: mid, cargaId: carga.id, ciudad: o.ciudad || '', zip: o.zip || '', origen: o.origen, creada: o.fecha, ultimoMov: '', historial: [] };
-    db.guias[codigo] = g;
-    evento(g, 'Asignada', '', nombreM(mid), o.origen);
-    return 'nueva';
-  }
-  const de = nombreM(g.mensajeroId);
-  const previo = g.estado;
-  g.estado = 'asignada'; g.mensajeroId = mid; g.cargaId = carga.id;
-  if (o.ciudad) g.ciudad = o.ciudad;
-  if (o.zip) g.zip = o.zip;
-  evento(g, previo === 'asignada' ? 'Reasignada' : 'Nuevo ciclo: asignada', de, nombreM(mid), o.origen);
-  return 'ciclo';
-}
-
-function reasignarEnRuta(codigos, mid) {
-  const carga = cargaAbierta(mid, hoyYmd());
-  let n = 0;
-  codigos.forEach(c => {
-    const g = db.guias[c];
-    if (!g || g.estado !== 'asignada' || g.mensajeroId === mid) return;
-    const de = nombreM(g.mensajeroId);
-    g.mensajeroId = mid; g.cargaId = carga.id;
-    evento(g, 'Reasignada', de, nombreM(mid), 'Cambio de mensajero');
-    n++;
-  });
-  return n;
-}
-
-function terminarRuta(cid) {
-  const c = db.cargas[cid];
-  if (!c || c.cerrada) return 0;
-  let n = 0;
-  guiasDeCarga(cid).forEach(g => {
-    if (g.estado === 'asignada') {
-      g.estado = 'entregada';
-      evento(g, 'Entregada', nombreM(g.mensajeroId), '', 'Ruta terminada');
-      n++;
-    }
-  });
-  c.cerrada = nowStr();
-  return n;
-}
-
-function reabrirCarga(cid) {
-  const c = db.cargas[cid];
-  if (!c || !c.cerrada) return 0;
-  let n = 0;
-  guiasDeCarga(cid).forEach(g => {
-    if (g.estado === 'entregada') {
-      g.estado = 'asignada';
-      evento(g, 'Reabierta', '', nombreM(g.mensajeroId), 'Carga reabierta por error');
-      n++;
-    }
-  });
-  c.reaperturas.push(nowStr());
-  c.cerrada = null;
-  return n;
-}
-
-// Devolución de mensajero: la guía regresa a oficina (almacén)
-function devolverDeMensajero(g) {
-  const de = nombreM(g.mensajeroId);
-  g.estado = 'almacen';
-  evento(g, 'Devuelta por mensajero', de, 'Oficina', 'Regresó a oficina');
-}
-
-// Fallido devolución: si la tenía un mensajero, primero queda registrada la devolución
-function despacharFallido(g, motivo) {
-  if (g.estado === 'asignada') {
-    evento(g, 'Devuelta por mensajero', nombreM(g.mensajeroId), 'Almacén principal', 'Devolución directa al almacén principal');
-  }
-  g.estado = 'fallido';
-  evento(g, 'Fallido devolución', '', 'Almacén principal', 'Despachada al almacén principal', motivo || '');
-}
-
-function cambio() {
-  guardarLocal();
-  pendiente = true;
-  localStorage.setItem(LS_PEND, '1');
-  renderAll();
-  programarGuardado();
-}
-
-/* ================= GOOGLE DRIVE ================= */
-function pintarDrive() {
-  const p = $('drivePill');
-  p.textContent = driveConectado ? '● Drive conectado' : '○ Drive sin conectar';
-  p.classList.toggle('off', !driveConectado);
-  $('estadoConfig').textContent = driveConectado ? `Conectado · archivo: ${nombreArchivo()}` : 'Sin conectar. Los cambios se guardan en este equipo.';
-}
-function initDrive() {
-  if (!(window.google && google.accounts && google.accounts.oauth2)) {
-    if (++intentosInit < 40) setTimeout(initDrive, 500);
-    else setSync('No se pudo cargar Google. Revisa tu conexión y recarga.');
-    return;
-  }
-  tokenClient = google.accounts.oauth2.initTokenClient({
-    client_id: CLIENT_ID, scope: DRIVE_SCOPE, callback: onToken,
-    error_callback: () => setSync('Pulsa "Conectar con Drive" para cargar tu base.')
-  });
-  try { tokenClient.requestAccessToken({ prompt: '' }); }
-  catch (e) { setSync('Pulsa "Conectar con Drive" para cargar tu base.'); }
-  setTimeout(() => { if (!driveConectado) setSync('Pulsa "Conectar con Drive" para cargar tu base.'); }, 6000);
-}
-function conectarDrive() {
-  if (!tokenClient) { notify('Google todavía está cargando.'); return; }
-  tokenClient.requestAccessToken({ prompt: accessToken ? '' : 'consent' });
-}
-function onToken(resp) {
-  if (resp.error) { setSync('Error de Drive: ' + resp.error); return; }
-  accessToken = resp.access_token; driveConectado = true; pintarDrive();
-  setTimeout(() => { accessToken = null; driveConectado = false; pintarDrive(); setSync('La sesión de Drive venció. Pulsa "Conectar con Drive".'); },
-    Math.max(60, (resp.expires_in || 3600) - 60) * 1000);
-  cargarDesdeDrive();
-}
-async function driveFetch(url, opts = {}) {
-  if (!accessToken) throw new Error('Conecta con Google Drive primero');
-  const r = await fetch(url, { ...opts, headers: { ...(opts.headers || {}), Authorization: 'Bearer ' + accessToken } });
-  if (r.status === 401) { accessToken = null; driveConectado = false; pintarDrive(); throw new Error('La sesión de Drive venció.'); }
-  if (!r.ok) throw new Error('Drive respondió ' + r.status);
-  return r;
-}
-async function buscarArchivo() {
-  const nombre = nombreArchivo().replace(/\\/g, '\\\\').replace(/'/g, "\\'");
-  const q = encodeURIComponent(`name='${nombre}' and trashed=false`);
-  const r = await driveFetch(`https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id,name)&spaces=drive`);
-  const j = await r.json();
-  return j.files && j.files.length ? j.files[0].id : null;
-}
-async function descargarArchivo(id) { return (await driveFetch(`https://www.googleapis.com/drive/v3/files/${id}?alt=media`)).json(); }
-async function cargarDesdeDrive() {
-  try {
-    setSync('Buscando tu base en Drive…');
-    const id = await buscarArchivo();
-    if (id) {
-      driveFileId = id;
-      db = mergeDB(await descargarArchivo(id), db);
-      guardarLocal(); renderAll();
-      setSync('Base cargada desde Drive · ' + hms(new Date()));
-      if (pendiente) programarGuardado();
-    } else {
-      setSync('No hay base en Drive todavía. Se creará al guardar.');
-      if (Object.keys(db.guias).length) guardarDrive();
-    }
-  } catch (e) { setSync('Error al cargar: ' + e.message); }
-}
-function programarGuardado() {
-  clearTimeout(saveTimer);
-  if (!driveConectado) { setSync('Guardado en este equipo · pendiente de Drive'); return; }
-  setSync('Guardando en Drive…');
-  saveTimer = setTimeout(guardarDrive, 1500);
-}
-async function guardarDrive() {
-  if (!driveConectado || !accessToken) return false;
-  if (guardando) { reintentar = true; return false; }
-  guardando = true;
-  try {
-    const id = driveFileId || await buscarArchivo();
-    const remoto = id ? await descargarArchivo(id) : null;
-    db = mergeDB(remoto, db);
-    guardarLocal();
-    const contenido = JSON.stringify(db, null, 2);
-    if (id) {
-      await driveFetch(`https://www.googleapis.com/upload/drive/v3/files/${id}?uploadType=media`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: contenido });
-      driveFileId = id;
-    } else {
-      const b = 'mrd' + Date.now();
-      const meta = JSON.stringify({ name: nombreArchivo(), mimeType: 'application/json' });
-      const body = `--${b}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${meta}\r\n--${b}\r\nContent-Type: application/json\r\n\r\n${contenido}\r\n--${b}--`;
-      const r = await driveFetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', { method: 'POST', headers: { 'Content-Type': `multipart/related; boundary=${b}` }, body });
-      driveFileId = (await r.json()).id;
-    }
-    pendiente = false; localStorage.removeItem(LS_PEND);
-    setSync('Guardado en Drive · ' + hms(new Date()));
-    renderAll();
-    return true;
-  } catch (e) {
-    setSync('Error al guardar: ' + e.message + ' · los cambios siguen en este equipo');
-    return false;
-  } finally {
-    guardando = false;
-    if (reintentar) { reintentar = false; programarGuardado(); }
-  }
-}
-window.addEventListener('beforeunload', e => { if (pendiente && driveConectado) { e.preventDefault(); e.returnValue = ''; } });
-
-// Terminar sección: limpia la captura de pantalla y guarda de inmediato
-async function terminarSeccion(resumenBase) {
-  const ok = sesionOk.length, rep = sesionRep.length;
-  sesionOk = []; sesionRep = [];
-  guardarLocal();
-  pendiente = true;
-  localStorage.setItem(LS_PEND, '1');
-  renderAll();
-  if (!driveConectado) {
-    notify(`${resumenBase} · ${ok} procesadas, ${rep} repetidas. Guardado en este equipo; conecta Drive para subirlo.`);
-    return;
-  }
-  clearTimeout(saveTimer);
-  setSync('Guardando sección en Drive…');
-  const subio = await guardarDrive();
-  notify(subio
-    ? `Sección terminada y guardada en Drive · ${ok} procesadas, ${rep} repetidas`
-    : 'No se pudo guardar en Drive. Los cambios siguen en este equipo.');
-}
-
-/* ================= PARSEO ================= */
-// Detecta cada guía aunque el texto empiece a mitad del rastreo (sin la palabra "Delivery")
-function parseGuias(texto) {
-  const out = [];
-  const re = /(\d{8,20})\s*OFD Time:\s*(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\s*(?:Ciudad|City):([^\r\n]*)\s*zipCode:\s*(\d+)/g;
-  let m;
-  while ((m = re.exec(texto))) {
-    const ofd = new Date(m[2].replace(' ', 'T'));
-    if (!isNaN(ofd)) out.push({ codigo: m[1], ofd, ciudad: m[3].trim(), zip: m[4] });
-  }
-  return out;
-}
-function parseEntrada(texto) {
-  const r = parseGuias(texto);
-  let items = r.length ? r.map(x => ({ codigo: x.codigo, ofd: x.ofd, ciudad: x.ciudad, zip: x.zip }))
-    : (texto.match(/(?<!\d)\d{8,20}(?!\d)/g) || []).map(t => ({ codigo: t }));
-  const vistos = new Set(), unicos = []; let duplicadas = 0;
-  items.forEach(it => { if (vistos.has(it.codigo)) duplicadas++; else { vistos.add(it.codigo); unicos.push(it); } });
-  const repetidas = unicos.filter(it => db.guias[it.codigo] && db.guias[it.codigo].estado === 'asignada');
-  const nuevas = unicos.filter(it => !repetidas.includes(it));
-  return { nuevas, repetidas, duplicadas };
-}
-
-/* ================= SELECTORES ================= */
-function llenarSelect(id, todos) {
-  const sel = $(id), prev = sel.value;
-  const lista = Object.values(db.mensajeros).filter(m => m.activo).sort((a, b) => a.nombre.localeCompare(b.nombre));
-  let html = todos ? '<option value="">Todos los mensajeros</option>' : '';
-  html += lista.map(m => `<option value="${esc(m.id)}">${esc(m.nombre)}${m.zona ? ' · ' + esc(m.zona) : ''}</option>`).join('');
-  if (!lista.length && !todos) html = '<option value="">Registra un mensajero primero</option>';
-  sel.innerHTML = html;
-  if (prev && [...sel.options].some(o => o.value === prev)) sel.value = prev;
-}
-
-/* ================= RENDER ================= */
-function eventosPeriodo(accion) {
-  const { ini, fin } = periodoActual();
-  const out = [];
-  Object.values(db.guias).forEach(g => g.historial.forEach(e => {
-    const d = (e.at || '').slice(0, 10);
-    if (e.accion === accion && d >= ini && d <= fin) out.push({ ...e, g });
-  }));
-  return out;
-}
-
-function renderPanel() {
-  const { ini, fin } = periodoActual();
-  $('periodoTexto').textContent = `Período del ${ini} al ${fin}`;
-  const guias = Object.values(db.guias);
-  $('mEntradas').textContent = guias.filter(g => enPeriodo(g.creada)).length;
-  $('mRuta').textContent = guias.filter(g => g.estado === 'asignada').length;
-  $('mEntregadas').textContent = new Set(eventosPeriodo('Entregada').map(e => e.g.codigo)).size;
-  $('mDevueltas').textContent = new Set(eventosPeriodo('Devuelta por mensajero').map(e => e.g.codigo)).size;
-  $('mAlmacen').textContent = guias.filter(g => g.estado === 'almacen').length;
-  $('mFallidos').textContent = new Set(eventosPeriodo('Fallido devolución').map(e => e.g.codigo)).size;
-
-  const recientes = [];
-  guias.forEach(g => g.historial.forEach(e => recientes.push({ ...e, codigo: g.codigo })));
-  recientes.sort((a, b) => (b.at || '').localeCompare(a.at || ''));
-  $('tablaRecientes').innerHTML = recientes.slice(0, 12).map(e =>
-    `<tr><td>${esc(e.at)}</td><td class="code">${esc(e.codigo)}</td><td>${esc(e.accion)}</td><td>${esc(e.a || e.de || '—')}</td></tr>`
-  ).join('') || '<tr><td colspan="4" class="small-muted">Sin movimientos todavía.</td></tr>';
-
-  const activos = Object.values(db.mensajeros).filter(m => m.activo);
-  $('listaMensajeros').innerHTML = activos.map(m => {
-    const enRuta = guias.filter(g => g.mensajeroId === m.id && g.estado === 'asignada').length;
-    const entr = eventosPeriodo('Entregada').filter(e => e.g.mensajeroId === m.id).length;
-    const devs = eventosPeriodo('Devuelta por mensajero').filter(e => e.de === m.nombre).length;
-    return `<div class="driver">
-      <div class="initial">${esc(iniciales(m.nombre))}</div>
-      <div class="driver-info"><div class="driver-name">${esc(m.nombre)}</div><div class="driver-meta">${esc(m.zona || 'Sin zona')}</div></div>
-      <span class="count">${enRuta} en ruta</span>
-      <span class="small-muted" style="min-width:160px;text-align:right">Entregadas ${entr} · Devueltas ${devs}</span>
-    </div>`;
-  }).join('') || '<div class="small-muted">Registra mensajeros para ver su resumen.</div>';
-}
-
-function renderRegistrar() {
-  llenarSelect('selRegistrar', false);
-  if (!$('fechaRegistrar').value) $('fechaRegistrar').value = hoyYmd();
-  const hay = Object.values(db.mensajeros).some(m => m.activo);
-  $('btnAsignar').disabled = !hay || !borrador || !borrador.nuevas.length;
-  $('btnReasignarRep').disabled = !hay || !borrador || !borrador.repetidas.length;
-}
-
-const MODO_INFO = {
-  asignar: 'Cada código nuevo entra a la carga abierta del mensajero (se crea si no hay). Si ya está en ruta, aparece como repetida.',
-  devolucion: 'No hace falta elegir mensajero: el sistema detecta quién tiene la guía y la registra como devuelta a oficina.',
-  fallido: 'No hace falta elegir mensajero. Si la guía la tiene un mensajero, se registra su devolución y luego pasa al almacén principal.'
-};
-function renderEscaner() {
-  const modo = $('modoEscaner').value;
-  llenarSelect('selEscaner', false);
-  if (!$('fechaEscaner').value) $('fechaEscaner').value = hoyYmd();
-  $('campoMensajero').classList.toggle('hidden', modo !== 'asignar');
-  $('campoFecha').classList.toggle('hidden', modo !== 'asignar');
-  $('campoZona').classList.toggle('hidden', modo !== 'asignar');
-  $('campoMotivo').classList.toggle('hidden', modo !== 'fallido');
-  $('infoModo').textContent = MODO_INFO[modo];
-  $('scanInput').disabled = modo === 'asignar' && !$('selEscaner').value;
-  $('cntOk').textContent = sesionOk.length;
-  $('cntRep').textContent = sesionRep.length;
-  $('listaOk').innerHTML = sesionOk.slice(0, 60).map(s =>
-    `<div class="item"><span class="code">${esc(s.codigo)}</span><span class="ok-t">${esc(s.texto)}</span></div>`).join('') || '<div class="small-muted">Sin lecturas.</div>';
-  $('listaRep').innerHTML = sesionRep.slice(0, 60).map(s =>
-    `<div class="item"><span><span class="code">${esc(s.codigo)}</span><br><span class="small-muted">${esc(s.detalle)}</span></span>
-     ${s.reasignable && modo === 'asignar' ? `<button class="outline small-btn" data-rep="${esc(s.codigo)}">Reasignar aquí</button>` : ''}</div>`).join('') || '<div class="small-muted">Sin repetidas ni errores.</div>';
-}
-
-function renderCargas() {
-  const { ini, fin } = periodoActual();
-  const lista = Object.values(db.cargas)
-    .filter(c => c.fecha >= ini && c.fecha <= fin)
-    .sort((a, b) => (b.creada || '').localeCompare(a.creada || ''));
-  $('tablaCargas').innerHTML = lista.map(c => {
-    const gs = guiasDeCarga(c.id);
-    const ruta = gs.filter(g => g.estado === 'asignada').length;
-    const ent = gs.filter(g => g.estado === 'entregada').length;
-    const dev = gs.filter(g => ['almacen', 'fallido'].includes(g.estado)).length;
-    return `<tr>
-      <td>${esc(c.fecha)}</td>
-      <td>${esc(nombreM(c.mensajeroId))}</td>
-      <td>${esc(c.creada.slice(11, 16))}</td>
-      <td><span class="badge ${c.cerrada ? 'b-cerrada' : 'b-abierta'}">${c.cerrada ? 'Cerrada' : 'Abierta'}</span></td>
-      <td>${ruta}</td><td>${ent}</td><td>${dev}</td>
-      <td><input type="number" min="0" data-conteo="${esc(c.id)}" value="${esc(c.conteoEntregados)}" style="width:80px"></td>
-      <td class="row">
-        <button class="outline small-btn" data-carga="ver" data-id="${esc(c.id)}">Ver</button>
-        <button class="outline small-btn" data-carga="pasar" data-id="${esc(c.id)}" ${ruta ? '' : 'disabled'}>Pasar en ruta</button>
-      </td></tr>`;
-  }).join('') || '<tr><td colspan="9" class="small-muted">No hay cargas en este período.</td></tr>';
-
-  if (cargaSel && db.cargas[cargaSel]) {
-    const c = db.cargas[cargaSel];
-    $('cargaDetalleBox').classList.remove('hidden');
-    $('cargaTitulo').textContent = `${nombreM(c.mensajeroId)} · ${c.fecha} · ${c.cerrada ? 'cerrada ' + c.cerrada : 'abierta'}`;
-    $('btnTerminarRuta').disabled = !!c.cerrada;
-    $('btnReabrirCarga').disabled = !c.cerrada;
-    $('cargaGuias').innerHTML = guiasDeCarga(cargaSel).sort((a, b) => a.codigo.localeCompare(b.codigo)).map(g =>
-      `<tr><td class="code">${esc(g.codigo)}</td><td>${badge(g.estado)}</td><td>${esc(g.ciudad || '—')}</td><td>${esc(g.ultimoMov)}</td>
-       <td>${g.estado === 'asignada' ? `<button class="outline small-btn" data-cg="devolver" data-codigo="${esc(g.codigo)}">Marcar devuelta</button>` : ''}</td></tr>`
-    ).join('') || '<tr><td colspan="5" class="small-muted">Carga vacía</td></tr>';
-  } else {
-    $('cargaDetalleBox').classList.add('hidden');
-  }
-}
-
-function renderDevoluciones() {
-  const guias = Object.values(db.guias);
-  const alm = guias.filter(g => g.estado === 'almacen');
-  $('tablaAlmacen').innerHTML = alm.map(g => {
-    const ult = [...g.historial].reverse().find(e => e.accion === 'Devuelta por mensajero');
-    return `<tr><td class="code">${esc(g.codigo)}</td><td>${esc(ult ? ult.de : '—')}</td><td>${esc(ult ? ult.at : '')}</td><td>${esc(g.ciudad || '—')}</td>
-      <td class="row"><button class="outline small-btn" data-dev="fallido" data-codigo="${esc(g.codigo)}">→ Fallido devolución</button>
-      <button class="outline small-btn" data-dev="reenviar" data-codigo="${esc(g.codigo)}">Reenviar a mensajero</button></td></tr>`;
-  }).join('') || '<tr><td colspan="5" class="small-muted">Oficina vacía.</td></tr>';
-
-  const fallidos = [];
-  guias.forEach(g => g.historial.forEach(e => {
-    if (e.accion === 'Fallido devolución' && enPeriodo((e.at || '').slice(0, 10))) fallidos.push({ ...e, codigo: g.codigo });
-  }));
-  fallidos.sort((a, b) => b.at.localeCompare(a.at));
-  $('tablaFallidos').innerHTML = fallidos.map(e =>
-    `<tr><td class="code">${esc(e.codigo)}</td><td>${esc(e.at)}</td><td>${esc(e.motivo || 'Sin motivo')}</td>
-     <td><button class="outline small-btn" data-buscar="${esc(e.codigo)}">Ver historial</button></td></tr>`
-  ).join('') || '<tr><td colspan="4" class="small-muted">No hay fallidos en este período.</td></tr>';
-}
-
-function renderBuscador() {
-  const q = $('buscadorInput').value.trim();
-  const box = $('resultadoBusqueda');
-  if (!q) { box.innerHTML = ''; return; }
-  const g = db.guias[q];
-  if (!g) {
-    const coincidencias = Object.keys(db.guias).filter(c => c.startsWith(q)).slice(0, 20);
-    box.innerHTML = coincidencias.length
-      ? `<div class="panel"><div class="small-muted" style="margin-bottom:8px">Coincidencias:</div>${coincidencias.map(c => `<div class="item"><span class="code">${esc(c)}</span><button class="outline small-btn" data-buscar="${esc(c)}">Ver</button></div>`).join('')}</div>`
-      : `<div class="alerta a-almacen">No encontré la guía ${esc(q)}.</div>`;
-    return;
-  }
-  const carga = db.cargas[g.cargaId];
-  const ultDev = [...g.historial].reverse().find(e => e.accion === 'Devuelta por mensajero');
-  const fall = [...g.historial].reverse().find(e => e.accion === 'Fallido devolución');
-  let aviso;
-  if (g.estado === 'fallido') aviso = `<div class="alerta a-fallido">Esta guía fue devuelta al almacén principal (Fallido devolución) el ${esc(fall ? fall.at.slice(0, 10) : '')}.${fall && fall.motivo ? ' Motivo: ' + esc(fall.motivo) + '.' : ''} Ya no está en la oficina ni con un mensajero.</div>`;
-  else if (g.estado === 'almacen') aviso = `<div class="alerta a-almacen">Esta guía está en oficina${ultDev ? `, devuelta por ${esc(ultDev.de)} el ${esc(ultDev.at.slice(0, 10))}` : ''}.</div>`;
-  else if (g.estado === 'entregada') aviso = `<div class="alerta a-ok">Esta guía fue entregada por ${esc(nombreM(g.mensajeroId))}.</div>`;
-  else aviso = `<div class="alerta a-ok">Esta guía está en ruta con ${esc(nombreM(g.mensajeroId))}.</div>`;
-  box.innerHTML = `
-    ${aviso}
-    <div class="panel">
-      <div class="panel-head"><div><div class="small-muted">Guía</div><div class="code" style="font-size:20px">${esc(g.codigo)}</div></div><div>${badge(g.estado)}</div></div>
-      <div class="grid-2" style="font-size:13px">
-        <div><span class="small-muted">Mensajero actual:</span> ${esc(nombreM(g.mensajeroId))}</div>
-        <div><span class="small-muted">Carga:</span> ${carga ? esc(carga.fecha + ' · ' + (carga.cerrada ? 'cerrada' : 'abierta')) : '—'}</div>
-        <div><span class="small-muted">Zona:</span> ${esc(g.ciudad || '—')}</div>
-        <div><span class="small-muted">Entró:</span> ${esc(g.creada)}</div>
-        <div><span class="small-muted">Último movimiento:</span> ${esc(g.ultimoMov)}</div>
-        <div><span class="small-muted">Origen:</span> ${esc(g.origen)}</div>
+  <!-- Terminar ruta: marcar entregadas -->
+  <div id="tPanel" class="oculto">
+    <div class="caja">
+      <h2 id="tTitulo"></h2>
+      <div class="small">Marca las guías que sí se entregaron. Las que no marques siguen en ruta.</div>
+      <div class="lista" id="tLista"></div>
+      <div class="row" style="justify-content:flex-end">
+        <button class="outline" id="tCancelar">Cancelar</button>
+        <button class="primary" id="tConfirmar">Confirmar entregas</button>
       </div>
-      <h2 style="margin:16px 0 8px">Historial completo</h2>
-      <div class="table-wrap"><table><thead><tr><th>Cuándo</th><th>Acción</th><th>De</th><th>A</th><th>Motivo / detalle</th></tr></thead><tbody>
-      ${[...g.historial].reverse().map(e => `<tr><td>${esc(e.at)}</td><td>${esc(e.accion)}</td><td>${esc(e.de || '—')}</td><td>${esc(e.a || '—')}</td><td>${esc([e.motivo, e.detalle].filter(Boolean).join(' · '))}</td></tr>`).join('')}
-      </tbody></table></div>
-    </div>`;
-}
+    </div>
+  </div>
+</div>
 
-function renderCalendario() {
-  const { mes } = periodoActual();
-  const [y, m] = mes.split('-').map(Number);
-  const primero = new Date(y, m - 1, 1).getDay();
-  const dias = new Date(y, m, 0).getDate();
-  const cuenta = {};
-  const sumar = (f, k) => {
-    if (!f) return;
-    cuenta[f] = cuenta[f] || { nuevos: 0, entregadas: 0, devueltas: 0, fallidos: 0 };
-    cuenta[f][k]++;
-  };
-  Object.values(db.guias).forEach(g => {
-    sumar(g.creada, 'nuevos');
-    const marcas = new Set();
-    g.historial.forEach(e => {
-      const d = (e.at || '').slice(0, 10);
-      const tipo = { 'Entregada': 'entregadas', 'Devuelta por mensajero': 'devueltas', 'Fallido devolución': 'fallidos' }[e.accion];
-      if (tipo && !marcas.has(tipo + d)) { marcas.add(tipo + d); sumar(d, tipo); }
-    });
-  });
-  let html = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'].map(d => `<div class="cal-h">${d}</div>`).join('');
-  for (let i = 0; i < primero; i++) html += '<div></div>';
-  for (let d = 1; d <= dias; d++) {
-    const f = `${y}-${pad(m)}-${pad(d)}`;
-    if (!enPeriodo(f)) { html += `<div class="day vacio"><div class="num">${d}</div></div>`; continue; }
-    const c = cuenta[f] || { nuevos: 0, entregadas: 0, devueltas: 0, fallidos: 0 };
-    html += `<div class="day ${c.nuevos ? 'nuevo' : ''}" data-dia="${f}">
-      <div class="num">${d}${c.nuevos ? `<span class="tag">+${c.nuevos} nuevos</span>` : ''}</div>
-      <span class="dot">Entregas <b>${c.entregadas}</b></span>
-      <span class="dot">Devueltas <b>${c.devueltas}</b></span>
-      <span class="dot">Fallidos <b>${c.fallidos}</b></span></div>`;
-  }
-  $('calGrid').innerHTML = html;
-  if (calDia) renderCalDetalle(calDia);
-}
+<div id="toast"></div>
 
-function renderCalDetalle(f) {
-  const filas = [];
-  Object.values(db.guias).forEach(g => {
-    if (g.creada === f) filas.push({ at: g.creada + ' 00:00:00', codigo: g.codigo, accion: 'Entró (pedido nuevo)', mens: nombreM(g.mensajeroId), det: g.origen });
-    g.historial.forEach(e => { if ((e.at || '').slice(0, 10) === f) filas.push({ at: e.at, codigo: g.codigo, accion: e.accion, mens: e.a || e.de || '—', det: [e.motivo, e.detalle].filter(Boolean).join(' · ') }); });
-  });
-  filas.sort((a, b) => b.at.localeCompare(a.at));
-  if (!enPeriodo(f)) { $('calDetalleBox').classList.add('hidden'); return; }
-  $('calDetalleBox').classList.remove('hidden');
-  $('calDetalleTitulo').textContent = `Movimientos del ${f} (${filas.length})`;
-  $('calDetalle').innerHTML = filas.map(x =>
-    `<tr><td>${esc(x.at.slice(11, 16))}</td><td class="code">${esc(x.codigo)}</td><td>${esc(x.accion)}</td><td>${esc(x.mens)}</td><td>${esc(x.det)}</td></tr>`
-  ).join('') || '<tr><td colspan="5" class="small-muted">Sin movimientos ese día.</td></tr>';
-}
-
-function renderGuias() {
-  llenarSelect('gMens', true);
-  const { ini, fin } = periodoActual();
-  const mid = $('gMens').value, est = $('gEstado').value, t = $('gTexto').value.trim().toLowerCase();
-  const lista = Object.values(db.guias).filter(g => {
-    const u = (g.ultimoMov || '').slice(0, 10);
-    const enP = (g.creada >= ini && g.creada <= fin) || (u >= ini && u <= fin);
-    return enP && (!mid || g.mensajeroId === mid) && (!est || g.estado === est) &&
-      (!t || g.codigo.includes(t) || nombreM(g.mensajeroId).toLowerCase().includes(t) || (g.ciudad || '').toLowerCase().includes(t));
-  }).sort((a, b) => (b.ultimoMov || '').localeCompare(a.ultimoMov || ''));
-  $('tablaGuias').innerHTML = lista.slice(0, 500).map(g => {
-    const c = db.cargas[g.cargaId];
-    return `<tr><td class="code">${esc(g.codigo)}</td><td>${badge(g.estado)}</td><td>${esc(nombreM(g.mensajeroId))}</td>
-      <td>${c ? esc(c.fecha) : '—'}</td><td>${esc(g.ciudad || '—')}</td><td>${esc(g.creada)}</td><td>${esc(g.ultimoMov)}</td>
-      <td class="row"><button class="outline small-btn" data-buscar="${esc(g.codigo)}">Historial</button>
-      <button class="outline small-btn" data-g="zona" data-codigo="${esc(g.codigo)}">Zona</button>
-      ${g.estado === 'asignada' ? `<button class="outline small-btn" data-g="reasignar" data-codigo="${esc(g.codigo)}">Reasignar</button>` : ''}</td></tr>`;
-  }).join('') || '<tr><td colspan="8" class="small-muted">Sin guías con estos filtros.</td></tr>';
-  $('infoGuias').textContent = lista.length > 500 ? `Mostrando 500 de ${lista.length}` : `${lista.length} guías`;
-}
-
-function renderMensajeros() {
-  const lista = Object.values(db.mensajeros).sort((a, b) => a.nombre.localeCompare(b.nombre));
-  $('tablaMensajeros').innerHTML = lista.map(m => {
-    const ruta = Object.values(db.guias).filter(g => g.mensajeroId === m.id && g.estado === 'asignada').length;
-    return `<tr><td>${esc(m.nombre)}</td><td>${esc(m.zona || '—')}</td>
-      <td><span class="badge ${m.activo ? 'b-entregada' : 'b-cerrada'}">${m.activo ? 'Activo' : 'Inactivo'}</span></td>
-      <td>${ruta}</td>
-      <td class="row">
-        <button class="outline small-btn" data-m="renombrar" data-id="${esc(m.id)}">Renombrar</button>
-        <button class="outline small-btn" data-m="zona" data-id="${esc(m.id)}">Zona</button>
-        <button class="outline small-btn" data-m="estado" data-id="${esc(m.id)}">${m.activo ? 'Desactivar' : 'Activar'}</button>
-      </td></tr>`;
-  }).join('') || '<tr><td colspan="5" class="small-muted">Todavía no hay mensajeros.</td></tr>';
-}
-
-function renderZonas() {
-  const { ini, fin } = periodoActual();
-  const tipo = $('mapaTipo').value;
-  const conteo = {};
-  Object.values(db.guias).filter(g => g.creada >= ini && g.creada <= fin).forEach(g => {
-    const k = tipo === 'zip' ? (g.zip || 'Sin código') : (g.ciudad || 'Sin zona');
-    conteo[k] = (conteo[k] || 0) + 1;
-  });
-  const ent = Object.entries(conteo).sort((a, b) => b[1] - a[1]);
-  const max = Math.max(...ent.map(e => e[1]), 1);
-  $('mapaTiles').innerHTML = ent.map(([k, n]) =>
-    `<div class="zona" style="background:rgba(138,180,248,${(0.12 + 0.6 * n / max).toFixed(2)})"><span>${esc(k)}</span><b>${n}</b></div>`
-  ).join('') || '<div class="small-muted">Sin pedidos en este período.</div>';
-}
-
-function renderConfig() { $('archivoNombre').value = nombreArchivo(); pintarDrive(); }
-
-function renderAll() {
-  renderPanel(); renderRegistrar(); renderEscaner(); renderCargas(); renderDevoluciones();
-  renderBuscador(); renderCalendario(); renderGuias(); renderMensajeros(); renderZonas(); renderConfig();
-}
-
-function mostrar(v) {
-  document.querySelectorAll('.view').forEach(x => x.style.display = x.id === 'v-' + v ? 'block' : 'none');
-  document.querySelectorAll('.nav').forEach(n => n.classList.toggle('active', n.dataset.view === v));
-  document.querySelector('.crumb').textContent = 'Inicio › ' + ETIQ[v];
-  if (v === 'escaner') setTimeout(() => { if (!$('scanInput').disabled) $('scanInput').focus(); }, 50);
-}
-
-/* ================= REASIGNAR FLOTANTE ================= */
-function abrirReasignar(codigos, titulo) {
-  reasState.codigos = codigos;
-  $('reasTitulo').textContent = titulo;
-  $('reasDetalle').textContent = `${codigos.length} guía(s) en ruta`;
-  llenarSelect('reasSelect', false);
-  $('panelReasignar').style.display = 'flex';
-}
-function cerrarReasignar() { $('panelReasignar').style.display = 'none'; reasState = { codigos: [] }; }
-$('btnReasConfirmar').onclick = () => {
-  const mid = $('reasSelect').value;
-  if (!mid) { notify('Selecciona un mensajero activo'); return; }
-  const n = reasignarEnRuta(reasState.codigos, mid);
-  notify(n ? `${n} guía(s) pasadas a ${nombreM(mid)}` : 'Ninguna guía cambió de mensajero');
-  cerrarReasignar(); cambio();
-};
-$('btnReasCancelar').onclick = cerrarReasignar;
-
-/* ================= REGISTRAR PEGADO ================= */
-function mostrarRepetidas() {
-  const box = $('repetidasRegistrar');
-  if (!borrador || !borrador.repetidas.length) { box.innerHTML = ''; return; }
-  box.innerHTML = '<div class="small-muted" style="margin-bottom:6px">Repetidas (ya están en ruta):</div>' +
-    borrador.repetidas.map(it => {
-      const g = db.guias[it.codigo];
-      return `<div class="item"><span class="code">${esc(it.codigo)}</span><span class="warn-t">${esc(nombreM(g.mensajeroId))} · ${esc(g.creada)}</span></div>`;
-    }).join('');
-}
-$('btnValidar').onclick = () => {
-  const texto = $('bulk').value;
-  if (!texto.trim()) { notify('Pega primero las guías'); return; }
-  borrador = parseEntrada(texto);
-  const total = borrador.nuevas.length + borrador.repetidas.length;
-  if (!total) { $('bulkResult').textContent = 'No encontré guías en el texto.'; borrador = null; }
-  else $('bulkResult').textContent = `${total} guías detectadas · ${borrador.nuevas.length} nuevas · ${borrador.repetidas.length} repetidas · ${borrador.duplicadas} duplicadas en el texto`;
-  mostrarRepetidas(); renderRegistrar();
-};
-$('btnLimpiarBulk').onclick = () => {
-  $('bulk').value = ''; $('bulkResult').textContent = ''; $('resumenAsignar').textContent = '';
-  borrador = null; $('repetidasRegistrar').innerHTML = ''; renderRegistrar();
-};
-$('btnAsignar').onclick = () => {
-  const mid = $('selRegistrar').value;
-  if (!mid) { notify('Selecciona un mensajero'); return; }
-  if (!borrador || !borrador.nuevas.length) { notify('Valida primero'); return; }
-  const fecha = $('fechaRegistrar').value || hoyYmd();
-  const zonaForm = $('zonaRegistrar').value.trim();
-  const carga = cargaAbierta(mid, fecha);
-  borrador.nuevas.forEach(it => asignarA(it.codigo, mid, carga, {
-    fecha, ciudad: zonaForm || it.ciudad || '', zip: it.zip || '', origen: it.ofd ? 'Rastreo pegado' : 'Pegado de datos'
-  }));
-  $('resumenAsignar').textContent = `Listo: ${borrador.nuevas.length} asignadas a ${nombreM(mid)}` + (borrador.repetidas.length ? ` · ${borrador.repetidas.length} repetidas sin cambios` : '');
-  borrador = null; $('bulk').value = ''; $('bulkResult').textContent = ''; $('repetidasRegistrar').innerHTML = '';
-  cambio();
-};
-$('btnReasignarRep').onclick = () => {
-  const mid = $('selRegistrar').value;
-  if (!mid || !borrador || !borrador.repetidas.length) { notify('Selecciona mensajero y valida'); return; }
-  const n = reasignarEnRuta(borrador.repetidas.map(x => x.codigo), mid);
-  $('resumenAsignar').textContent = `Reasignadas ${n} repetidas a ${nombreM(mid)}`;
-  borrador = null; $('bulk').value = ''; $('bulkResult').textContent = ''; $('repetidasRegistrar').innerHTML = '';
-  notify(`${n} guía(s) reasignadas`); cambio();
-};
-$('btnTerminarRegistro').onclick = () => terminarSeccion('Registro terminado');
-
-/* ================= ESCÁNER ================= */
-function procesarEscaneo(valor) {
-  const codigo = (valor || '').trim();
-  const input = $('scanInput');
-  input.value = ''; input.focus();
-  if (!codigo) return;
-  if (!/^\d{8,20}$/.test(codigo)) { sesionRep.unshift({ codigo, detalle: 'Formato no válido', reasignable: false }); return renderEscaner(); }
-  const modo = $('modoEscaner').value;
-  const g = db.guias[codigo];
-
-  if (modo === 'asignar') {
-    const mid = $('selEscaner').value;
-    if (!mid) { notify('Selecciona un mensajero'); return; }
-    if (sesionOk.some(s => s.codigo === codigo) || sesionRep.some(s => s.codigo === codigo)) {
-      sesionRep.unshift({ codigo, detalle: 'Ya escaneada en esta sección', reasignable: false }); return renderEscaner();
-    }
-    if (g && g.estado === 'asignada') {
-      sesionRep.unshift({ codigo, detalle: `Ya está en ruta con ${nombreM(g.mensajeroId)} · ${g.creada}`, reasignable: g.mensajeroId !== mid });
-      return renderEscaner();
-    }
-    const fecha = $('fechaEscaner').value || hoyYmd();
-    const carga = cargaAbierta(mid, fecha);
-    const tipo = asignarA(codigo, mid, carga, { fecha, ciudad: $('zonaEscaner').value.trim(), origen: 'Escáner' });
-    sesionOk.unshift({ codigo, texto: `→ ${nombreM(mid)}${tipo === 'ciclo' ? ' (nuevo ciclo)' : ''}` });
-    return cambio();
-  }
-
-  if (modo === 'devolucion') {
-    if (!g) { sesionRep.unshift({ codigo, detalle: 'No existe en la base', reasignable: false }); return renderEscaner(); }
-    if (g.estado !== 'asignada') { sesionRep.unshift({ codigo, detalle: `Estado actual: ${ESTADO_TXT[g.estado]}`, reasignable: false }); return renderEscaner(); }
-    const de = nombreM(g.mensajeroId);
-    devolverDeMensajero(g);
-    sesionOk.unshift({ codigo, texto: `↩ Devuelta por ${de} → oficina` });
-    return cambio();
-  }
-
-  if (modo === 'fallido') {
-    if (!g) { sesionRep.unshift({ codigo, detalle: 'No existe en la base', reasignable: false }); return renderEscaner(); }
-    if (!['asignada', 'almacen'].includes(g.estado)) {
-      sesionRep.unshift({ codigo, detalle: `Estado actual: ${ESTADO_TXT[g.estado]}. No se puede despachar.`, reasignable: false }); return renderEscaner();
-    }
-    const motivo = $('motivoEscaner').value;
-    const via = g.estado === 'asignada' ? ` (devuelta por ${nombreM(g.mensajeroId)})` : '';
-    despacharFallido(g, motivo);
-    sesionOk.unshift({ codigo, texto: `✕ Fallido devolución${via}${motivo ? ' · ' + motivo : ''}` });
-    return cambio();
-  }
-}
-
-$('scanInput').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); procesarEscaneo($('scanInput').value); } });
-$('btnAgregarScan').onclick = () => procesarEscaneo($('scanInput').value);
-$('modoEscaner').onchange = renderEscaner;
-$('btnVaciarScan').onclick = () => { sesionOk = []; sesionRep = []; renderEscaner(); };
-$('btnTerminarEscaner').onclick = () => terminarSeccion('Sección terminada');
-$('listaRep').addEventListener('click', e => {
-  const b = e.target.closest('button[data-rep]');
-  if (!b) return;
-  const mid = $('selEscaner').value;
-  const codigo = b.dataset.rep;
-  if (reasignarEnRuta([codigo], mid)) {
-    sesionRep = sesionRep.filter(s => s.codigo !== codigo);
-    sesionOk.unshift({ codigo, texto: `↺ Reasignada a ${nombreM(mid)}` });
-    notify('Guía reasignada'); cambio();
-  }
-});
-
-/* ================= CARGAS ================= */
-$('tablaCargas').addEventListener('click', e => {
-  const b = e.target.closest('button[data-carga]');
-  if (!b) return;
-  const c = db.cargas[b.dataset.id];
-  if (!c) return;
-  if (b.dataset.carga === 'ver') { cargaSel = c.id; renderCargas(); }
-  if (b.dataset.carga === 'pasar') abrirReasignar(guiasDeCarga(c.id).filter(g => g.estado === 'asignada').map(g => g.codigo), `Pasar ruta de ${nombreM(c.mensajeroId)} (${c.fecha})`);
-});
-$('tablaCargas').addEventListener('change', e => {
-  const i = e.target.closest('input[data-conteo]');
-  if (!i || !db.cargas[i.dataset.conteo]) return;
-  db.cargas[i.dataset.conteo].conteoEntregados = i.value;
-  cambio();
-});
-$('btnTerminarRuta').onclick = () => {
-  if (!cargaSel) return;
-  const n = terminarRuta(cargaSel);
-  notify(`Ruta terminada: ${n} guía(s) registradas como entregadas`);
-  cambio();
-};
-$('btnReabrirCarga').onclick = () => {
-  if (!cargaSel) return;
-  if (!confirm('¿Reabrir esta carga? Las guías entregadas volverán a estar en ruta.')) return;
-  const n = reabrirCarga(cargaSel);
-  notify(`Carga reabierta: ${n} guía(s) vuelven a ruta`);
-  cambio();
-};
-$('cargaGuias').addEventListener('click', e => {
-  const b = e.target.closest('button[data-cg="devolver"]');
-  if (!b) return;
-  const g = db.guias[b.dataset.codigo];
-  if (!g || g.estado !== 'asignada') return;
-  devolverDeMensajero(g);
-  notify('Guía devuelta a oficina');
-  cambio();
-});
-
-/* ================= DEVOLUCIONES ================= */
-$('v-devoluciones').addEventListener('click', e => {
-  const b = e.target.closest('button[data-dev]');
-  if (!b) return;
-  const g = db.guias[b.dataset.codigo];
-  if (!g) return;
-  if (b.dataset.dev === 'fallido') {
-    if (!['asignada', 'almacen'].includes(g.estado)) { notify('La guía ya no está en oficina'); return; }
-    const motivo = prompt('Motivo (opcional). Déjalo vacío si no aplica:', '');
-    if (motivo === null) return;
-    despacharFallido(g, motivo.trim());
-  } else if (b.dataset.dev === 'reenviar' && g.estado === 'almacen') {
-    const nombre = prompt('Escribe el nombre exacto del mensajero que lo recibe:');
-    const m = Object.values(db.mensajeros).find(x => x.activo && nombre && x.nombre.toLowerCase() === nombre.trim().toLowerCase());
-    if (!m) { notify('No encontré ese mensajero activo'); return; }
-    asignarA(g.codigo, m.id, cargaAbierta(m.id, hoyYmd()), { fecha: hoyYmd(), ciudad: g.ciudad, zip: g.zip, origen: 'Oficina' });
-  } else return;
-  cambio();
-});
-
-/* ================= BUSCADOR, GUÍAS, CALENDARIO ================= */
-$('btnBuscar').onclick = renderBuscador;
-$('buscadorInput').addEventListener('keydown', e => { if (e.key === 'Enter') renderBuscador(); });
-$('buscadorInput').oninput = renderBuscador;
-$('buscarTop').addEventListener('keydown', e => {
-  if (e.key !== 'Enter') return;
-  $('buscadorInput').value = $('buscarTop').value.trim();
-  mostrar('buscador'); renderBuscador();
-});
-document.addEventListener('click', e => {
-  const b = e.target.closest('button[data-buscar]');
-  if (!b) return;
-  $('buscadorInput').value = b.dataset.buscar;
-  mostrar('buscador'); renderBuscador();
-});
-$('gMens').onchange = renderGuias;
-$('gEstado').onchange = renderGuias;
-$('gTexto').oninput = renderGuias;
-$('tablaGuias').addEventListener('click', e => {
-  const b = e.target.closest('button[data-g]');
-  if (!b) return;
-  const g = db.guias[b.dataset.codigo];
-  if (!g) return;
-  if (b.dataset.g === 'zona') {
-    const z = prompt(`Zona para la guía ${g.codigo}`, g.ciudad || '');
-    if (z === null) return;
-    const anterior = g.ciudad || 'Sin zona';
-    g.ciudad = z.trim();
-    evento(g, 'Zona cambiada', anterior, g.ciudad, '');
-    cambio();
-  } else if (b.dataset.g === 'reasignar') {
-    abrirReasignar([g.codigo], `Reasignar ${g.codigo}`);
-  }
-});
-$('btnTxtGuias').onclick = () => {
-  const { ini, fin } = periodoActual();
-  const lista = Object.values(db.guias).filter(g => g.creada >= ini && g.creada <= fin);
-  if (!lista.length) { notify('No hay guías en el período'); return; }
-  const grupos = {};
-  lista.forEach(g => (grupos[nombreM(g.mensajeroId)] ||= []).push(`${g.codigo}\t${ESTADO_TXT[g.estado]}`));
-  const txt = Object.keys(grupos).sort().map(n => `MENSAJERO: ${n}\nTOTAL: ${grupos[n].length}\n${grupos[n].join('\n')}`).join('\n\n');
-  descargar(`guias_${ini}_a_${fin}.txt`, txt, 'text/plain;charset=utf-8');
-};
-$('btnExportPanel').onclick = () => $('btnTxtGuias').click();
-$('calGrid').addEventListener('click', e => {
-  const d = e.target.closest('.day');
-  if (!d) return;
-  calDia = d.dataset.dia;
-  renderCalDetalle(calDia);
-});
-$('mapaTipo').onchange = renderZonas;
-
-/* ================= MENSAJEROS ================= */
-$('btnNuevoMens').onclick = () => {
-  const nombre = $('nuevoNombre').value.trim(), zona = $('nuevaZona').value.trim();
-  if (!nombre) { notify('Escribe el nombre'); return; }
-  if (Object.values(db.mensajeros).some(m => m.nombre.toLowerCase() === nombre.toLowerCase())) { notify('Ya existe ese mensajero'); return; }
-  const id = nuevoId('m');
-  db.mensajeros[id] = { id, nombre, zona, activo: true };
-  $('nuevoNombre').value = ''; $('nuevaZona').value = '';
-  notify('Mensajero registrado'); cambio();
-};
-$('tablaMensajeros').addEventListener('click', e => {
-  const b = e.target.closest('button[data-m]');
-  if (!b) return;
-  const m = db.mensajeros[b.dataset.id];
-  if (!m) return;
-  if (b.dataset.m === 'renombrar') {
-    const n = prompt('Nuevo nombre', m.nombre);
-    if (!n || !n.trim()) return;
-    if (Object.values(db.mensajeros).some(x => x.id !== m.id && x.nombre.toLowerCase() === n.trim().toLowerCase())) { notify('Ya existe ese nombre'); return; }
-    m.nombre = n.trim();
-  } else if (b.dataset.m === 'zona') {
-    const z = prompt('Zona habitual', m.zona || ''); if (z === null) return; m.zona = z.trim();
-  } else if (b.dataset.m === 'estado') m.activo = !m.activo;
-  cambio();
-});
-
-/* ================= CONFIG ================= */
-$('archivoNombre').onchange = () => {
-  let n = $('archivoNombre').value.trim() || ARCHIVO_DEFAULT;
-  if (!n.toLowerCase().endsWith('.json')) n += '.json';
-  localStorage.setItem(LS_FILE, n); driveFileId = null;
-  notify('Nombre guardado'); renderConfig();
-};
-$('btnConectar').onclick = conectarDrive;
-$('btnGuardarAhora').onclick = async () => { if (!driveConectado) conectarDrive(); else { const ok = await guardarDrive(); notify(ok ? 'Guardado en Drive' : 'No se pudo guardar'); } };
-$('btnDescargarCopia').onclick = () => descargar(`base_guias_${hoyYmd()}.json`, JSON.stringify(db, null, 2), 'application/json');
-$('btnCargarLocal').onclick = () => $('fileLocal').click();
-$('fileLocal').onchange = e => {
-  const f = e.target.files[0]; if (!f) return;
-  const lector = new FileReader();
-  lector.onload = () => {
-    try { db = mergeDB(JSON.parse(lector.result), db); cambio(); notify('Archivo cargado y unido'); }
-    catch (err) { notify('El archivo no tiene el formato correcto'); }
-  };
-  lector.readAsText(f); e.target.value = '';
-};
-$('btnBorrar').onclick = () => {
-  if (!confirm('¿Borrar la base de este equipo? Si está en Drive, se conserva ahí.')) return;
-  db = vacio(); sesionOk = []; sesionRep = []; cargaSel = null; cambio(); notify('Base de este equipo borrada');
-};
-
-['pMes', 'pQuin'].forEach(id => $(id).onchange = renderAll);
-document.querySelectorAll('.nav').forEach(n => n.onclick = () => mostrar(n.dataset.view));
-
-/* ================= GENERADOR DE CÓDIGOS DE BARRAS ================= */
-// Patrones oficiales Code 128
-const patterns = [
-"212222","222122","222221","121223","121322","131222",
-"122213","122312","132212","221213","221312","231212",
-"112232","122132","122231","113222","123122","123221",
-"223211","221132","221231","213212","223112","312131",
-"311222","321122","321221","312212","322112","322211",
-"212123","212321","232121","111323","131123","131321",
-"112313","132113","132311","211313","231113","231311",
-"112133","112331","132131","113123","113321","133121",
-"313121","211331","231131","213113","213311","213131",
-"311123","311321","331121","312113","312311","332111",
-"314111","221411","431111","111224","111422","121124",
-"121421","141122","141221","112214","112412","122114",
-"122411","142112","142211","241211","221114","413111",
-"241112","134111","111242","121142","121241","114212",
-"124112","124211","411212","421112","421211","212141",
-"214121","412121","111143","111341","131141","114113",
-"114311","411113","411311","113141","114131","311141",
-"411131","211412","211214","211232","2331112"
-];
-
-// Convierte texto a Code 128 B
-function encode128(text) {
-    const values = [];
-    for (let i = 0; i < text.length; i++) {
-        const c = text.charCodeAt(i);
-        if (c < 32 || c > 126) throw new Error("Solo se permiten caracteres ASCII imprimibles.");
-        values.push(c - 32);
-    }
-    let checksum = 104;
-    values.forEach((v, i) => { checksum += v * (i + 1); });
-    checksum %= 103;
-    const sequence = [104, ...values, checksum, 106];
-    return sequence.map(v => patterns[v]).join("");
-}
-
-// Genera SVG del código
-function makeSVG(value) {
-    const pattern = encode128(value);
-    const barWidth = Math.max(1, Number(document.getElementById("width").value) || 2);
-    const height = Math.max(10, Number(document.getElementById("height").value) || 22) * 3.78;
-    const quiet = 10 * barWidth;
-    let x = quiet, black = true, bars = "";
-    for (const digit of pattern) {
-        const w = Number(digit) * barWidth;
-        if (black) bars += `<rect x="${x}" y="0" width="${w}" height="${height}" fill="black"/>`;
-        x += w;
-        black = !black;
-    }
-    const totalWidth = x + quiet;
-    return `
-    <svg xmlns="http://www.w3.org/2000/svg"
-         viewBox="0 0 ${totalWidth} ${height + 5}"
-         role="img" aria-label="Código de barras ${value}">
-        ${bars}
-    </svg>`;
-}
-
-// Expresión que detecta números de seguimiento de 13 dígitos
-function buildRegex() {
-    const prefix = document.getElementById("prefix").value.replace(/\D/g, "");
-    const len = 13 - prefix.length;
-    if (len < 1) return null;
-    return new RegExp(`(?<!\\d)(${prefix}\\d{${len}})(?!\\d)`, "g");
-}
-
-// Extrae códigos únicos de cualquier texto, en orden de aparición
-function extractCodes(text) {
-    const re = buildRegex();
-    if (!re) return { codes: [], total: 0 };
-    const found = text.match(re) || [];
-    return { codes: [...new Set(found)], total: found.length };
-}
-
-function getCodes() { return extractCodes(document.getElementById("codes").value).codes; }
-
-function showError(msg) { document.getElementById("error").textContent = msg; }
-
-// Limpia el texto del área y deja solo los códigos, uno por línea
-function cleanCodes() {
-    const ta = document.getElementById("codes");
-    const { codes, total } = extractCodes(ta.value);
-    const info = document.getElementById("info");
-    if (!codes.length) {
-        info.textContent = "";
-        showError("No se encontraron códigos con el formato indicado.");
-        return codes;
-    }
-    ta.value = codes.join("\n");
-    showError("");
-    const dup = total - codes.length;
-    info.textContent = `${codes.length} códigos únicos detectados` +
-        (dup > 0 ? ` (${dup} duplicados eliminados)` : "") + ".";
-    return codes;
-}
-
-// Generador principal
-function generate() {
-    const codes = cleanCodes();
-    const results = document.getElementById("results");
-    const stats = document.getElementById("stats");
-    results.innerHTML = "";
-    stats.textContent = "0 códigos generados";
-    if (!codes.length) return;
-    let generated = 0;
-    const invalid = [];
-    codes.forEach(code => {
-        try {
-            const item = document.createElement("div");
-            item.className = "label";
-            const graphic = document.createElement("div");
-            graphic.innerHTML = makeSVG(code);
-            const number = document.createElement("div");
-            number.className = "tracking";
-            number.textContent = code;
-            item.appendChild(graphic);
-            item.appendChild(number);
-            results.appendChild(item);
-            generated++;
-        } catch (e) {
-            invalid.push(code);
-        }
-    });
-    stats.textContent = generated + " códigos generados";
-    if (invalid.length) showError("Códigos inválidos: " + invalid.join(", "));
-}
-
-// Exportar códigos como CSV
-function downloadCSV() {
-    const codes = [...document.querySelectorAll("#results .tracking")].map(el => el.textContent);
-    if (!codes.length) { notify("Primero genera los códigos."); return; }
-    const content = "Codigo\n" + codes.join("\n");
-    const blob = new Blob(["\uFEFF" + content], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "codigos_seguimiento.csv";
-    a.click();
-    URL.revokeObjectURL(url);
-}
-
-function clearAll() {
-    document.getElementById("codes").value = "";
-    document.getElementById("results").innerHTML = "";
-    document.getElementById("stats").textContent = "0 códigos generados";
-    document.getElementById("info").textContent = "";
-    document.getElementById("error").textContent = "";
-}
-
-// Limpieza automática al pegar texto
-document.getElementById("codes").addEventListener("paste", () => { setTimeout(generate, 0); });
-
-// ---------- Modo créditos ----------
-let creditSpeed = 60, creditsY = 0, creditsRunning = false, paused = false, lastTs = 0, rafId = null;
-
-function setSpeed(v) {
-    creditSpeed = Number(v);
-    document.getElementById("speed").value = v;
-    document.getElementById("speed2").value = v;
-    document.getElementById("speedVal").textContent = v;
-    document.getElementById("speedVal2").textContent = v;
-}
-
-function openCredits() {
-    const codes = getCodes();
-    if (!codes.length) { showError("Primero pega o genera los códigos para usar el modo créditos."); return; }
-    const track = document.getElementById("creditsTrack");
-    track.innerHTML = codes.map(c =>
-        `<div class="credit-item">${makeSVG(c)}<div class="credit-num">${c}</div></div>`
-    ).join("");
-    document.getElementById("credits").classList.add("open");
-    creditsY = -track.offsetHeight;
-    paused = false;
-    lastTs = 0;
-    document.getElementById("playBtn").textContent = "Pausa";
-    if (!creditsRunning) {
-        creditsRunning = true;
-        rafId = requestAnimationFrame(step);
-    }
-}
-
-function step(ts) {
-    if (!lastTs) lastTs = ts;
-    const dt = (ts - lastTs) / 1000;
-    lastTs = ts;
-    if (!paused && document.getElementById("credits").classList.contains("open")) {
-        const track = document.getElementById("creditsTrack");
-        creditsY += creditSpeed * dt;
-        if (creditsY > window.innerHeight) creditsY = -track.offsetHeight;
-        track.style.transform = `translate3d(0, ${creditsY}px, 0)`;
-    }
-    rafId = requestAnimationFrame(step);
-}
-
-function togglePlay() {
-    paused = !paused;
-    document.getElementById("playBtn").textContent = paused ? "Reanudar" : "Pausa";
-}
-
-function closeCredits() {
-    document.getElementById("credits").classList.remove("open");
-    document.getElementById("creditsTrack").innerHTML = "";
-    creditsRunning = false;
-    cancelAnimationFrame(rafId);
-}
-
-document.addEventListener("keydown", e => {
-    if (!document.getElementById("credits").classList.contains("open")) return;
-    if (e.key === "Escape") closeCredits();
-    if (e.key === " ") { e.preventDefault(); togglePlay(); }
-});
-
-setSpeed(60);
-
-/* ================= ARRANQUE ================= */
-(function arranque() {
-  const hoy = hoyYmd();
-  $('pMes').value = hoy.slice(0, 7);
-  $('pQuin').value = Number(hoy.slice(8, 10)) <= 15 ? '1' : '2';
-  $('fechaRegistrar').value = hoy;
-  $('fechaEscaner').value = hoy;
-  renderAll();
-  mostrar('panel');
-  pintarDrive();
-  initDrive();
-  if (pendiente) setSync('Hay cambios pendientes de guardar en Drive');
-})();
-</script>
+<script type="module" src="js/app.js"></script>
 </body>
 </html>
