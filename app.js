@@ -1,8 +1,10 @@
 import { EMPRESAS } from './config.js';
-import { esc, hoy, ahora, nuevoId, normNombre, nombreReservado, similitud, periodoDe } from './util.js';
+import { esc, pad, hoy, ahora, nuevoId, normNombre, nombreReservado, similitud, periodoDe } from './util.js';
 import { parseEntrada } from './parsers.js';
 import { planificar, evento } from './domain.js';
 import * as D from './data.js';
+import { iniciarLimpiador } from './limpiadores.js';
+import { iniciarBarras } from './barras.js';
 
 const $ = id => document.getElementById(id);
 const ETQ_ESTADO = { asignada: 'En ruta', entregada: 'Entregada', almacen: 'En oficina', fallido: 'Fallido devolución' };
@@ -39,6 +41,8 @@ const VISTAS = {
   devoluciones: () => renderDevoluciones(),
   buscador: () => {},
   mensajeros: () => renderMensajeros(),
+  limpiador: () => iniciarLimpiador(emp, $('limpiadorCont')),
+  barras: () => iniciarBarras(emp, $('barrasCont')),
   config: () => {}
 };
 function mostrarVista(v) {
@@ -379,6 +383,18 @@ async function escanear(valor) {
       return registrarSesion(codigo, 'ok', `→ ${nombreDe(mid)}${g ? ' (nuevo ciclo)' : ''}`);
     }
 
+    if (modo === 'entregada') {
+      if (!g) return registrarSesion(codigo, 'err', 'No existe en la base');
+      if (g.estado !== 'asignada') return registrarSesion(codigo, 'err', `Estado actual: ${ETQ_ESTADO[g.estado]}`);
+      await D.cambiarGuia(emp, codigo, {
+        esperado: ['asignada'],
+        cambios: { estado: 'entregada', ultimoMovimiento: ahora() },
+        eventos: [evento('Entregada', { de: nombreDe(g.mensajeroId), motivo: 'Escáner', usuario })]
+      });
+      if (g.cargaId) await sincronizarCarga(g.cargaId);
+      return registrarSesion(codigo, 'ok', `✔ Entregada · ${nombreDe(g.mensajeroId)}`);
+    }
+
     if (modo === 'devolucion') {
       if (!g) return registrarSesion(codigo, 'err', 'No existe en la base');
       if (g.estado !== 'asignada') return registrarSesion(codigo, 'err', `Estado actual: ${ETQ_ESTADO[g.estado]}`);
@@ -416,100 +432,240 @@ $('sInput').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preven
 $('sBtn').onclick = () => escanear($('sInput').value);
 $('sLimpiar').onclick = () => { sesion = []; renderEscaner(); };
 
-/* ============ CARGAS Y RUTAS ============ */
-async function renderCargas() {
-  if (!$('cDesde').value) { $('cDesde').value = hoy(); $('cHasta').value = hoy(); }
-  const cargas = await D.cargasPeriodo(emp, $('cDesde').value, $('cHasta').value);
-  const filas = await Promise.all(cargas.map(async c => {
-    const gs = await D.guiasDeCarga(emp, c.id);
-    return {
-      c,
-      ruta: gs.filter(g => g.estado === 'asignada').length,
-      ent: gs.filter(g => g.estado === 'entregada').length,
-      dev: gs.filter(g => g.estado === 'almacen' || g.estado === 'fallido').length
-    };
-  }));
-  $('cTabla').innerHTML = filas.sort((a, b) => b.c.fecha.localeCompare(a.c.fecha)).map(({ c, ruta, ent, dev }) => `
-    <tr>
-      <td>${esc(c.fecha)}</td>
-      <td>${esc(nombreDe(c.mensajeroId))}</td>
-      <td><span class="badge ${c.abierta ? 'b-asignada' : 'b-cerrada'}">${c.abierta ? 'Abierta' : 'Cerrada'}</span></td>
-      <td>${ruta}</td><td>${ent}</td><td>${dev}</td>
-      <td class="acciones">
-        ${c.abierta
-          ? `<button class="outline sm" data-carga="terminar" data-id="${esc(c.id)}" data-mid="${esc(c.mensajeroId)}">Terminar ruta</button>`
-          : `<button class="outline sm" data-carga="reabrir" data-id="${esc(c.id)}">Reabrir</button>`}
-      </td>
-    </tr>`).join('') || '<tr><td colspan="7" class="small">No hay cargas en este rango.</td></tr>';
-}
-$('cDesde').onchange = renderCargas;
-$('cHasta').onchange = renderCargas;
+/* ============ CARGAS Y RUTAS (calendario por día) ============ */
+let calMes = hoy().slice(0, 7);
+let diaSel = hoy();
+let cargasMes = [];
+let diaDatos = [];      // [{ c, gs }] del día seleccionado
+let ocupado = false;
 
-$('cTabla').addEventListener('click', async e => {
-  const b = e.target.closest('button[data-carga]');
-  if (!b) return;
-  try {
-    if (b.dataset.carga === 'terminar') await abrirTerminar(b.dataset.id, b.dataset.mid);
-    else await reabrirCarga(b.dataset.id);
-  } catch (err) {
-    toast(errMsg(err));
+async function renderCargas() {
+  await cargarMes();
+  pintarCalendario();
+  await dibujarDia();
+}
+
+async function cargarMes() {
+  const { ini, fin } = periodoDe(calMes, 'm');
+  cargasMes = await D.cargasPeriodo(emp, ini, fin);
+}
+
+function pintarCalendario() {
+  const [y, m] = calMes.split('-').map(Number);
+  const porDia = {};
+  cargasMes.forEach(c => {
+    const x = porDia[c.fecha] || (porDia[c.fecha] = { n: 0, abiertas: 0 });
+    x.n++;
+    if (c.abierta) x.abiertas++;
+  });
+  $('calTitulo').textContent = new Date(y, m - 1, 1).toLocaleDateString('es', { month: 'long', year: 'numeric' });
+  const offset = (new Date(y, m - 1, 1).getDay() + 6) % 7;   // semana empieza en lunes
+  const ult = new Date(y, m, 0).getDate();
+  let h = ['L', 'M', 'M', 'J', 'V', 'S', 'D'].map(d => `<div class="cal-dow">${d}</div>`).join('');
+  for (let i = 0; i < offset; i++) h += '<div class="cal-dia vacio"></div>';
+  for (let d = 1; d <= ult; d++) {
+    const f = `${y}-${pad(m)}-${pad(d)}`;
+    const info = porDia[f];
+    const cls = ['cal-dia', info ? (info.abiertas ? 'abierta' : 'cerrada') : '', f === hoy() ? 'hoy' : '', f === diaSel ? 'sel' : ''].join(' ');
+    h += `<button class="${cls}" data-dia="${f}">${d}<small>${info ? info.n + (info.n > 1 ? ' rutas' : ' ruta') : ''}</small></button>`;
   }
+  $('calGrid').innerHTML = h;
+}
+
+async function moverMes(delta) {
+  const [y, m] = calMes.split('-').map(Number);
+  const d = new Date(y, m - 1 + delta, 1);
+  calMes = `${d.getFullYear()}-${pad(d.getMonth() + 1)}`;
+  await cargarMes();
+  pintarCalendario();
+}
+
+$('calPrev').onclick = () => moverMes(-1).catch(e => toast(errMsg(e)));
+$('calNext').onclick = () => moverMes(1).catch(e => toast(errMsg(e)));
+$('calHoy').onclick = () => { calMes = hoy().slice(0, 7); diaSel = hoy(); renderCargas().catch(e => toast(errMsg(e))); };
+$('calGrid').addEventListener('click', e => {
+  const b = e.target.closest('button[data-dia]');
+  if (!b) return;
+  diaSel = b.dataset.dia;
+  pintarCalendario();
+  dibujarDia().catch(err => toast(errMsg(err)));
 });
 
-// Muestra las guías en ruta para que marques cuáles sí se entregaron
-async function abrirTerminar(cid, mid) {
-  const gs = (await D.guiasDeCarga(emp, cid)).filter(g => g.estado === 'asignada');
-  if (!gs.length) return toast('La ruta no tiene guías en camino');
-  $('tTitulo').textContent = `Terminar ruta · ${nombreDe(mid)} · ${cid.split('_').pop()}`;
-  $('tLista').innerHTML = gs.map(g => `
-    <label class="item">
-      <span><input type="checkbox" value="${esc(g.id)}" checked> <code>${esc(g.id)}</code></span>
-      <small>${esc(g.zona || '')}</small>
-    </label>`).join('');
-  $('tConfirmar').dataset.carga = cid;
-  $('tConfirmar').dataset.mid = mid;
-  $('tPanel').classList.remove('oculto');
-}
+let tokenDia = 0;
+async function dibujarDia() {
+  const token = ++tokenDia;
+  const cont = $('diaDetalle');
+  const [y, m, d] = diaSel.split('-').map(Number);
+  const titulo = new Date(y, m - 1, d).toLocaleDateString('es', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  const cargas = (await D.cargasPeriodo(emp, diaSel, diaSel))
+    .sort((a, b) => nombreDe(a.mensajeroId).localeCompare(nombreDe(b.mensajeroId)));
+  const datos = await Promise.all(cargas.map(async c => ({
+    c, gs: (await D.guiasDeCarga(emp, c.id)).sort((a, b) => a.id.localeCompare(b.id))
+  })));
+  if (token !== tokenDia) return;      // el usuario cambió de día mientras cargaba
+  diaDatos = datos;
 
-$('tCancelar').onclick = () => $('tPanel').classList.add('oculto');
-
-$('tConfirmar').onclick = async () => {
-  const cid = $('tConfirmar').dataset.carga;
-  const mid = $('tConfirmar').dataset.mid;
-  const todas = [...$('tLista').querySelectorAll('input')].map(i => i.value);
-  const entregadas = [...$('tLista').querySelectorAll('input:checked')].map(i => i.value);
-  const quedan = todas.filter(c => !entregadas.includes(c));
-  const usuario = D.emailActual();
-  const ops = [];
-  entregadas.forEach(c => {
-    ops.push({ tipo: 'set', ref: D.refGuia(emp, c), data: { estado: 'entregada', ultimoMovimiento: ahora() }, merge: true });
-    ops.push({ tipo: 'add', ref: D.refGuia(emp, c), data: evento('Entregada', { de: nombreDe(mid), motivo: 'Ruta terminada', usuario }) });
-  });
-  ops.push({ tipo: 'set', ref: D.refCarga(emp, cid), data: { abierta: quedan.length > 0, cerrada: quedan.length ? null : ahora() }, merge: true });
-  try {
-    await D.escribirLote(emp, ops);
-    $('tPanel').classList.add('oculto');
-    toast(`${entregadas.length} entregada(s)${quedan.length ? ` · ${quedan.length} siguen en ruta` : ' · ruta cerrada'}`);
-    renderCargas();
-  } catch (e) {
-    toast('No se guardó: ' + errMsg(e));
+  if (!datos.length) {
+    cont.innerHTML = `<div class="panel"><h2 style="text-transform:capitalize">${esc(titulo)}</h2><div class="small">No hay rutas este día.</div></div>`;
+    return;
   }
-};
 
-async function reabrirCarga(cid) {
-  const gs = (await D.guiasDeCarga(emp, cid)).filter(g => g.estado === 'entregada');
-  if (!confirm(`¿Reabrir la carga? ${gs.length} guía(s) volverán a ruta.`)) return;
-  const usuario = D.emailActual();
-  const ops = [];
-  gs.forEach(g => {
-    ops.push({ tipo: 'set', ref: D.refGuia(emp, g.id), data: { estado: 'asignada', ultimoMovimiento: ahora() }, merge: true });
-    ops.push({ tipo: 'add', ref: D.refGuia(emp, g.id), data: evento('Reabierta', { motivo: 'Carga reabierta', usuario }) });
+  const cuenta = (gs, est) => gs.filter(g => g.estado === est).length;
+  const totRuta = datos.reduce((n, x) => n + cuenta(x.gs, 'asignada'), 0);
+  const totEnt = datos.reduce((n, x) => n + cuenta(x.gs, 'entregada'), 0);
+  const totDev = datos.reduce((n, x) => n + x.gs.filter(g => g.estado === 'almacen' || g.estado === 'fallido').length, 0);
+
+  let h = `<div class="panel">
+    <div class="ruta-head">
+      <div>
+        <h2 style="margin:0;text-transform:capitalize">${esc(titulo)}</h2>
+        <div class="small">${datos.length} ruta(s) · ${totRuta} en ruta · ${totEnt} entregadas · ${totDev} devueltas</div>
+      </div>
+      <div class="acciones">
+        <button class="primary" id="btnSel" data-acc="sel" disabled>Registrar seleccionadas (0)</button>
+        <button class="outline" data-acc="dia" ${totRuta ? '' : 'disabled'}>Marcar todas las del día entregadas</button>
+      </div>
+    </div>
+  </div>`;
+
+  datos.forEach(({ c, gs }) => {
+    const ruta = cuenta(gs, 'asignada'), ent = cuenta(gs, 'entregada');
+    const dev = gs.filter(g => g.estado === 'almacen' || g.estado === 'fallido').length;
+    h += `<div class="panel">
+      <div class="ruta-head">
+        <div>
+          <b>${esc(nombreDe(c.mensajeroId))}</b>
+          <span class="badge ${c.abierta ? 'b-asignada' : 'b-cerrada'}">${c.abierta ? 'Abierta' : 'Cerrada'}</span>
+          <div class="small">${ruta} en ruta · ${ent} entregadas · ${dev} devueltas</div>
+        </div>
+        <div class="acciones">
+          <button class="outline sm" data-acc="selruta" data-cid="${esc(c.id)}" ${ruta ? '' : 'disabled'}>Seleccionar en ruta</button>
+          <button class="outline sm" data-acc="ruta" data-cid="${esc(c.id)}" ${ruta ? '' : 'disabled'}>Todas entregadas</button>
+          <button class="outline sm" data-acc="reabrir" data-cid="${esc(c.id)}" ${ent ? '' : 'disabled'}>Reabrir ruta</button>
+        </div>
+      </div>
+      <details open><summary>${gs.length} guía(s)</summary>
+        <div class="table-wrap"><table>
+          <thead><tr><th></th><th>Guía</th><th>Zona</th><th>Estado</th><th></th></tr></thead>
+          <tbody>${gs.map(g => `<tr>
+            <td>${g.estado === 'asignada' ? `<input type="checkbox" data-sel="${esc(g.id)}" data-cid="${esc(c.id)}">` : ''}</td>
+            <td><code>${esc(g.id)}</code></td>
+            <td>${esc(g.zona || '—')}</td>
+            <td>${badge(g.estado)}</td>
+            <td class="acciones">${g.estado === 'asignada'
+              ? `<button class="outline sm" data-acc="uno" data-id="${esc(g.id)}" data-cid="${esc(c.id)}">Entregada</button>`
+              : g.estado === 'entregada'
+                ? `<button class="outline sm" data-acc="deshacer" data-id="${esc(g.id)}" data-cid="${esc(c.id)}">Deshacer</button>`
+                : ''}</td>
+          </tr>`).join('')}</tbody>
+        </table></div>
+      </details>
+    </div>`;
   });
-  ops.push({ tipo: 'set', ref: D.refCarga(emp, cid), data: { abierta: true, cerrada: null }, merge: true });
-  await D.escribirLote(emp, ops);
-  toast('Carga reabierta');
-  renderCargas();
+  cont.innerHTML = h;
 }
+
+// Guías en ruta del día (o de una sola carga) listas para procesar
+function enRutaDelDia(cid) {
+  const lista = [];
+  diaDatos.forEach(({ c, gs }) => {
+    if (cid && c.id !== cid) return;
+    gs.filter(g => g.estado === 'asignada').forEach(g => lista.push({ codigo: g.id, cid: c.id, mid: c.mensajeroId }));
+  });
+  return lista;
+}
+
+function actualizarSel() {
+  const n = $('diaDetalle').querySelectorAll('input[data-sel]:checked').length;
+  const b = $('btnSel');
+  if (b) { b.textContent = `Registrar seleccionadas (${n})`; b.disabled = n === 0; }
+}
+$('diaDetalle').addEventListener('change', e => { if (e.target.matches('input[data-sel]')) actualizarSel(); });
+
+// Cambia el estado de varias guías con transacción (si alguien más la tocó, esa se omite)
+async function moverGuias(lista, esperado, nuevoEstado, tipoEvento, motivo) {
+  const usuario = D.emailActual();
+  let ok = 0, fallo = 0;
+  const tocadas = new Set();
+  for (let i = 0; i < lista.length; i += 15) {
+    await Promise.all(lista.slice(i, i + 15).map(async it => {
+      try {
+        await D.cambiarGuia(emp, it.codigo, {
+          esperado: [esperado],
+          cambios: { estado: nuevoEstado, ultimoMovimiento: ahora() },
+          eventos: [evento(tipoEvento, { de: nombreDe(it.mid), motivo, usuario })]
+        });
+        ok++;
+        tocadas.add(it.cid);
+      } catch (e) { fallo++; }
+    }));
+  }
+  for (const cid of tocadas) await sincronizarCarga(cid);
+  return { ok, fallo };
+}
+
+// Una ruta queda cerrada cuando ya no tiene guías en camino
+async function sincronizarCarga(cid) {
+  const gs = await D.guiasDeCarga(emp, cid);
+  const quedan = gs.filter(g => g.estado === 'asignada').length;
+  await D.guardarCarga(emp, cid, { abierta: quedan > 0, cerrada: quedan ? null : ahora() });
+}
+
+async function ejecutarDia(fn, textoOk) {
+  if (ocupado) return;
+  ocupado = true;
+  try {
+    const { ok, fallo } = await fn();
+    toast(`${textoOk(ok)}${fallo ? ` · ${fallo} no se pudieron cambiar (otra persona las modificó)` : ''}`);
+    await cargarMes();
+    pintarCalendario();
+    await dibujarDia();
+  } catch (e) {
+    toast(errMsg(e));
+  } finally {
+    ocupado = false;
+  }
+}
+
+$('diaDetalle').addEventListener('click', e => {
+  const b = e.target.closest('button[data-acc]');
+  if (!b || b.disabled) return;
+  const acc = b.dataset.acc, cid = b.dataset.cid, id = b.dataset.id;
+  const mid = cid ? (diaDatos.find(x => x.c.id === cid) || { c: {} }).c.mensajeroId : '';
+
+  if (acc === 'uno') {
+    return ejecutarDia(() => moverGuias([{ codigo: id, cid, mid }], 'asignada', 'entregada', 'Entregada', 'Registro de entrega'), () => 'Entrega registrada');
+  }
+  if (acc === 'deshacer') {
+    return ejecutarDia(() => moverGuias([{ codigo: id, cid, mid }], 'entregada', 'asignada', 'Reabierta', 'Entrega deshecha'), () => 'Entrega deshecha, la guía vuelve a ruta');
+  }
+  if (acc === 'sel') {
+    const lista = [...$('diaDetalle').querySelectorAll('input[data-sel]:checked')].map(i => ({
+      codigo: i.dataset.sel, cid: i.dataset.cid,
+      mid: (diaDatos.find(x => x.c.id === i.dataset.cid) || { c: {} }).c.mensajeroId
+    }));
+    return ejecutarDia(() => moverGuias(lista, 'asignada', 'entregada', 'Entregada', 'Registro de entrega'),
+      ok => `${ok} entregada(s); el resto sigue en ruta`);
+  }
+  if (acc === 'selruta') {
+    const cajas = [...$('diaDetalle').querySelectorAll(`input[data-sel][data-cid="${CSS.escape(cid)}"]`)];
+    const todas = cajas.every(c => c.checked);
+    cajas.forEach(c => { c.checked = !todas; });
+    return actualizarSel();
+  }
+  if (acc === 'ruta' || acc === 'dia') {
+    const lista = enRutaDelDia(acc === 'ruta' ? cid : null);
+    if (!lista.length) return toast('No hay guías en ruta');
+    const donde = acc === 'ruta' ? `de ${nombreDe(mid)}` : 'de todas las rutas de este día';
+    if (!confirm(`¿Marcar como entregadas las ${lista.length} guía(s) en ruta ${donde}?`)) return;
+    return ejecutarDia(() => moverGuias(lista, 'asignada', 'entregada', 'Entregada', 'Ruta entregada'), ok => `${ok} entregada(s)`);
+  }
+  if (acc === 'reabrir') {
+    const ent = (diaDatos.find(x => x.c.id === cid) || { gs: [] }).gs.filter(g => g.estado === 'entregada');
+    if (!confirm(`¿Reabrir la ruta? ${ent.length} guía(s) entregadas volverán a ruta.`)) return;
+    return ejecutarDia(() => moverGuias(ent.map(g => ({ codigo: g.id, cid, mid })), 'entregada', 'asignada', 'Reabierta', 'Ruta reabierta'), ok => `${ok} guía(s) vuelven a ruta`);
+  }
+});
 
 /* ============ DEVOLUCIONES ============ */
 async function renderDevoluciones() {

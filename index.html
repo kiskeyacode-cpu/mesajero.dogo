@@ -94,10 +94,43 @@ details{margin:8px 0}summary{cursor:pointer;color:#d7e4ff;padding:4px 0}
 #login form{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:24px;width:min(380px,100%);display:flex;flex-direction:column;gap:12px}
 #toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#d3e3fd;color:#17243a;padding:10px 16px;border-radius:7px;font-size:12px;display:none;z-index:70}
 #toast.visible{display:block}
-#tPanel{position:fixed;inset:0;background:#000b;display:flex;align-items:center;justify-content:center;z-index:40;padding:20px}
-#tPanel .caja{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px;width:min(640px,100%);max-height:80vh;display:flex;flex-direction:column}
-#tPanel .lista{overflow:auto;flex:1;margin:10px 0}
-@media(max-width:900px){.sidebar{display:none}.metrics{grid-template-columns:repeat(2,1fr)}.home-cards{grid-template-columns:1fr}.grid2{grid-template-columns:1fr}}
+/* Limpiador: cuadro en columnas tipo Excel */
+table.xl{border-collapse:collapse;font-family:Consolas,monospace}
+table.xl th,table.xl td{border:1px solid #55585d;padding:5px 10px;font-size:12px}
+table.xl th{background:#33363b;color:var(--text);text-align:center;position:sticky;top:0}
+table.xl th small{display:block;color:var(--muted);font-weight:400}
+table.xl .xl-n{background:#33363b;color:var(--muted);text-align:center;width:36px}
+th.num,td.num{text-align:right}
+tfoot td{font-weight:600}
+/* Calendario de rutas */
+.cal-layout{display:grid;grid-template-columns:340px minmax(0,1fr);gap:18px;align-items:start}
+.cal-head{justify-content:space-between;margin-bottom:10px}
+.cal-head b{text-transform:capitalize;font-size:15px;font-weight:500}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.cal-dow{font-size:11px;color:var(--muted);text-align:center;padding:4px 0}
+.cal-dia{background:transparent;border:1px solid transparent;border-radius:8px;color:var(--text);padding:6px 0 4px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:1px;min-height:46px}
+.cal-dia:hover{background:#343b48}
+.cal-dia small{font-size:10px;color:var(--muted);min-height:12px}
+.cal-dia.vacio{visibility:hidden}
+.cal-dia.abierta{background:#4a4025;border-color:#7a6a2c}
+.cal-dia.cerrada{background:#284737;border-color:#3f7a58}
+.cal-dia.hoy{outline:1px dashed var(--blue)}
+.cal-dia.sel{border-color:var(--blue);box-shadow:0 0 0 2px #8ab4f855}
+.leyenda{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px;font-size:11px;color:var(--muted)}
+.leyenda i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:4px}
+.ruta-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+/* Códigos de barras */
+.bc-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.bc-label{background:#fff;color:#000;border-radius:6px;padding:14px 8px;text-align:center;break-inside:avoid;overflow:hidden}
+.bc-label svg{width:100%;height:auto;max-height:100px}
+.bc-label .tracking{font:700 16px Consolas,monospace;letter-spacing:1px;margin-top:6px;overflow-wrap:anywhere}
+@media print{
+  body *{visibility:hidden}
+  #bcResultados,#bcResultados *{visibility:visible}
+  #bcResultados{position:absolute;left:0;top:0;width:100%;gap:5px}
+  .bc-label{border-radius:0}
+}
+@media(max-width:900px){.cal-layout{grid-template-columns:1fr}.bc-grid{grid-template-columns:1fr}.sidebar{display:none}.metrics{grid-template-columns:repeat(2,1fr)}.home-cards{grid-template-columns:1fr}.grid2{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -144,6 +177,8 @@ details{margin:8px 0}summary{cursor:pointer;color:#d7e4ff;padding:4px 0}
       <div class="nav" data-view="devoluciones">↩ Devoluciones</div>
       <div class="nav" data-view="buscador">⌕ Buscador de guías</div>
       <div class="nav" data-view="mensajeros">♙ Mensajeros</div>
+      <div class="nav" data-view="limpiador">✦ Limpiador de datos</div>
+      <div class="nav" data-view="barras">▮▯ Códigos de barras</div>
       <div class="nav" data-view="config">⚙ Configuración</div>
     </aside>
 
@@ -213,6 +248,7 @@ details{margin:8px 0}summary{cursor:pointer;color:#d7e4ff;padding:4px 0}
           <div class="row">
             <select id="sMod">
               <option value="asignar">Asignar a mensajero (ruta)</option>
+              <option value="entregada">Entregada → registrar entrega</option>
               <option value="devolucion">Devolución de mensajero → oficina</option>
               <option value="fallido">Fallido devolución → almacén principal</option>
             </select>
@@ -242,16 +278,22 @@ details{margin:8px 0}summary{cursor:pointer;color:#d7e4ff;padding:4px 0}
       <!-- CARGAS -->
       <section class="view" id="v-cargas">
         <div class="crumb">Inicio › Cargas y rutas</div>
-        <div class="heading"><h1>Cargas y rutas</h1><div class="subtitle">Terminar ruta te pide marcar cuáles se entregaron. Las que no marques siguen en ruta.</div></div>
-        <div class="row" style="margin-bottom:12px">
-          <label class="small">Desde <input type="date" id="cDesde"></label>
-          <label class="small">Hasta <input type="date" id="cHasta"></label>
-        </div>
-        <div class="panel table-wrap">
-          <table>
-            <thead><tr><th>Fecha</th><th>Mensajero</th><th>Estado</th><th>En ruta</th><th>Entregadas</th><th>Devueltas</th><th>Acciones</th></tr></thead>
-            <tbody id="cTabla"></tbody>
-          </table>
+        <div class="heading"><h1>Cargas y rutas</h1><div class="subtitle">Elige un día del calendario para ver sus rutas. Marca entregas una por una, por selección, por ruta o todas las del día.</div></div>
+        <div class="cal-layout">
+          <div class="panel">
+            <div class="row cal-head">
+              <button class="outline sm" id="calPrev">‹</button>
+              <b id="calTitulo"></b>
+              <button class="outline sm" id="calNext">›</button>
+            </div>
+            <div class="cal-grid" id="calGrid"></div>
+            <div class="leyenda">
+              <span><i style="background:#4a4025"></i>Con guías en ruta</span>
+              <span><i style="background:#284737"></i>Todo cerrado</span>
+              <button class="outline sm" id="calHoy">Ir a hoy</button>
+            </div>
+          </div>
+          <div id="diaDetalle"></div>
         </div>
       </section>
 
@@ -307,6 +349,20 @@ details{margin:8px 0}summary{cursor:pointer;color:#d7e4ff;padding:4px 0}
         </div>
       </section>
 
+      <!-- LIMPIADOR -->
+      <section class="view" id="v-limpiador">
+        <div class="crumb">Inicio › Limpiador de datos</div>
+        <div class="heading"><h1>Limpiador de datos</h1><div class="subtitle">Pega la data de la empresa y obtén los cuadros por mensajero y sus guías.</div></div>
+        <div id="limpiadorCont"></div>
+      </section>
+
+      <!-- CÓDIGOS DE BARRAS -->
+      <section class="view" id="v-barras">
+        <div class="crumb">Inicio › Códigos de barras</div>
+        <div class="heading"><h1>Generador de códigos de barras</h1><div class="subtitle">Code 128. Pega los números de seguimiento, genera e imprime.</div></div>
+        <div id="barrasCont"></div>
+      </section>
+
       <!-- CONFIGURACIÓN -->
       <section class="view" id="v-config">
         <div class="crumb">Inicio › Configuración</div>
@@ -322,18 +378,6 @@ details{margin:8px 0}summary{cursor:pointer;color:#d7e4ff;padding:4px 0}
     </main>
   </div>
 
-  <!-- Terminar ruta: marcar entregadas -->
-  <div id="tPanel" class="oculto">
-    <div class="caja">
-      <h2 id="tTitulo"></h2>
-      <div class="small">Marca las guías que sí se entregaron. Las que no marques siguen en ruta.</div>
-      <div class="lista" id="tLista"></div>
-      <div class="row" style="justify-content:flex-end">
-        <button class="outline" id="tCancelar">Cancelar</button>
-        <button class="primary" id="tConfirmar">Confirmar entregas</button>
-      </div>
-    </div>
-  </div>
 </div>
 
 <div id="toast"></div>

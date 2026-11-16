@@ -15,11 +15,16 @@
 - **Reenviar desde oficina** usa un selector, no escribir el nombre.
 - **Cargas por día:** cada mensajero tiene una carga por fecha.
 
+## Novedades de esta actualización
+
+- **Cargas y rutas con calendario:** los días con rutas se resaltan (amarillo = aún hay guías en ruta, verde = todo cerrado). Al elegir un día se ven todas sus rutas y puedes marcar entregas una por una, por selección, por ruta completa o todas las del día. Las que no marques siguen en ruta y la ruta se cierra sola cuando no queda ninguna. Cada guía entregada tiene botón "Deshacer".
+- **Escáner:** nuevo modo "Entregada" para registrar entregas escaneando.
+- **Limpiador de datos** (J&T e IMILE) con un segundo cuadro en columnas, una por mensajero con sus guías, que se puede copiar a Excel o descargar en CSV.
+- **Códigos de barras** (Code 128) en ambas empresas, con impresión y exportación de la lista.
+- Las entregas del calendario usan transacción por guía: si otra persona la cambió antes, se omite y se avisa.
+
 ## Lo que todavía no está en esta versión
 
-- Calendario y resaltado de días con pedidos nuevos.
-- Generador de códigos de barras.
-- Organizador de J&T por mensajero (ya existe en la versión anterior, se puede portar).
 - Gráfico de zonas más detallado.
 
 ## Configuración (una sola vez)
@@ -30,8 +35,8 @@
 4. **Crear usuarios:** Authentication → Usuarios → Agregar usuario, con correo y contraseña para cada persona autorizada.
 5. **Reglas de seguridad:** Firestore → Reglas. Pega el contenido de `firestore.rules`, cambia la lista de correos por los reales y publica.
 6. **Registrar la app web:** Configuración del proyecto → Tus apps → Web (`</>`). Copia el objeto `firebaseConfig`.
-7. **Pegar la configuración** en `js/config.js`, reemplazando los valores `PEGAR_AQUI`.
-8. **Subir a GitHub Pages:** sube toda la carpeta al repositorio. Abre la URL de Pages.
+7. **Pegar la configuración** en `config.js`, reemplazando los valores `PEGAR_AQUI`.
+8. **Subir a GitHub Pages:** sube todos los archivos (todos en la misma carpeta, sin subcarpeta `js/`) al repositorio. Abre la URL de Pages.
 
 ## Pruebas antes de usarlo con datos reales
 
@@ -40,7 +45,7 @@
 3. Pega las mismas 3 guías otra vez. Deben aparecer como **repetidas**, sin cambios.
 4. En **J&T**, pega una fila de prueba con un mensajero que no existe. Debe aparecer como **pendiente**, decide crearlo y confirma.
 5. En el **escáner**, asigna una guía, luego devuélvela a oficina y luego despáchala como fallido. Revisa el **buscador**: debe mostrar el historial en ese orden.
-6. En **Cargas**, termina una ruta marcando solo algunas guías como entregadas. Las no marcadas deben seguir en ruta.
+6. En **Cargas**, elige un día del calendario y marca solo algunas guías como entregadas. Las no marcadas deben seguir en ruta. Luego usa "Todas entregadas" y verifica que la ruta pase a Cerrada.
 7. Abre la misma app en otra computadora con la otra cuenta. Debe ver los mismos datos.
 8. En **Configuración**, importa tu `base_guias.json` anterior de IMILE o J&T, y revisa que las cifras del panel cuadren con lo que tenías.
 
